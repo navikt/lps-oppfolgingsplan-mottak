@@ -1,3 +1,6 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 group = "no.nav.syfo"
 version = "1.0"
 
@@ -15,8 +18,8 @@ val githubUser: String by project
 val githubPassword: String by project
 
 plugins {
-    kotlin("jvm") version "1.5.31"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.5.31"
+    kotlin("jvm") version "1.8.21"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.8.21"
     id("com.diffplug.gradle.spotless") version "3.18.0"
     id("com.github.johnrengelman.shadow") version "7.1.0"
 }
@@ -71,4 +74,14 @@ dependencies {
 
 configurations.implementation {
     exclude(group = "com.fasterxml.jackson.module", module = "jackson-module-scala_2.13")
+}
+
+tasks {
+    withType<ShadowJar> {
+        manifest.attributes["Main-Class"] = "no.nav.syfo.StartApplicationKt"
+    }
+
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "19"
+    }
 }
