@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.typesafe.config.ConfigFactory
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
-import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
@@ -22,8 +20,6 @@ fun main() {
     val server = embeddedServer(
         Netty,
         applicationEngineEnvironment {
-            config = HoconApplicationConfig(ConfigFactory.load())
-
             connector {
                 port = getEnvVar("APPLICATION_PORT", "8080").toInt()
             }
@@ -32,7 +28,6 @@ fun main() {
                 state.running = true
                 serverModule()
             }
-
         }
     )
 
@@ -42,7 +37,7 @@ fun main() {
         }
     )
 
-    server.start(wait = false)
+    server.start(wait = true)
 }
 
 fun Application.serverModule() {
@@ -56,8 +51,8 @@ fun Application.serverModule() {
     }
 
     routing {
-        registerPrometheusApi()
         registerNaisApi(state)
+        registerPrometheusApi()
     }
 
     state.initialized = true
