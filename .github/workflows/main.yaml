@@ -50,7 +50,7 @@ jobs:
       image: ${{ steps.docker-build-push.outputs.image }}
 
   deploy-dev:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     name: Deploy to dev
     needs: build
     runs-on: ubuntu-latest
@@ -65,7 +65,7 @@ jobs:
           VAR: image=${{ needs.build.outputs.image }}
 
   deploy-prod:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     name: Deploy to prod
     needs: [deploy-dev, build]
     runs-on: ubuntu-latest
