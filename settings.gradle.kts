@@ -1,1 +1,1 @@
-rootProject.name = "lps-oppfolgingsplan-backend"
+rootProject.name = "lps-oppfolgingsplan-mottak"
