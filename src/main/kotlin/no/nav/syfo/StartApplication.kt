@@ -10,23 +10,26 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import io.ktor.server.plugins.contentnegotiation.*
+import no.nav.syfo.api.lps.registerOppfolgingsplanApi
 import no.nav.syfo.api.nais.registerNaisApi
 import no.nav.syfo.api.nais.registerPrometheusApi
+import no.nav.syfo.api.setupAuth
 import java.util.concurrent.TimeUnit
 
 data class ApplicationState(var running: Boolean = false, var initialized: Boolean = false)
 val state: ApplicationState = ApplicationState()
 fun main() {
+    val env = getEnv()
     val server = embeddedServer(
         Netty,
         applicationEngineEnvironment {
             connector {
-                port = getEnvVar("APPLICATION_PORT", "8080").toInt()
+                port = env.application.port
             }
 
             module {
                 state.running = true
-                serverModule()
+                serverModule(env)
             }
         }
     )
@@ -40,7 +43,7 @@ fun main() {
     server.start(wait = true)
 }
 
-fun Application.serverModule() {
+fun Application.serverModule(env: Environment) {
     install(ContentNegotiation) {
         jackson {
             registerKotlinModule()
@@ -50,9 +53,12 @@ fun Application.serverModule() {
         }
     }
 
+    setupAuth(env)
+
     routing {
         registerNaisApi(state)
         registerPrometheusApi()
+        registerOppfolgingsplanApi()
     }
 
     state.initialized = true
