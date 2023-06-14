@@ -4,7 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.application.install
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import no.nav.syfo.Environment
+import no.nav.syfo.environment.Environment
 
 fun Application.setupAuth(
     env: Environment

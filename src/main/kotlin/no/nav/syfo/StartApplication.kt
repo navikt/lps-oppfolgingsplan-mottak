@@ -14,6 +14,8 @@ import no.nav.syfo.api.lps.registerOppfolgingsplanApi
 import no.nav.syfo.api.nais.registerNaisApi
 import no.nav.syfo.api.nais.registerPrometheusApi
 import no.nav.syfo.api.setupAuth
+import no.nav.syfo.environment.Environment
+import no.nav.syfo.environment.getEnv
 import java.util.concurrent.TimeUnit
 
 data class ApplicationState(var running: Boolean = false, var initialized: Boolean = false)
