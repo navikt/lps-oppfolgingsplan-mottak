@@ -8,6 +8,21 @@ metadata:
 spec:
   image: {{ image }}
   port: 8080
+  maskinporten:
+    enabled: true
+    scopes:
+      exposes:
+        - name: "v1.lps.write"
+          enabled: true
+          product: "oppfolgingsplan"
+          allowedIntegrations:
+            - maskinporten
+          atMaxAge: 600
+          consumers:
+            - name: "NAV"
+              orgno: "889640782"
+      consumes:
+        - name: "nav:oppfolgingsplan.v1.lps.write"
   liveness:
     path: /isAlive
     initialDelay: 10
@@ -35,3 +50,10 @@ spec:
     path: /prometheus
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.intern.dev.nav.no"
+  filesFrom:
+    - secret: lps-maskinporten-scopes
+  env:
+    - name: KTOR_ENV
+      value: remote
+    - name: APPLICATION_PORT
+      value: "8080"

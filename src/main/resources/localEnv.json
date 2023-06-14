@@ -1,0 +1,11 @@
+{
+  "application": {
+    "port": "8080"
+  },
+  "auth": {
+    "maskinporten": {
+      "wellKnownUrl": "https://test.maskinporten.no/.well-known/oauth-authorization-server",
+      "scope": "nav_scope"
+    }
+  }
+}

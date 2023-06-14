@@ -13,6 +13,7 @@ val javaxVersion = "2.1.1"
 val logstashEncoderVersion = "7.0.1"
 val jacksonVersion = "2.13.2"
 val jacksonDatabindVersion = "2.13.2.2"
+val javaJwtVersion = "4.4.0"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -50,7 +51,14 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
+
+
+    // Auth
+    implementation("io.ktor:ktor-server-auth:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
+    implementation("com.auth0:java-jwt:$javaJwtVersion")
 
     // API
     implementation("javax.ws.rs:javax.ws.rs-api:$javaxVersion")
