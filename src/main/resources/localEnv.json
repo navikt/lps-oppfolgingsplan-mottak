@@ -4,8 +4,8 @@
   },
   "auth": {
     "maskinporten": {
-      "issuer": "digdir",
-      "wellKnownUrl": "https://test.maskinporten.no/.well-known/oauth-authorization-server"
+      "wellKnownUrl": "https://test.maskinporten.no/.well-known/oauth-authorization-server",
+      "scope": "nav_scope"
     }
   }
 }

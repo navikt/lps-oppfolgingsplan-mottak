@@ -50,3 +50,10 @@ spec:
     path: /prometheus
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.intern.nav.no"
+  filesFrom:
+    - secret: lps-maskinporten-scopes
+  env:
+    - name: KTOR_ENV
+      value: remote
+    - name: APPLICATION_PORT
+      value: "8080"
