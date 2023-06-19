@@ -40,8 +40,16 @@ fun Routing.registerMaskinportenTokenApi(
             )
             val maskinportenResponse: MaskinportenResponse = response.body()
             val maskinPortenAccessToken = maskinportenResponse.access_token
-            val res = maskinPortenAccessToken ?: "ERROR: ${maskinportenResponse.error} || ${maskinportenResponse.error_description}"
-            call.respond(res)
+            maskinPortenAccessToken?.let { token ->
+                call.respond(
+                    status = HttpStatusCode.OK,
+                    message = token
+                )
+            }
+            call.respond(
+                status = HttpStatusCode.InternalServerError,
+                message = errorMsg(maskinportenResponse.error, maskinportenResponse.error_description)
+            )
         }
     }
 }
@@ -93,3 +101,6 @@ private fun setExpirationTimeTwoMinutesAhead(issuedAt: Date): Date {
     calendar.add(Calendar.SECOND, twoMinutesInSeconds)
     return calendar.time
 }
+
+private fun errorMsg(error: String?, description: String?) =
+    "Got error while attempting to exchange JWT-grant for access token: $error --- $description"
