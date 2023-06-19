@@ -1,11 +1,16 @@
 {
   "application": {
-    "port": "8080"
+    "port": "8080",
+    "cluster": "local"
   },
   "auth": {
     "maskinporten": {
       "wellKnownUrl": "https://test.maskinporten.no/.well-known/oauth-authorization-server",
-      "scope": "nav_scope"
+      "issuer": "nav",
+      "scope": "nav_scope",
+      "tokenUrl": "maskinporten.no/token",
+      "clientId": "maskinportenClientId",
+      "clientJwk": "maskinportenClientJwk"
     }
   }
 }
