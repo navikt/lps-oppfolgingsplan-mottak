@@ -7,7 +7,7 @@
     "maskinporten": {
       "wellKnownUrl": "https://test.maskinporten.no/.well-known/oauth-authorization-server",
       "issuer": "nav",
-      "scope": "nav_scope",
+      "scope": "nav:oppfolgingsplan:v1.lps.write",
       "tokenUrl": "maskinporten.no/token",
       "clientId": "maskinportenClientId",
       "clientJwk": "maskinportenClientJwk"
