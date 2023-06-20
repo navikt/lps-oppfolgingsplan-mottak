@@ -11,11 +11,13 @@ import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import io.ktor.server.plugins.contentnegotiation.*
 import no.nav.syfo.api.lps.registerOppfolgingsplanApi
+import no.nav.syfo.api.test.registerMaskinportenTokenApi
 import no.nav.syfo.api.nais.registerNaisApi
 import no.nav.syfo.api.nais.registerPrometheusApi
 import no.nav.syfo.api.setupAuth
 import no.nav.syfo.environment.Environment
 import no.nav.syfo.environment.getEnv
+import no.nav.syfo.environment.isDev
 import java.util.concurrent.TimeUnit
 
 data class ApplicationState(var running: Boolean = false, var initialized: Boolean = false)
@@ -61,6 +63,12 @@ fun Application.serverModule(env: Environment) {
         registerNaisApi(state)
         registerPrometheusApi()
         registerOppfolgingsplanApi()
+    }
+
+    isDev(env) {
+        routing {
+            registerMaskinportenTokenApi(env)
+        }
     }
 
     state.initialized = true

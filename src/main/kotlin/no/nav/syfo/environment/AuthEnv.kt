@@ -5,5 +5,9 @@ data class AuthEnv(
 )
 data class AuthMaskinporten(
     val wellKnownUrl: String,
-    val scope: String
+    val issuer: String,
+    val scope: String,
+    val tokenUrl: String,
+    val clientId: String,
+    val clientJwk: String
 )

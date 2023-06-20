@@ -14,6 +14,7 @@ val logstashEncoderVersion = "7.0.1"
 val jacksonVersion = "2.13.2"
 val jacksonDatabindVersion = "2.13.2.2"
 val javaJwtVersion = "4.4.0"
+val nimbusVersion = "9.31"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -59,6 +60,7 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
     implementation("com.auth0:java-jwt:$javaJwtVersion")
+    implementation("com.nimbusds:nimbus-jose-jwt:$nimbusVersion")
 
     // API
     implementation("javax.ws.rs:javax.ws.rs-api:$javaxVersion")
