@@ -12,6 +12,7 @@ import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -28,28 +29,30 @@ fun Routing.registerMaskinportenTokenApi(
     env: Environment
 ) {
     route("/api/test/token") {
-        get {
-            val jwtGrant = generateJwtGrant(env)
-            val maskinportenTokenUrl = env.auth.maskinporten.tokenUrl
-            val response: HttpResponse = httpClient.submitForm(
-                url = maskinportenTokenUrl,
-                formParameters = parameters {
-                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                    append("assertion", jwtGrant)
+        authenticate("test-token") {
+            get {
+                val jwtGrant = generateJwtGrant(env)
+                val maskinportenTokenUrl = env.auth.maskinporten.tokenUrl
+                val response: HttpResponse = httpClient.submitForm(
+                    url = maskinportenTokenUrl,
+                    formParameters = parameters {
+                        append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                        append("assertion", jwtGrant)
+                    }
+                )
+                val maskinportenResponse: MaskinportenResponse = response.body()
+                val maskinPortenAccessToken = maskinportenResponse.access_token
+                maskinPortenAccessToken?.let { token ->
+                    call.respond(
+                        status = HttpStatusCode.OK,
+                        message = token
+                    )
                 }
-            )
-            val maskinportenResponse: MaskinportenResponse = response.body()
-            val maskinPortenAccessToken = maskinportenResponse.access_token
-            maskinPortenAccessToken?.let { token ->
                 call.respond(
-                    status = HttpStatusCode.OK,
-                    message = token
+                    status = HttpStatusCode.InternalServerError,
+                    message = errorMsg(maskinportenResponse.error, maskinportenResponse.error_description)
                 )
             }
-            call.respond(
-                status = HttpStatusCode.InternalServerError,
-                message = errorMsg(maskinportenResponse.error, maskinportenResponse.error_description)
-            )
         }
     }
 }

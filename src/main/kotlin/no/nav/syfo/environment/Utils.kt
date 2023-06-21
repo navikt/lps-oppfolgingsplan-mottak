@@ -29,6 +29,10 @@ fun getEnv(): Environment {
                 tokenUrl = getEnvVar("MASKINPORTEN_TOKEN_ENDPOINT"),
                 clientId = getEnvVar("MASKINPORTEN_CLIENT_ID"),
                 clientJwk = getEnvVar("MASKINPORTEN_CLIENT_JWK")
+            ),
+            basic = AuthBasic(
+                username = getPropertyFromSecretsFile("username"),
+                password = getPropertyFromSecretsFile("password")
             )
         )
     )
