@@ -51,7 +51,7 @@ spec:
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.nav.no"
   filesFrom:
-    - secret: lps-maskinporten-scopes
+    - secret: lps-oppfolgingsplan-mottak-secrets
   env:
     - name: KTOR_ENV
       value: remote

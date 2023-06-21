@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit
 fun Application.setupAuth(
     env: Environment
 ) {
+    val maskinportenAuth = env.auth.maskinporten
+    val basicAuth = env.auth.basic
+
     install(Authentication) {
         jwt(name = "maskinporten") {
             authHeader {
@@ -29,10 +32,19 @@ fun Application.setupAuth(
                 }
                 return@authHeader HttpAuthHeader.Single("Bearer", it.getToken()!!)
             }
-            verifier(jwkProvider(env.auth.maskinporten.wellKnownUrl), env.auth.maskinporten.issuer)
+            verifier(jwkProvider(maskinportenAuth.wellKnownUrl), maskinportenAuth.issuer)
             validate { credentials ->
-                if (claimsAreValid(credentials, env.auth.maskinporten.issuer, env.auth.maskinporten.scope)) {
+                if (claimsAreValid(credentials, maskinportenAuth.issuer, maskinportenAuth.scope)) {
                     return@validate JWTPrincipal(credentials.payload)
+                }
+                return@validate null
+            }
+        }
+
+        basic("test-token") {
+            validate { credentials ->
+                if (credentials.name == basicAuth.username && credentials.password == basicAuth.password) {
+                    return@validate UserIdPrincipal(credentials.name)
                 }
                 return@validate null
             }
