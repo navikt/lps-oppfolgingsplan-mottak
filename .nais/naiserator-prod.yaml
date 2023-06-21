@@ -50,6 +50,7 @@ spec:
     path: /prometheus
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.nav.no"
+    - "https://lps-oppfolgingsplan-mottak.intern.nav.no"
   filesFrom:
     - secret: lps-oppfolgingsplan-mottak-secrets
   env:
