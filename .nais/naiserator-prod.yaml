@@ -49,7 +49,7 @@ spec:
     enabled: true
     path: /prometheus
   ingresses:
-    - "https://lps-oppfolgingsplan-mottak.intern.nav.no"
+    - "https://lps-oppfolgingsplan-mottak.nav.no"
   filesFrom:
     - secret: lps-maskinporten-scopes
   env:
