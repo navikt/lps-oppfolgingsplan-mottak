@@ -3,12 +3,13 @@ package no.nav.syfo.environment
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.server.application.*
+import no.nav.syfo.exception.MissingRequiredVariableException
 import java.io.File
 
 
-const val localPropertiesPath = "./src/main/resources/localEnv.json"
-const val serviceuserMounthPath = "/var/run/secrets"
-const val devCluster = "dev-gcp"
+const val LOCAL_PROPERTIES_PATH = "./src/main/resources/localEnv.json"
+const val SERVICE_USER_MOUNT_PATH = "/var/run/secrets"
+const val DEV_CLUSTER = "dev-gcp"
 
 val objectMapper = ObjectMapper().registerKotlinModule()
 
@@ -41,14 +42,14 @@ fun getEnv(): Environment {
 fun isLocal(): Boolean = getEnvVar("KTOR_ENV", "local") == "local"
 
 fun getEnvVar(varName: String, defaultValue: String? = null) =
-    System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")
+    System.getenv(varName) ?: defaultValue ?: throw MissingRequiredVariableException(varName)
 
 fun getPropertyFromSecretsFile(name: String) =
-    File("$serviceuserMounthPath/$name").readText()
+    File("$SERVICE_USER_MOUNT_PATH/$name").readText()
 
-fun getLocalEnv() =
-    objectMapper.readValue(File(localPropertiesPath), Environment::class.java)
+fun getLocalEnv(): Environment =
+    objectMapper.readValue(File(LOCAL_PROPERTIES_PATH), Environment::class.java)
 
 fun Application.isDev(env: Environment, codeToRun: () -> Unit) {
-    if (env.application.cluster == devCluster) codeToRun()
+    if (env.application.cluster == DEV_CLUSTER) codeToRun()
 }

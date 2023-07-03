@@ -8,20 +8,23 @@ import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.routing.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.routing.*
 import no.nav.syfo.api.lps.registerOppfolgingsplanApi
-import no.nav.syfo.api.test.registerMaskinportenTokenApi
 import no.nav.syfo.api.nais.registerNaisApi
 import no.nav.syfo.api.nais.registerPrometheusApi
 import no.nav.syfo.api.setupAuth
+import no.nav.syfo.api.test.registerMaskinportenTokenApi
 import no.nav.syfo.environment.Environment
 import no.nav.syfo.environment.getEnv
 import no.nav.syfo.environment.isDev
 import java.util.concurrent.TimeUnit
 
-data class ApplicationState(var running: Boolean = false, var initialized: Boolean = false)
 val state: ApplicationState = ApplicationState()
+const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
+const val SERVER_SHUTDOWN_TIMEOUT = 10L
+
+
 fun main() {
     val env = getEnv()
     val server = embeddedServer(
@@ -40,7 +43,7 @@ fun main() {
 
     Runtime.getRuntime().addShutdownHook(
         Thread {
-            server.stop(10, 10, TimeUnit.SECONDS)
+            server.stop(SERVER_SHUTDOWN_GRACE_PERIOD, SERVER_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)
         }
     )
 
@@ -73,3 +76,5 @@ fun Application.serverModule(env: Environment) {
 
     state.initialized = true
 }
+
+data class ApplicationState(var running: Boolean = false, var initialized: Boolean = false)
