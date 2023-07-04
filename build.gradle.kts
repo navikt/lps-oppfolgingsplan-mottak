@@ -15,6 +15,7 @@ val jacksonVersion = "2.13.2"
 val jacksonDatabindVersion = "2.13.2.2"
 val javaJwtVersion = "4.4.0"
 val nimbusVersion = "9.31"
+val detektVersion = "1.23.0"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -24,6 +25,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen") version "1.8.21"
     id("com.diffplug.gradle.spotless") version "3.18.0"
     id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.0"
 }
 
 allOpen {
@@ -36,7 +38,10 @@ repositories {
 
 configurations.all {
     resolutionStrategy.eachDependency {
-        if (requested.group == "org.scala-lang" && requested.name == "scala-library" && (requested.version == "2.13.3")) {
+        if (requested.group == "org.scala-lang"
+            && requested.name == "scala-library"
+            && (requested.version == "2.13.3")
+        ) {
             useVersion("2.13.9")
             because("fixes critical bug CVE-2022-36944 in 2.13.6")
         }
@@ -80,8 +85,19 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
 }
 
+detekt {
+    toolVersion = detektVersion
+    config.setFrom(file("config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
 configurations.implementation {
     exclude(group = "com.fasterxml.jackson.module", module = "jackson-module-scala_2.13")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_19
+    targetCompatibility = JavaVersion.VERSION_19
 }
 
 tasks {

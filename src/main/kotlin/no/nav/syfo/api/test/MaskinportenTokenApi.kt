@@ -15,14 +15,11 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.util.*
-import io.ktor.util.*
 import no.nav.syfo.api.util.httpClient
 import no.nav.syfo.environment.Environment
-import org.slf4j.LoggerFactory
 import java.util.*
 
-private const val twoMinutesInSeconds = 120
+private const val TWO_MINUTES_IN_SECONDS = 120
 private val httpClient = httpClient()
 
 fun Routing.registerMaskinportenTokenApi(
@@ -82,7 +79,6 @@ private fun rsaSignatureFromKey(key: RSAKey) =
         .type(JOSEObjectType.JWT)
         .build()
 
-@OptIn(InternalAPI::class)
 private fun jwtClaimSet(
     scope: String,
     audience: String,
@@ -98,10 +94,11 @@ private fun jwtClaimSet(
         .build()
 
 }
+
 private fun setExpirationTimeTwoMinutesAhead(issuedAt: Date): Date {
     val calendar = Calendar.getInstance()
     calendar.time = issuedAt
-    calendar.add(Calendar.SECOND, twoMinutesInSeconds)
+    calendar.add(Calendar.SECOND, TWO_MINUTES_IN_SECONDS)
     return calendar.time
 }
 
