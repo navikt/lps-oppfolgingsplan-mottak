@@ -11,6 +11,10 @@
       "tokenUrl": "https://test.maskinporten.no/token",
       "clientId": "maskinportenClientId",
       "clientJwk": "maskinportenClientJwk"
+    },
+    "basic": {
+      "username": "abc",
+      "password": "123"
     }
   }
 }
