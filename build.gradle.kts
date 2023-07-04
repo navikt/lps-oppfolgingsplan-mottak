@@ -112,9 +112,8 @@ kotlin { // Extension for easy setup
     jvmToolchain(17) // Target version of generated JVM bytecode. See 7️⃣
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+java.toolchain {
+    languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks {
