@@ -108,8 +108,8 @@ configurations.implementation {
     exclude(group = "com.fasterxml.jackson.module", module = "jackson-module-scala_2.13")
 }
 
-kotlin { // Extension for easy setup
-    jvmToolchain(17) // Target version of generated JVM bytecode. See 7️⃣
+kotlin {
+    jvmToolchain(17)
 }
 
 java.toolchain {
