@@ -16,5 +16,12 @@
       "username": "abc",
       "password": "123"
     }
+  },
+  "database": {
+    "dbHost": "127.0.0.1",
+    "dbPort": "5432",
+    "dbName": "lps-db",
+    "dbUsername": "lps-user",
+    "dbPassword": "password"
   }
 }
