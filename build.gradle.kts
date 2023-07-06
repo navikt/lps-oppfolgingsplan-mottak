@@ -19,6 +19,9 @@ val kotestVersion = "5.6.2"
 val kotestExtensionsVersion = "2.0.0"
 val kotlinVersion = "1.8.22"
 val mockkVersion = "1.13.5"
+val postgresVersion = "42.6.0"
+val hikariVersion = "5.0.1"
+val flywayVersion = "7.5.2"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -71,6 +74,11 @@ dependencies {
 
     // API
     implementation("javax.ws.rs:javax.ws.rs-api:$javaxVersion")
+
+    // Database
+    implementation("org.postgresql:postgresql:$postgresVersion")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
 
     // Logging
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
