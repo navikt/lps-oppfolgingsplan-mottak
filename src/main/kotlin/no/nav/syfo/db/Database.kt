@@ -6,7 +6,7 @@ import java.sql.Connection
 import no.nav.syfo.environment.DbEnv
 import org.flywaydb.core.Flyway
 
-const val postgresJdbcPrefix = "jdbc:postgresql"
+const val POSTGRES_JDBC_PREFIX = "jdbc:postgresql"
 
 interface DatabaseInterface {
     val connection: Connection
@@ -41,7 +41,7 @@ class Database(val env: DbEnv) : DatabaseInterface {
 }
 
 fun generateJdbcUrlFromEnv(env: DbEnv): String {
-    return "$postgresJdbcPrefix://${env.dbHost}:${env.dbPort}/${env.dbName}"
+    return "$POSTGRES_JDBC_PREFIX://${env.dbHost}:${env.dbPort}/${env.dbName}"
 }
 
 fun DatabaseInterface.grantAccessToIAMUsers() {

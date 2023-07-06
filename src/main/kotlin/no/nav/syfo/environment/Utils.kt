@@ -20,7 +20,7 @@ fun getEnv(): Environment {
     return Environment(
         application = ApplicationEnv(
             port = getEnvVar("APPLICATION_PORT").toInt(),
-            cluster = getEnvVar("NAIS_CLUSTER_NAME")
+            cluster = getEnvVar("NAIS_CLUSTER_NAME"),
         ),
         auth = AuthEnv(
             maskinporten = AuthMaskinporten(
@@ -29,12 +29,19 @@ fun getEnv(): Environment {
                 scope = getEnvVar("MASKINPORTEN_SCOPES"),
                 tokenUrl = getEnvVar("MASKINPORTEN_TOKEN_ENDPOINT"),
                 clientId = getEnvVar("MASKINPORTEN_CLIENT_ID"),
-                clientJwk = getEnvVar("MASKINPORTEN_CLIENT_JWK")
+                clientJwk = getEnvVar("MASKINPORTEN_CLIENT_JWK"),
             ),
             basic = AuthBasic(
                 username = getPropertyFromSecretsFile("username"),
-                password = getPropertyFromSecretsFile("password")
+                password = getPropertyFromSecretsFile("password"),
             )
+        ),
+        database = DbEnv(
+            dbHost = getEnvVar("GCP_DB_HOST", "127.0.0.1"),
+            dbPort = getEnvVar("GCP_DB_PORT", "5432"),
+            dbName = getEnvVar("GCP_DB_DATABASE"),
+            dbUsername = getEnvVar("GCP_DB_USERNAME"),
+            dbPassword = getEnvVar("GCP_DB_PASSWORD"),
         )
     )
 }
