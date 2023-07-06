@@ -45,6 +45,27 @@ spec:
     min: 1
     max: 2
     cpuThresholdPercentage: 90
+  gcp:
+    sqlInstances:
+      - autoBackupHour: 1
+        collation: nb_NO.UTF8
+        databases:
+          - envVarPrefix: GCP_DB
+            name: lps-db
+        diskAutoresize: true
+        diskSize: 10
+        diskType: SSD
+        highAvailability: false
+        insights:
+          enabled: true
+          recordApplicationTags: true
+          recordClientAddress: true
+        maintenance:
+          day: 1
+          hour: 4
+        name: lps-instance
+        tier: db-f1-micro
+        type: POSTGRES_15
   prometheus:
     enabled: true
     path: /prometheus
