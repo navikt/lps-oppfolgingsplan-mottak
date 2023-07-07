@@ -1,9 +1,12 @@
 package no.nav.syfo.db
 
+import com.google.gson.Gson
 import no.nav.syfo.api.lps.OppfolgingsplanDTO
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
+
+val gsonSerializer = Gson()
 
 @Suppress("MagicNumber")
 fun DatabaseInterface.storeLps(oppfolgingsplanDTO: OppfolgingsplanDTO, version: Short) {
@@ -28,6 +31,7 @@ fun DatabaseInterface.storeLps(oppfolgingsplanDTO: OppfolgingsplanDTO, version: 
     val virksomhetsnummer = metadata.virksomhet.virksomhetsnummer
     val mottaker = "${metadata.mottaker}"
     val utfyllingsdato = metadata.utfyllingsdato
+    val content = gsonSerializer.toJson(oppfolgingsplanDTO)
 
     connection.use { connection ->
         connection.prepareStatement(insertStatement).use {
@@ -36,7 +40,7 @@ fun DatabaseInterface.storeLps(oppfolgingsplanDTO: OppfolgingsplanDTO, version: 
             it.setString(3, virksomhetsnummer)
             it.setString(4, mottaker)
             it.setTimestamp(5, Timestamp.valueOf(utfyllingsdato))
-            it.setString(6, "CLOB")
+            it.setString(6, content)
             it.setShort(7, version)
             it.setTimestamp(8, now)
             it.setTimestamp(9, now)

@@ -23,6 +23,7 @@ val postgresVersion = "42.6.0"
 val postgresEmbeddedVersion = "0.13.3"
 val hikariVersion = "5.0.1"
 val flywayVersion = "7.5.2"
+val gsonVersion = "2.10.1"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -94,6 +95,7 @@ dependencies {
 
     // JSON parsing
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("com.google.code.gson:gson:$gsonVersion")
 
     // Testing
     testImplementation(kotlin("test"))
