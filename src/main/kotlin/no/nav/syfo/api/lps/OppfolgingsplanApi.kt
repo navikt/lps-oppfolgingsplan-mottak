@@ -15,9 +15,6 @@ fun Routing.registerOppfolgingsplanApi(
     route("/api/v1/lps/write") {
         val isLocal = isLocal()
         authenticate("maskinporten", optional = isLocal) {
-            get {
-                call.respondText("Called GET /api/v1/lps/write")
-            }
             post {
                 val oppfolgingsplanDTO = call.receive<OppfolgingsplanDTO>()
                 val virksomhetsnavn = oppfolgingsplanDTO.oppfolgingsplanMeta.virksomhet.virksomhetsnavn
