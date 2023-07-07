@@ -6,7 +6,6 @@ import java.time.LocalDateTime
 
 fun gsonSerializer() =
     GsonBuilder()
-        .setPrettyPrinting()
         .registerTypeAdapter(LocalDateTime::class.java,  LocalDateTimeAdapter())
         .create()
 

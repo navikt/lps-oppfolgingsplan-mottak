@@ -31,7 +31,7 @@ fun DatabaseInterface.storeLps(oppfolgingsplanDTO: OppfolgingsplanDTO, version: 
     val virksomhetsnummer = metadata.virksomhet.virksomhetsnummer
     val mottaker = "${metadata.mottaker}"
     val utfyllingsdato = metadata.utfyllingsdato
-    val content = gsonSerializer.toJson(oppfolgingsplanDTO)
+    val content = gsonSerializer.toJson(oppfolgingsplanDTO).trim()
 
     connection.use { connection ->
         connection.prepareStatement(insertStatement).use {
