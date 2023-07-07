@@ -12,11 +12,16 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.testing.*
+import no.nav.syfo.database
+import no.nav.syfo.db.EmbeddedDatabase
 import no.nav.syfo.mockdata.createDefaultOppfolgingsplanDTOMock
 import no.nav.syfo.environment.getEnv
 import no.nav.syfo.serverModule
 
 class OppfolgingsplanApiTest : DescribeSpec({
+    val embeddedDatabase = EmbeddedDatabase()
+
+    afterSpec { embeddedDatabase.stop() }
 
     describe("Retrieval of oppfølgingsplaner") {
         it("Should get a dummy response for POST") {
@@ -24,6 +29,7 @@ class OppfolgingsplanApiTest : DescribeSpec({
                 application {
                     serverModule(getEnv())
                 }
+                database = embeddedDatabase
                 val client = createClient {
                     install(ContentNegotiation) {
                         jackson {
@@ -33,13 +39,15 @@ class OppfolgingsplanApiTest : DescribeSpec({
                         }
                     }
                 }
+                val oppfolgingsplanDTO = createDefaultOppfolgingsplanDTOMock()
                 val response = client.post("/api/v1/lps/write")
                 {
                     contentType(ContentType.Application.Json)
-                    setBody(createDefaultOppfolgingsplanDTOMock())
+                    setBody(oppfolgingsplanDTO)
                 }
+                val virksomhetsnavn = oppfolgingsplanDTO.oppfolgingsplanMeta.virksomhet.virksomhetsnavn
                 response shouldHaveStatus HttpStatusCode.OK
-                response.bodyAsText() shouldContain "Recieved oppfolgingsplan for virksomhet Ørsta Rådhus"
+                response.bodyAsText() shouldContain successText(virksomhetsnavn)
             }
         }
     }

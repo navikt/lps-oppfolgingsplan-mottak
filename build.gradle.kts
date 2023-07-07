@@ -20,6 +20,7 @@ val kotestExtensionsVersion = "2.0.0"
 val kotlinVersion = "1.8.22"
 val mockkVersion = "1.13.5"
 val postgresVersion = "42.6.0"
+val postgresEmbeddedVersion = "0.13.3"
 val hikariVersion = "5.0.1"
 val flywayVersion = "7.5.2"
 
@@ -103,6 +104,7 @@ dependencies {
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-assertions-ktor:$kotestExtensionsVersion")
     testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
 
 }
 
