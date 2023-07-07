@@ -5,9 +5,13 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.db.storeLps
 import no.nav.syfo.environment.isLocal
 
-fun Routing.registerOppfolgingsplanApi() {
+fun Routing.registerOppfolgingsplanApi(
+    database: DatabaseInterface,
+) {
     route("/api/v1/lps/write") {
         val isLocal = isLocal()
         authenticate("maskinporten", optional = isLocal) {
@@ -16,11 +20,13 @@ fun Routing.registerOppfolgingsplanApi() {
             }
             post {
                 val oppfolgingsplanDTO = call.receive<OppfolgingsplanDTO>()
-                call.respondText(
-                    "Recieved oppfolgingsplan for virksomhet " +
-                            oppfolgingsplanDTO.oppfolgingsplanMeta.virksomhet.virksomhetsnavn
-                )
+                val virksomhetsnavn = oppfolgingsplanDTO.oppfolgingsplanMeta.virksomhet.virksomhetsnavn
+                database.storeLps(oppfolgingsplanDTO, 1)
+                call.respondText(successText(virksomhetsnavn))
             }
         }
     }
 }
+
+fun successText(virksomhetsnavn: String) =
+        "Successfully received oppfolgingsplan for virksomhet $virksomhetsnavn"

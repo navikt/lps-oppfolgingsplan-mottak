@@ -70,7 +70,7 @@ fun Application.serverModule(env: Environment) {
     routing {
         registerNaisApi(state)
         registerPrometheusApi()
-        registerOppfolgingsplanApi()
+        registerOppfolgingsplanApi(database)
     }
 
     isDev(env) {

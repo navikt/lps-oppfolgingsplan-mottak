@@ -20,8 +20,10 @@ val kotestExtensionsVersion = "2.0.0"
 val kotlinVersion = "1.8.22"
 val mockkVersion = "1.13.5"
 val postgresVersion = "42.6.0"
+val postgresEmbeddedVersion = "0.13.3"
 val hikariVersion = "5.0.1"
 val flywayVersion = "7.5.2"
+val gsonVersion = "2.10.1"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -93,6 +95,7 @@ dependencies {
 
     // JSON parsing
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    implementation("com.google.code.gson:gson:$gsonVersion")
 
     // Testing
     testImplementation(kotlin("test"))
@@ -103,6 +106,7 @@ dependencies {
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-assertions-ktor:$kotestExtensionsVersion")
     testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
 
 }
 
