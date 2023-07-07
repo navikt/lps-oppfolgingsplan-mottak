@@ -44,6 +44,8 @@ fun DatabaseInterface.storeLps(oppfolgingsplanDTO: OppfolgingsplanDTO, version: 
             it.setShort(7, version)
             it.setTimestamp(8, now)
             it.setTimestamp(9, now)
+            it.executeUpdate()
         }
+        connection.commit()
     }
 }
