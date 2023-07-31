@@ -39,7 +39,8 @@ fun createDefaultOppfolgingsplanDTOMock(): OppfolgingsplanDTO {
         oppfolgingsplanMeta = createOppfolgingsplanMeta(),
         arbeidssituasjon = createArbeidssituasjon(),
         tilrettelegging = createTilrettelegging(),
-        behovForBistand = null,
+        behovForAvklaringMedSykmelder = null,
+        behovForBistandFraNAV = null,
         utfyllendeOpplysninger = null
     )
 }

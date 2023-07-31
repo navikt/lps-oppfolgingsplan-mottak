@@ -76,6 +76,8 @@ dependencies {
 
     // API
     implementation("javax.ws.rs:javax.ws.rs-api:$javaxVersion")
+    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors:$ktorVersion")
 
     // Database
     implementation("org.postgresql:postgresql:$postgresVersion")

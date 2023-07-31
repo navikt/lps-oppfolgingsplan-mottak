@@ -1,0 +1,172 @@
+openapi: "3.0.3"
+info:
+  title: "LPS oppfølgingsplan API"
+  description: "Mottak av oppfølgingsplaner fra LPS-leverandører"
+  version: "0.0.1"
+
+paths:
+  /api/v1/lps/write:
+    post:
+      description: "Send inn oppfølgingsplan til NAV"
+      tags:
+        - Oppfølgingsplan API
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OppfolgingsplanDTO"
+        required: true
+      responses:
+        "200":
+          description: "Success: Oppfølgingsplanen ble sendt inn til NAV"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "401":
+          description: "Unauthorized: Feil med maskinporten-token"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /api/test/token:
+    get:
+      description: "Henter maskinporten-token for testmiljø"
+      tags:
+        - Token for testmiljø
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token fra maskinporten
+    basicAuth:
+      type: http
+      scheme: basic
+      description: "Kun til bruk for test-token"
+
+  schemas:
+    OppfolgingsplanDTO:
+      type: "object"
+      properties:
+        oppfolgingsplanMeta:
+          $ref: "#/components/schemas/OppfolgingsplanMeta"
+        arbeidssituasjon:
+          $ref: "#/components/schemas/Arbeidssituasjon"
+        tilrettelegging:
+          $ref: "#/components/schemas/Tilrettelegging"
+        behovForBistandFraNAV:
+          type: "string"
+          example: "Ja, ønsker hjelp med..."
+        behovForAvklaringMedSykmelder:
+          type: "string"
+          example: "Fastlege må vurdere hvorvidt.."
+        utfyllendeOpplysninger:
+          type: "string"
+          example: "I tillegg ønsker vi å opplyse om.."
+      required:
+        - oppfolgingsplanMeta
+        - arbeidssituasjon
+        - tilrettelegging
+    OppfolgingsplanMeta:
+      type: "object"
+      properties:
+        utfyllingsdato:
+          type: "string"
+          format: "date-time"
+        mottaker:
+          type: "string"
+          enum:
+            - "NAV"
+            - "FASTLEGE"
+            - "NAVOGFASTLEGE"
+        sykmeldtFnr:
+          type: "string"
+          example: "123456789"
+        virksomhet:
+          $ref: "#/components/schemas/Virksomhet"
+      required:
+        - utfyllingsdato
+        - mottaker
+        - sykmeldtFnr
+        - virksomhet
+    Arbeidssituasjon:
+      type: "object"
+      properties:
+        stillingAvdeling:
+          type: "string"
+          example: "Jobber som utvikler i XYZ"
+        ordinaereArbeidsoppgaver:
+          type: "string"
+          example: "Programmering på XYZ sitt kontor, samt noe hjemmekontor"
+        ordinaereArbeidsoppgaverSomIkkeKanUtfoeres:
+          type: "string"
+          example: "Kan ikke lenger bruke vanlig mus og tastatur pga senebetennelse"
+      required:
+        - stillingAvdeling
+        - ordinaereArbeidsoppgaver
+    Tilrettelegging:
+      type: "object"
+      properties:
+        hvaHarBlittForsokt:
+          type: "string"
+          example: "Forsøkte å..."
+        tilretteleggingIDag:
+          type: "string"
+          example: "Har anskaffet ergonomisk mus og tastatur"
+        fremtidigePlaner:
+          type: "string"
+          example: "Vurdere andre typer ergonomisk utstyr for å avlaste armen bedre"
+      required:
+        - tilretteleggingIDag
+    Virksomhet:
+      type: "object"
+      properties:
+        virksomhetsnavn:
+          type: "string"
+          example: "XYZ"
+        virksomhetsnummer:
+          type: "string"
+          example: "99999999"
+        naermesteLederFornavn:
+          type: "string"
+          example: "Leder1"
+        naermesteLederEtternavn:
+          type: "string"
+          example: "Ledesen"
+        telefonNaermesteLeder:
+          type: "string"
+          example: "99999999"
+      required:
+        - virksomhetsnavn
+        - virksomhetsnummer
+        - naermesteLederFornavn
+        - naermesteLederEtternavn
+        - telefonNaermesteLeder
+
+
