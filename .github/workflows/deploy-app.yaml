@@ -1,4 +1,4 @@
-name: Deploy app to dev and prod
+name: Build & Deploy
 on: push
 
 jobs:
