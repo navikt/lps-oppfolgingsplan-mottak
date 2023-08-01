@@ -1,0 +1,9 @@
+name: Deploy app to dev and prod
+on: push
+
+jobs:
+  jar-app:
+    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/jar-app.yaml@main
+    secrets: inherit
+    with:
+      app: lps-oppfolgingsplan-mottak
