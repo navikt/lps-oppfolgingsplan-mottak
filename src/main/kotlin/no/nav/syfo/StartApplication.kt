@@ -4,16 +4,19 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import no.nav.syfo.api.lps.registerOppfolgingsplanApi
 import no.nav.syfo.api.nais.registerNaisApi
 import no.nav.syfo.api.nais.registerPrometheusApi
 import no.nav.syfo.api.setupAuth
+import no.nav.syfo.api.swagger.registerSwaggerApi
 import no.nav.syfo.api.test.registerMaskinportenTokenApi
 import no.nav.syfo.db.Database
 import no.nav.syfo.db.DatabaseInterface
@@ -65,12 +68,18 @@ fun Application.serverModule(env: Environment) {
         }
     }
 
+    install(CORS) {
+        anyHost()
+        allowHeader(HttpHeaders.ContentType)
+    }
+
     setupAuth(env)
 
     routing {
         registerNaisApi(state)
         registerPrometheusApi()
         registerOppfolgingsplanApi(database)
+        registerSwaggerApi()
     }
 
     isDev(env) {

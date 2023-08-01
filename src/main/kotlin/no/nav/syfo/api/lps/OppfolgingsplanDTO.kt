@@ -6,7 +6,8 @@ data class OppfolgingsplanDTO(
     val oppfolgingsplanMeta: OppfolgingsplanMeta,
     val arbeidssituasjon: Arbeidssituasjon,
     val tilrettelegging: Tilrettelegging,
-    val behovForBistand: BehovForBistand?,
+    val behovForBistandFraNAV: String?,
+    val behovForAvklaringMedSykmelder: String?,
     val utfyllendeOpplysninger: String?
 )
 
@@ -15,14 +16,6 @@ data class OppfolgingsplanMeta(
     val mottaker: Mottaker,
     val sykmeldtFnr: String,
     val virksomhet: Virksomhet,
-)
-
-data class Virksomhet(
-    val virksomhetsnavn: String,
-    val virksomhetsnummer: String,
-    val naermesteLederFornavn: String,
-    val naermesteLederEtternavn: String,
-    val telefonNaermesteLeder: String,
 )
 
 data class Arbeidssituasjon(
@@ -37,9 +30,12 @@ data class Tilrettelegging(
     val fremtidigePlaner: String?,
 )
 
-data class BehovForBistand(
-    val behovForBistandFraNAV: String?,
-    val behovForAvklaringMedSykmelder: String?,
+data class Virksomhet(
+    val virksomhetsnavn: String,
+    val virksomhetsnummer: String,
+    val naermesteLederFornavn: String,
+    val naermesteLederEtternavn: String,
+    val telefonNaermesteLeder: String,
 )
 
 enum class Mottaker {
