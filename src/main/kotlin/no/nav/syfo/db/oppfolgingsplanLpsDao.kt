@@ -1,6 +1,6 @@
 package no.nav.syfo.db
 
-import no.nav.syfo.api.lps.OppfolgingsplanDTO
+import no.nav.syfo.api.lps.dto.OppfolgingsplanDTO
 import no.nav.syfo.util.gsonSerializer
 import java.sql.Timestamp
 import java.time.LocalDateTime

@@ -1,6 +1,11 @@
 package no.nav.syfo.mockdata
 
-import no.nav.syfo.api.lps.*
+import no.nav.syfo.api.lps.dto.Arbeidssituasjon
+import no.nav.syfo.api.lps.dto.Mottaker
+import no.nav.syfo.api.lps.dto.OppfolgingsplanDTO
+import no.nav.syfo.api.lps.dto.OppfolgingsplanMeta
+import no.nav.syfo.api.lps.dto.Tilrettelegging
+import no.nav.syfo.api.lps.dto.Virksomhet
 import java.time.LocalDateTime
 
 fun createOppfolgingsplanMeta(): OppfolgingsplanMeta {
