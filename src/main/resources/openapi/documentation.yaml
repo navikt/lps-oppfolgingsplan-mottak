@@ -42,6 +42,8 @@ paths:
       description: "Send inn oppfølgingsplan som PDF til NAV"
       tags:
         - Oppfølgingsplan API
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
