@@ -37,6 +37,36 @@ paths:
             '*/*':
               schema:
                 type: "string"
+  /api/v1/lps/pdfplan:
+    post:
+      description: "Send inn oppfølgingsplan som PDF til NAV"
+      tags:
+        - Oppfølgingsplan API
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OppfolgingsplanPdfDTO"
+        required: true
+      responses:
+        "200":
+          description: "Success: Oppfølgingsplanen ble sendt inn til NAV"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "401":
+          description: "Unauthorized: Feil med maskinporten-token"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+        "500":
+          description: "Internal Server Error"
+          content:
+            '*/*':
+              schema:
+                type: "string"
   /api/test/token:
     get:
       description: "Henter maskinporten-token for testmiljø"
@@ -71,6 +101,16 @@ components:
       description: "Kun til bruk for test-token"
 
   schemas:
+    OppfolgingsplanPdfDTO:
+      type: "object"
+      properties:
+        oppfolgingsplanMeta:
+          $ref: "#/components/schemas/OppfolgingsplanMeta"
+        oppfolgingsplanPdf:
+          type: "array"
+          items:
+            type: "string"
+            format: "byte"
     OppfolgingsplanDTO:
       type: "object"
       properties:
