@@ -6,6 +6,7 @@ External API used by LPS-systems (lønn -og personalsystem) for submitting oppf�
 - Install the [Kotest IDEA plugin](https://plugins.jetbrains.com/plugin/14080-kotest) to enable test-runs in IDEA
 - Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings) to 19
 
+
 ## 🗺️ Documentation
 | Description          | Url                                                           |
 |----------------------|---------------------------------------------------------------|
