@@ -1,5 +1,6 @@
 {
   "application": {
+    "appName": "lps-oppfolgingsplan-mottak",
     "port": "8080",
     "cluster": "local"
   },
@@ -15,6 +16,12 @@
     "basic": {
       "username": "abc",
       "password": "123"
+    },
+    "azuread": {
+      "clientId": "aad_client_id",
+      "clientSecret": "aad_client_secret",
+      "accessTokenUrl": "aad_access_token",
+      "wellKnownUrl": "aad_well_known"
     }
   },
   "database": {
@@ -23,5 +30,25 @@
     "dbName": "lps-db",
     "dbUsername": "lps-user",
     "dbPassword": "password"
+  },
+  "kafka": {
+    "brokerUrl": "<BROKER_HOST>",
+    "schemaRegistry": {
+      "url": "<SCHEMA_REGISTRY_URL>",
+      "username": "usr",
+      "password": "pwd"
+    },
+    "sslConfig": {
+      "truststoreLocation": "path_to_truststore",
+      "keystoreLocation": "path_to_keystore",
+      "credstorePassword": "path_to_credstore"
+    }
+  },
+  "urls": {
+    "pdlUrl": "http://pdl.no",
+    "pdlScope": "pdl_scope",
+    "opPdfGenUrl": "http://oppdfgen.no",
+    "isdialogmeldingUrl": "http://isdialogmelding.io",
+    "isdialogmeldingClientId": "localhost.isdialogmelding"
   }
 }

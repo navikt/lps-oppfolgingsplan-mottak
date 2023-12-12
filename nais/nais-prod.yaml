@@ -72,13 +72,36 @@ spec:
   prometheus:
     enabled: true
     path: /prometheus
+  accessPolicy:
+    outbound:
+      external:
+        - host: pdl-api.prod-fss-pub.nais.io
+        - host: syfooppdfgen.intern.nav.no
+      rules:
+        application: isdialogmelding
+        namespace: teamsykefravr
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.nav.no"
     - "https://lps-oppfolgingsplan-mottak.intern.nav.no"
   filesFrom:
     - secret: lps-oppfolgingsplan-mottak-secrets
+  azure:
+    application:
+      enabled: true
+  kafka:
+    pool: nav-prod
   env:
     - name: KTOR_ENV
       value: remote
     - name: APPLICATION_PORT
       value: "8080"
+    - name: PDL_URL
+      value: https://pdl-api.prod-fss-pub.nais.io/graphql
+    - name: PDL_SCOPE
+      value: api://prod-fss.pdl.pdl-api/.default
+    - name: OP_PDFGEN_URL
+      value: https://syfooppdfgen.intern.dev.nav.no
+    - name: ISDIALOGMELDING_URL
+      value: https://isdialogmelding.intern.nav.no
+    - name: ISDIALOGMELDING_CLIENT_ID
+      value: prod-gcp:teamsykefravr:isdialogmelding

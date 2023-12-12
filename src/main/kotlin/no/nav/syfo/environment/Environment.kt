@@ -4,4 +4,6 @@ data class Environment(
     val application: ApplicationEnv,
     val auth: AuthEnv,
     val database: DbEnv,
+    val kafka: KafkaEnv,
+    val urls: UrlEnv,
 )

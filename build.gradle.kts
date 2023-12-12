@@ -3,14 +3,14 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0"
 
-val ktorVersion = "2.3.2"
+val ktorVersion = "2.3.7"
 val prometheusVersion = "0.15.0"
 val micrometerVersion = "1.8.4"
 val slf4jVersion = "1.7.36"
 val logbackVersion = "1.2.11"
 val javaxVersion = "2.1.1"
 val logstashEncoderVersion = "7.0.1"
-val jacksonVersion = "2.13.2"
+val jacksonVersion = "2.15.3"
 val jacksonDatabindVersion = "2.13.2.2"
 val javaJwtVersion = "4.4.0"
 val nimbusVersion = "9.31"
@@ -24,6 +24,12 @@ val postgresEmbeddedVersion = "0.13.3"
 val hikariVersion = "5.0.1"
 val flywayVersion = "7.5.2"
 val gsonVersion = "2.10.1"
+val kafkaVersion = "3.6.1"
+val altinnKanalSchemasVersion = "2.0.0"
+val avroVersion = "1.11.3"
+val confluentVersion = "7.5.2"
+val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
+val helseXmlVersion = "1.0.4"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -42,6 +48,21 @@ allOpen {
 
 repositories {
     mavenCentral()
+    maven(url = "https://packages.confluent.io/maven/")
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/tjenestespesifikasjoner")
+        credentials {
+            username = githubUser
+            password = githubPassword
+        }
+    }
+    maven {
+        url = uri("https://maven.pkg.github.com/navikt/syfotjenester")
+        credentials {
+            username = githubUser
+            password = githubPassword
+        }
+    }
 }
 
 configurations.all {
@@ -66,7 +87,7 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-
+    implementation("io.ktor:ktor-client-apache-jvm:$ktorVersion")
 
     // Auth
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
@@ -95,9 +116,25 @@ dependencies {
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
     implementation("io.prometheus:simpleclient_pushgateway:$prometheusVersion")
 
-    // JSON parsing
+    // JSON/XML parsing
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
+    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
+
+    // Kafka
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
+    implementation("org.apache.kafka:kafka_2.13:$kafkaVersion") {
+        exclude(group = "log4j")
+    }
+    implementation("no.nav.altinnkanal.avro:altinnkanal-schemas:$altinnKanalSchemasVersion")
+    implementation("org.apache.avro:avro:$avroVersion")
+    implementation("io.confluent:kafka-avro-serializer:$confluentVersion") {
+        exclude(group = "log4j", module = "log4j")
+    }
+    implementation("no.nav.syfotjenester:oppfolgingsplanlps:$syfotjenesterVersion")
+    implementation("no.nav.helse.xml:oppfolgingsplan:$helseXmlVersion")
 
     // Testing
     testImplementation(kotlin("test"))
@@ -109,7 +146,6 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-assertions-ktor:$kotestExtensionsVersion")
     testImplementation("io.mockk:mockk:${mockkVersion}")
     testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
-
 }
 
 detekt {
