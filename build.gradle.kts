@@ -30,6 +30,7 @@ val avroVersion = "1.11.3"
 val confluentVersion = "7.5.2"
 val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
 val helseXmlVersion = "1.0.4"
+val quartzSchedulerVersion = "2.3.2"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -135,6 +136,9 @@ dependencies {
     }
     implementation("no.nav.syfotjenester:oppfolgingsplanlps:$syfotjenesterVersion")
     implementation("no.nav.helse.xml:oppfolgingsplan:$helseXmlVersion")
+
+    // Scheduling
+    implementation("org.quartz-scheduler:quartz:$quartzSchedulerVersion")
 
     // Testing
     testImplementation(kotlin("test"))

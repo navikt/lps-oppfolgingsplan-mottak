@@ -14,4 +14,3 @@ External API used by LPS-systems (l√∏nn -og personalsystem) for submitting oppf√
 | Testing library      | https://kotest.io/                                            |
 | Mocking library      | https://mockk.io/                                             |
 | Static code analysis | https://detekt.dev/                                           |
-

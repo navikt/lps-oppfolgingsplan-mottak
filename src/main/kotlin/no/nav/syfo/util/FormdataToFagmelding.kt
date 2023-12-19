@@ -89,7 +89,7 @@ fun tiltak(
         tilrettelagtArbeidIkkeMulig = it.tilrettelagtArbeidIkkeMulig,
         sykmeldingsprosendIPerioden = it.sykmeldingsprosentIPerioden,
         behovForBistandFraNav = if (
-            listOf<Any>(
+            listOf<Any?>(
                 it.isBistandRaadOgVeiledning,
                 it.bistandRaadOgVeiledningBeskrivelse,
                 it.isBistandDialogMoeteMedNav,

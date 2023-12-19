@@ -119,6 +119,36 @@ class AltinnLPSService(
         }
     }
 
+    fun retryStoreFnr(
+        uuid: UUID,
+        lpsFnr: String,
+    ): Boolean {
+        val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
+        return mostRecentFnr?.let {
+            database.storeFnr(uuid, mostRecentFnr)
+            log.info("Successfully stored fnr on retry attempt for altinn-lps with UUID: $uuid")
+            true
+        } ?: false
+    }
+
+    fun retryStorePdf(
+        uuid: UUID,
+        fnr: String,
+        xml: String,
+    ): Boolean {
+        val skjemainnhold = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(xml).skjemainnhold
+        val lpsPdfModel = mapFormdataToFagmelding(
+            fnr,
+            skjemainnhold,
+        )
+        val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
+        return pdf?.let {
+            database.storePdf(uuid, pdf)
+            log.info("Successfully stored PDF on retry attempt for altinn-lps with UUID: $uuid")
+            true
+        } ?: false
+    }
+
     private fun sendLpsPlanToNav(
         uuid: UUID,
         mostRecentFnr: String,

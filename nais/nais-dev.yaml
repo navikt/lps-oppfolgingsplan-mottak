@@ -94,10 +94,10 @@ spec:
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
     - name: PDL_SCOPE
-      value: api://prod-fss.pdl.pdl-api/.default
+      value: api://dev-fss.pdl.pdl-api/.default
     - name: OP_PDFGEN_URL
-      value: https://syfooppdfgen.intern.nav.no
+      value: https://syfooppdfgen.intern.dev.nav.no
     - name: ISDIALOGMELDING_URL
       value: https://isdialogmelding.intern.dev.nav.no
     - name: ISDIALOGMELDING_CLIENT_ID
-      value: dev-gcp:teamsykefravr:isdialogmelding
+      value: api://dev-gcp.teamsykefravr.isdialogmelding/.default

@@ -20,6 +20,7 @@ import no.nav.syfo.api.nais.registerPrometheusApi
 import no.nav.syfo.api.setupAuth
 import no.nav.syfo.api.swagger.registerSwaggerApi
 import no.nav.syfo.api.test.registerMaskinportenTokenApi
+import no.nav.syfo.api.test.registerPdfApi
 import no.nav.syfo.consumer.azuread.AzureAdTokenConsumer
 import no.nav.syfo.consumer.isdialogmelding.IsdialogmeldingConsumer
 import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
@@ -32,7 +33,9 @@ import no.nav.syfo.environment.getEnv
 import no.nav.syfo.environment.isDev
 import no.nav.syfo.kafka.consumers.altinnkanal.LPSKafkaConsumer
 import no.nav.syfo.kafka.producers.NavLpsProducer
+import no.nav.syfo.scheduling.AltinnLpsScheduler
 import no.nav.syfo.service.AltinnLPSService
+import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -40,7 +43,7 @@ val state: ApplicationState = ApplicationState()
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
 lateinit var database: DatabaseInterface
-val backgroundTasksContext = Executors.newFixedThreadPool(2).asCoroutineDispatcher()
+val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
 
 fun main() {
     val env = getEnv()
@@ -51,7 +54,7 @@ fun main() {
     val isdialogmeldingConsumer = IsdialogmeldingConsumer(env.urls, aadTokenConsumer)
     val pdlConsumer = PdlConsumer(env.urls, aadTokenConsumer)
     val navLpsProducer = NavLpsProducer(env.kafka)
-    val altinnLPSService = AltinnLPSService(
+    val altinnLpsService = AltinnLPSService(
         pdlConsumer,
         opPdfGenConsumer,
         database,
@@ -72,7 +75,11 @@ fun main() {
                 kafkaModule(
                     env,
                     state,
-                    altinnLPSService,
+                    altinnLpsService,
+                )
+                schedulerModule(
+                    database,
+                    altinnLpsService,
                 )
             }
         }
@@ -107,6 +114,7 @@ fun Application.serverModule(env: Environment) {
     routing {
         registerNaisApi(state)
         registerPrometheusApi()
+        registerPdfApi(database)
         registerOppfolgingsplanApi(database)
         registerSwaggerApi()
     }
@@ -132,6 +140,20 @@ fun Application.kafkaModule(
         } finally {
             appState.running = false
         }
+    }
+}
+
+fun Application.schedulerModule(
+    database: DatabaseInterface,
+    altinnLpsService: AltinnLPSService
+) {
+    launch(backgroundTasksContext) {
+        val scheduler = AltinnLpsScheduler(database, altinnLpsService).startScheduler()
+        Runtime.getRuntime().addShutdownHook(
+            Thread {
+                scheduler.shutdown()
+            }
+        )
     }
 }
 

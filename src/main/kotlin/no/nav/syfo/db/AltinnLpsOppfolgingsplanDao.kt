@@ -2,7 +2,6 @@ package no.nav.syfo.db
 
 import no.nav.syfo.db.domain.AltinnLpsOppfolgingsplan
 import java.sql.Timestamp
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -44,18 +43,16 @@ fun DatabaseInterface.storeAltinnLps(altinnOP: AltinnLpsOppfolgingsplan) {
 }
 
 @Suppress("MagicNumber")
-fun DatabaseInterface.storePdf(uuid: UUID, pdfBytes: ByteArray): Int {
+fun DatabaseInterface.storeFnr(uuid: UUID, fnr: String): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
-        SET pdf = ?, last_changed = ?
+        SET fnr = ?, last_changed = ?
         WHERE uuid = ?
     """.trimIndent()
 
     return connection.use { connection ->
-        val pdfBlob = connection.createBlob()
-        pdfBlob.setBytes(1, pdfBytes)
         val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setBlob(1, pdfBlob)
+            it.setString(1, fnr)
             it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
             it.setObject(3, uuid)
             it.executeUpdate()
@@ -66,10 +63,30 @@ fun DatabaseInterface.storePdf(uuid: UUID, pdfBytes: ByteArray): Int {
 }
 
 @Suppress("MagicNumber")
-fun DatabaseInterface.setSendToGpTrue(uuid: UUID) {
+fun DatabaseInterface.storePdf(uuid: UUID, pdfBytes: ByteArray): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
-        SET sent_to = TRUE
+        SET pdf = ?, last_changed = ?
+        WHERE uuid = ?
+    """.trimIndent()
+
+    return connection.use { connection ->
+        val rowsUpdated = connection.prepareStatement(updateStatement).use {
+            it.setBytes(1, pdfBytes)
+            it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+            it.setObject(3, uuid)
+            it.executeUpdate()
+        }
+        connection.commit()
+        rowsUpdated
+    }
+}
+
+@Suppress("MagicNumber")
+fun DatabaseInterface.setSendToGpTrue(uuid: UUID): Int {
+    val updateStatement = """
+        UPDATE ALTINN_LPS
+        SET sent_to_gp = TRUE
         WHERE uuid = ?
     """.trimIndent()
 
@@ -96,5 +113,34 @@ fun DatabaseInterface.getLpsByUuid(lpsUUID: UUID): AltinnLpsOppfolgingsplan {
             it.setObject(1, lpsUUID)
             it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
         }.first()
+    }
+}
+
+fun DatabaseInterface.getLpsWithoutMostRecentFnr(): List<AltinnLpsOppfolgingsplan> {
+    val queryStatement = """
+        SELECT *
+        FROM ALTINN_LPS
+        WHERE fnr is null
+    """.trimIndent()
+
+    return connection.use { connection ->
+        connection.prepareStatement(queryStatement).use {
+            it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
+        }
+    }
+}
+
+fun DatabaseInterface.getLpsWithoutGeneratedPdf(): List<AltinnLpsOppfolgingsplan> {
+    val queryStatement = """
+        SELECT *
+        FROM ALTINN_LPS
+        WHERE fnr is not null
+        AND pdf is null
+    """.trimIndent()
+
+    return connection.use { connection ->
+        connection.prepareStatement(queryStatement).use {
+            it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
+        }
     }
 }

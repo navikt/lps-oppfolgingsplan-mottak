@@ -25,6 +25,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.ProxySelector
 import java.time.Instant
+import javax.ws.rs.BadRequestException
+import javax.ws.rs.InternalServerErrorException
 import kotlin.collections.set
 
 const val TWO_MINUTES_IN_SECONDS = 120L
@@ -82,44 +84,23 @@ class AzureAdTokenConsumer(authEnv: AuthEnv) {
                     ),
                 )
             }
-            if (response.status == HttpStatusCode.OK) {
-                tokenMap[resource] = response.body()
-            } else {
-                log.error("Could not get token from Azure AD: $response")
+            when (response.status) {
+                HttpStatusCode.OK ->
+                    tokenMap[resource] = response.body()
+                HttpStatusCode.BadGateway ->
+                    throw BadRequestException(exceptionErrorMessage("Bad request - $resource"))
+                HttpStatusCode.InternalServerError ->
+                    throw InternalServerErrorException(exceptionErrorMessage("Internal server error - $response"))
+                else ->
+                    throw RuntimeException(exceptionErrorMessage("Exception - $response"))
             }
         }
         return tokenMap[resource]!!.access_token
     }
 
-    suspend fun getOnBehalfOfToken(resource: String, token: String): String? {
-        log.info("Henter nytt obo-token fra Azure AD for scope : $resource")
-
-        val response = httpClientWithProxy.post(aadAccessTokenUrl) {
-            accept(ContentType.Application.Json)
-
-            setBody(
-                FormDataContent(
-                    Parameters.build {
-                        append("client_id", clientId)
-                        append("scope", resource)
-                        append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        append("client_secret", clientSecret)
-                        append("assertion", token)
-                        append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        append("requested_token_use", "on_behalf_of")
-                    },
-                ),
-            )
-        }
-
-        return if (response.status == HttpStatusCode.OK) {
-            response.body<AzureAdAccessToken>().access_token
-        } else {
-            log.error("Could not get obo-token from Azure AD: $response")
-            null
-        }
-    }
+    private fun exceptionErrorMessage(msg: String) = "Could not get token from AzureAD: $msg"
 }
+
 
 @Suppress("ConstructorParameterNaming")
 @JsonIgnoreProperties(ignoreUnknown = true)
