@@ -91,6 +91,8 @@ spec:
       value: remote
     - name: APPLICATION_PORT
       value: "8080"
+    - name: COROUTINE_THREAD_POOL_SIZE
+      value: "4"
     - name: PDL_URL
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
     - name: PDL_SCOPE
@@ -101,3 +103,5 @@ spec:
       value: https://isdialogmelding.intern.dev.nav.no
     - name: ISDIALOGMELDING_CLIENT_ID
       value: api://dev-gcp.teamsykefravr.isdialogmelding/.default
+    - name: SEND_TO_GP_RETRY_THRESHOLD
+      value: "6"

@@ -2,7 +2,8 @@
   "application": {
     "appName": "lps-oppfolgingsplan-mottak",
     "port": "8080",
-    "cluster": "local"
+    "cluster": "local",
+    "coroutineThreadPoolSize": 2
   },
   "auth": {
     "maskinporten": {
@@ -50,5 +51,8 @@
     "opPdfGenUrl": "http://oppdfgen.no",
     "isdialogmeldingUrl": "http://isdialogmelding.io",
     "isdialogmeldingClientId": "localhost.isdialogmelding"
+  },
+  "altinnLps": {
+    "sendToGpRetryThreshold": 6
   }
 }

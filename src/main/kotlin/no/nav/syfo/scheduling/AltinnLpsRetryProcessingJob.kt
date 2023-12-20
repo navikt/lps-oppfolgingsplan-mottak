@@ -10,16 +10,16 @@ import org.slf4j.LoggerFactory
 
 class AltinnLpsRetryProcessingJob: Job {
     private val log = LoggerFactory.getLogger(AltinnLpsRetryProcessingJob::class.qualifiedName)
-    private val jobName = "LPS_PROCESSING_JOB"
+    private val jobName = "RETRY_PROCESSING_JOB"
     private val jobLogPrefix = "[$jobName]:"
     override fun execute(context: JobExecutionContext) {
-        logInfo("Starting job")
+        logInfo("Starting job $jobName")
         val jobDataMap = context.jobDetail.jobDataMap
         val database = jobDataMap[DB_SHORTNAME] as DatabaseInterface
         val altinnLpsService = jobDataMap[LPS_SERVICE_SHORTNAME] as AltinnLPSService
         retryStoreFnrs(database, altinnLpsService)
         retryStorePdfs(database, altinnLpsService)
-        logInfo("Successfully finished job")
+        logInfo("$jobName job successfully finished")
     }
 
     private fun retryStoreFnrs(database: DatabaseInterface, altinnLpsService: AltinnLPSService) {
@@ -34,7 +34,7 @@ class AltinnLpsRetryProcessingJob: Job {
                 successfulRetries++
             }
         }
-        logInfo("$successfulRetries/${successfulRetries} fnrs successfully retried and stored")
+        logInfo("$successfulRetries/${nrLpsWithoutMostRecentFnr} fnrs successfully retried and stored")
     }
 
     private fun retryStorePdfs(

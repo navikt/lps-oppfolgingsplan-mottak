@@ -33,6 +33,7 @@ class AltinnLPSService(
     private val database: DatabaseInterface,
     private val navLpsProducer: NavLpsProducer,
     private val isdialogmeldingConsumer: IsdialogmeldingConsumer,
+    private val sendToGpRetryThreshold: Int,
 ) {
     private val log: Logger = LoggerFactory.getLogger(AltinnLPSService::class.qualifiedName)
     private val xmlMapper: ObjectMapper = XmlMapper(
@@ -149,6 +150,8 @@ class AltinnLPSService(
         } ?: false
     }
 
+    fun sendToGpRetryThreshold() = sendToGpRetryThreshold
+
     private fun sendLpsPlanToNav(
         uuid: UUID,
         mostRecentFnr: String,
@@ -172,12 +175,15 @@ class AltinnLPSService(
         navLpsProducer.sendAltinnLpsToNav(planToSendToNav)
     }
 
-    private fun sendLpsPlanToGeneralPractitioner(
+    fun sendLpsPlanToGeneralPractitioner(
         uuid: UUID,
         lpsFnr: String,
         pdf: ByteArray,
-    ) {
-        isdialogmeldingConsumer.sendPlanToGeneralPractitioner(lpsFnr, pdf)
-        database.setSendToGpTrue(uuid)
+    ): Boolean {
+        val success = isdialogmeldingConsumer.sendPlanToGeneralPractitioner(lpsFnr, pdf)
+        if (success) {
+            database.setSendToGpTrue(uuid)
+        }
+        return success
     }
 }

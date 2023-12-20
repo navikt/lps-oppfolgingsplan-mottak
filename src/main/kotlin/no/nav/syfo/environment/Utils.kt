@@ -13,6 +13,7 @@ const val DEV_CLUSTER = "dev-gcp"
 
 val objectMapper = ObjectMapper().registerKotlinModule()
 
+@Suppress("LongMethod")
 fun getEnv(): Environment {
     if (isLocal()) {
         return getLocalEnv()
@@ -22,6 +23,7 @@ fun getEnv(): Environment {
             appName = getEnvVar("NAIS_APP_NAME"),
             port = getEnvVar("APPLICATION_PORT").toInt(),
             cluster = getEnvVar("NAIS_CLUSTER_NAME"),
+            coroutineThreadPoolSize = getEnvVar("COROUTINE_THREAD_POOL_SIZE").toInt(),
         ),
         auth = AuthEnv(
             maskinporten = AuthMaskinporten(
@@ -69,6 +71,9 @@ fun getEnv(): Environment {
             opPdfGenUrl = getEnvVar("OP_PDFGEN_URL"),
             isdialogmeldingUrl = getEnvVar("ISDIALOGMELDING_URL"),
             isdialogmeldingClientId = getEnvVar("ISDIALOGMELDING_CLIENT_ID"),
+        ),
+        altinnLps = AltinnLpsEnv(
+            sendToGpRetryThreshold = getEnvVar("SEND_TO_GP_RETRY_THRESHOLD").toInt()
         )
     )
 }

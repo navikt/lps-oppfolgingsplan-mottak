@@ -22,7 +22,7 @@ class IsdialogmeldingConsumer(
     fun sendPlanToGeneralPractitioner(
         sykmeldtFnr: String,
         planAsPdf: ByteArray,
-    ) {
+    ): Boolean {
         val requestUrl = "${urls.isdialogmeldingUrl}/$SEND_LPS_PDF_TO_FASTLEGE_PATH"
         val rsOppfoelgingsplan = RSOppfoelgingsplan(sykmeldtFnr, planAsPdf)
 
@@ -43,11 +43,20 @@ class IsdialogmeldingConsumer(
             }
         }
 
-        when (response.status) {
-            HttpStatusCode.OK -> log.info("Successfully sent PDF to fastlege")
-            HttpStatusCode.NotFound -> log.warn("Unable to determine GP, or lacking appropiate" +
-                    "'partnerinformasjon'-data")
-            else -> log.error("Unable to send altinn-LPS to GP (HTTP error code: ${response.status}")
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                log.info("Successfully sent PDF to fastlege")
+                true
+            }
+            HttpStatusCode.NotFound -> {
+                log.warn("Unable to determine GP, or lacking appropiate" +
+                        "'partnerinformasjon'-data")
+                false
+            }
+            else -> {
+                log.error("Unable to send altinn-LPS to GP (HTTP error code: ${response.status}")
+                false
+            }
         }
     }
 

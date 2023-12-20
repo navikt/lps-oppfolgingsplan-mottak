@@ -6,4 +6,5 @@ data class Environment(
     val database: DbEnv,
     val kafka: KafkaEnv,
     val urls: UrlEnv,
+    val altinnLps: AltinnLpsEnv
 )

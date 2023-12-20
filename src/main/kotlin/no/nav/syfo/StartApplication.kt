@@ -35,18 +35,20 @@ import no.nav.syfo.kafka.consumers.altinnkanal.LPSKafkaConsumer
 import no.nav.syfo.kafka.producers.NavLpsProducer
 import no.nav.syfo.scheduling.AltinnLpsScheduler
 import no.nav.syfo.service.AltinnLPSService
-import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 
 val state: ApplicationState = ApplicationState()
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
 lateinit var database: DatabaseInterface
-val backgroundTasksContext = Executors.newFixedThreadPool(4).asCoroutineDispatcher()
 
 fun main() {
     val env = getEnv()
+    val backgroundTasksContext = Executors.newFixedThreadPool(
+        env.application.coroutineThreadPoolSize
+    ).asCoroutineDispatcher()
     database = Database(env.database)
     database.grantAccessToIAMUsers()
     val aadTokenConsumer = AzureAdTokenConsumer(env.auth)
@@ -59,7 +61,8 @@ fun main() {
         opPdfGenConsumer,
         database,
         navLpsProducer,
-        isdialogmeldingConsumer
+        isdialogmeldingConsumer,
+        env.altinnLps.sendToGpRetryThreshold,
     )
 
     val server = embeddedServer(
@@ -75,9 +78,11 @@ fun main() {
                 kafkaModule(
                     env,
                     state,
+                    backgroundTasksContext,
                     altinnLpsService,
                 )
                 schedulerModule(
+                    backgroundTasksContext,
                     database,
                     altinnLpsService,
                 )
@@ -131,6 +136,7 @@ fun Application.serverModule(env: Environment) {
 fun Application.kafkaModule(
     env: Environment,
     appState: ApplicationState,
+    backgroundTasksContext: CoroutineContext,
     altinnLPSService: AltinnLPSService,
 ) {
     launch(backgroundTasksContext) {
@@ -144,6 +150,7 @@ fun Application.kafkaModule(
 }
 
 fun Application.schedulerModule(
+    backgroundTasksContext: CoroutineContext,
     database: DatabaseInterface,
     altinnLpsService: AltinnLPSService
 ) {

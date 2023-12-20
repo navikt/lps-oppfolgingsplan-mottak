@@ -100,6 +100,24 @@ fun DatabaseInterface.setSendToGpTrue(uuid: UUID): Int {
     }
 }
 
+fun DatabaseInterface.updateSendToGpRetryCount(uuid: UUID, prevCount: Int): Int {
+    val updateStatement = """
+        UPDATE ALTINN_LPS
+        SET send_to_gp_retry_count = ?
+        WHERE uuid = ?
+    """.trimIndent()
+
+    return connection.use { connection ->
+        val rowsUpdated = connection.prepareStatement(updateStatement).use {
+            it.setInt(1, prevCount + 1)
+            it.setObject(2, uuid)
+            it.executeUpdate()
+        }
+        connection.commit()
+        rowsUpdated
+    }
+}
+
 @Suppress("MagicNumber")
 fun DatabaseInterface.getLpsByUuid(lpsUUID: UUID): AltinnLpsOppfolgingsplan {
     val queryStatement = """
@@ -140,6 +158,25 @@ fun DatabaseInterface.getLpsWithoutGeneratedPdf(): List<AltinnLpsOppfolgingsplan
 
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
+            it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
+        }
+    }
+}
+
+@Suppress("MagicNumber")
+fun DatabaseInterface.getLpsNotYetSentToGp(retryThreshold: Int): List<AltinnLpsOppfolgingsplan> {
+    val queryStatement = """
+        SELECT *
+        FROM ALTINN_LPS
+        WHERE pdf is not null
+        AND should_send_to_gp
+        AND NOT sent_to_gp 
+        AND send_to_gp_retry_count <= ?
+    """.trimIndent()
+
+    return connection.use { connection ->
+        connection.prepareStatement(queryStatement).use {
+            it.setInt(1, retryThreshold)
             it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
         }
     }

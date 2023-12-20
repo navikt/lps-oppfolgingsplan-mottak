@@ -14,7 +14,7 @@ data class AltinnLpsOppfolgingsplan(
     val shouldSendToNav: Boolean,
     val shouldSendToGp: Boolean,
     val sentToGp: Boolean,
-    val sendToGpRetryCount: Long,
+    val sendToGpRetryCount: Int,
     val originallyCreated: LocalDateTime,
     val created: LocalDateTime,
     val lastChanged: LocalDateTime,
