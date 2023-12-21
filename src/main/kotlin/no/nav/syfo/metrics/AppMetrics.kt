@@ -16,9 +16,7 @@ const val TAG_BISTAND = "bistand"
 const val TAG_DELT = "delt"
 
 val METRIKK_PROSSESERING_VELLYKKET = "${METRICS_NS}_prosessering_av_lps_plan_vellykket"
-val METRIKK_LPS_RETRY = "${METRICS_NS}_lps_plan_retry_created"
-val METRIKK_OLD_FNR = "${METRICS_NS}_lps_plan_old_fnr"
-val METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING = "${METRICS_NS}_lps_plan_delt_etter_feilet_sending"
+val METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING = "${METRICS_NS}_lps_plan_delt_med_fastlege_etter_feilet_sending"
 val METRIKK_DELT_MED_FASTLEGE = "${METRICS_NS}_lps_plan_delt_med_fastlege"
 val METRIKK_LPS_JOURNALFORT_TIL_GOSYS = "${METRICS_NS}_plan_lps_opprettet_journal_gosys"
 val METRIKK_BISTAND_FRA_NAV = "${METRICS_NS}_lps_plan_behov_for_bistand_fra_nav"
@@ -29,14 +27,6 @@ val METRICS_REGISTRY =
 
 val COUNT_METRIKK_PROSSESERING_VELLYKKET: Counter = Counter
     .builder(METRIKK_PROSSESERING_VELLYKKET)
-    .register(METRICS_REGISTRY)
-
-val COUNT_METRIKK_LPS_RETRY: Counter = Counter
-    .builder(METRIKK_LPS_RETRY)
-    .register(METRICS_REGISTRY)
-
-val COUNT_METRIKK_OLD_FNR: Counter = Counter
-    .builder(METRIKK_OLD_FNR)
     .register(METRICS_REGISTRY)
 
 val COUNT_METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING: Counter = Counter
