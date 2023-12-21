@@ -3,6 +3,7 @@ package no.nav.syfo.scheduling
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.getLpsNotYetSentToGp
 import no.nav.syfo.db.updateSendToGpRetryCount
+import no.nav.syfo.metrics.COUNT_METRIKK_PROSSESERING_VELLYKKET
 import no.nav.syfo.service.AltinnLPSService
 import org.quartz.Job
 import org.quartz.JobExecutionContext
@@ -36,6 +37,8 @@ class AltinnLpsRetrySendToGpJob: Job {
             )
             if (!success) {
                 database.updateSendToGpRetryCount(lps.uuid, lps.sendToGpRetryCount)
+            } else {
+                COUNT_METRIKK_PROSSESERING_VELLYKKET.increment()
             }
         }
     }

@@ -102,7 +102,7 @@ spec:
     - name: PDL_SCOPE
       value: api://prod-fss.pdl.pdl-api/.default
     - name: OP_PDFGEN_URL
-      value: https://syfooppdfgen.intern.dev.nav.no
+      value: https://syfooppdfgen.intern.nav.no
     - name: ISDIALOGMELDING_URL
       value: https://isdialogmelding.intern.nav.no
     - name: ISDIALOGMELDING_CLIENT_ID

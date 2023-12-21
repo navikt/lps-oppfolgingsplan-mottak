@@ -6,6 +6,7 @@ import no.nav.syfo.environment.KafkaEnv
 import no.nav.syfo.kafka.ALTINNKANAL_TOPIC
 import no.nav.syfo.kafka.consumerProperties
 import no.nav.syfo.kafka.pollDurationInMillis
+import no.nav.syfo.metrics.COUNT_METRIKK_PROSSESERING_VELLYKKET
 import no.nav.syfo.service.AltinnLPSService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -34,6 +35,7 @@ class LPSKafkaConsumer(
                     val storedLpsUuid = receiveAndPersistLpsFromAltinn(record)
                     kafkaListener.commitSync()
                     altinnLPSService.processLpsPlan(storedLpsUuid)
+                    COUNT_METRIKK_PROSSESERING_VELLYKKET.increment()
                 } catch (e: Exception) {
                     log.error("Error encountered while processing LPS from altinn-kanal-2: ${e.message}", e)
                 }

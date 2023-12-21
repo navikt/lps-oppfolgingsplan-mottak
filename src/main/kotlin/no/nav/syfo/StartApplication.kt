@@ -20,7 +20,6 @@ import no.nav.syfo.api.nais.registerPrometheusApi
 import no.nav.syfo.api.setupAuth
 import no.nav.syfo.api.swagger.registerSwaggerApi
 import no.nav.syfo.api.test.registerMaskinportenTokenApi
-import no.nav.syfo.api.test.registerPdfApi
 import no.nav.syfo.consumer.azuread.AzureAdTokenConsumer
 import no.nav.syfo.consumer.isdialogmelding.IsdialogmeldingConsumer
 import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
@@ -119,7 +118,6 @@ fun Application.serverModule(env: Environment) {
     routing {
         registerNaisApi(state)
         registerPrometheusApi()
-        registerPdfApi(database)
         registerOppfolgingsplanApi(database)
         registerSwaggerApi()
     }

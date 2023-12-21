@@ -15,12 +15,11 @@ const val METRICS_NS = "lps_oppfolgingsplan_mottak"
 const val TAG_BISTAND = "bistand"
 const val TAG_DELT = "delt"
 
-
 val METRIKK_PROSSESERING_VELLYKKET = "${METRICS_NS}_prosessering_av_lps_plan_vellykket"
 val METRIKK_LPS_RETRY = "${METRICS_NS}_lps_plan_retry_created"
 val METRIKK_OLD_FNR = "${METRICS_NS}_lps_plan_old_fnr"
 val METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING = "${METRICS_NS}_lps_plan_delt_etter_feilet_sending"
-val METRIKK_DELT_MED_FASTLEGE = "${METRICS_NS}_lps_plan_delt"
+val METRIKK_DELT_MED_FASTLEGE = "${METRICS_NS}_lps_plan_delt_med_fastlege"
 val METRIKK_LPS_JOURNALFORT_TIL_GOSYS = "${METRICS_NS}_plan_lps_opprettet_journal_gosys"
 val METRIKK_BISTAND_FRA_NAV = "${METRICS_NS}_lps_plan_behov_for_bistand_fra_nav"
 val METRIKK_DELT_MED_NAV = "${METRICS_NS}_lps_plan_delt_med_nav"
