@@ -86,6 +86,7 @@ spec:
       enabled: true
   kafka:
     pool: nav-dev
+  leaderElection: true
   env:
     - name: KTOR_ENV
       value: remote

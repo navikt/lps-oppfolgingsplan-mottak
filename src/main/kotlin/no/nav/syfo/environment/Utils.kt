@@ -24,6 +24,7 @@ fun getEnv(): Environment {
             port = getEnvVar("APPLICATION_PORT").toInt(),
             cluster = getEnvVar("NAIS_CLUSTER_NAME"),
             coroutineThreadPoolSize = getEnvVar("COROUTINE_THREAD_POOL_SIZE").toInt(),
+            electorPath = getEnvVar("ELECTOR_PATH")
         ),
         auth = AuthEnv(
             maskinporten = AuthMaskinporten(

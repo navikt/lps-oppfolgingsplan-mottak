@@ -3,7 +3,8 @@
     "appName": "lps-oppfolgingsplan-mottak",
     "port": "8080",
     "cluster": "local",
-    "coroutineThreadPoolSize": 2
+    "coroutineThreadPoolSize": 2,
+    "electorPath": "http://localhost"
   },
   "auth": {
     "maskinporten": {

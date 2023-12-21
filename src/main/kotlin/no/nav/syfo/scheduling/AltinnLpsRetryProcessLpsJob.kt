@@ -4,6 +4,7 @@ import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.getLpsWithoutGeneratedPdf
 import no.nav.syfo.db.getLpsWithoutMostRecentFnr
 import no.nav.syfo.service.AltinnLPSService
+import no.nav.syfo.util.LeaderElection
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.slf4j.LoggerFactory
@@ -13,13 +14,17 @@ class AltinnLpsRetryProcessLpsJob: Job {
     private val jobName = "RETRY_PROCESS_LPS_JOB"
     private val jobLogPrefix = "[$jobName]:"
     override fun execute(context: JobExecutionContext) {
-        logInfo("Starting job $jobName")
+
         val jobDataMap = context.jobDetail.jobDataMap
         val database = jobDataMap[DB_SHORTNAME] as DatabaseInterface
         val altinnLpsService = jobDataMap[LPS_SERVICE_SHORTNAME] as AltinnLPSService
-        retryStoreFnrs(database, altinnLpsService)
-        retryStorePdfs(database, altinnLpsService)
-        logInfo("$jobName job successfully finished")
+        val leaderElection = jobDataMap[LEADER_ELECTION_SHORTNAME] as LeaderElection
+        if (leaderElection.thisPodIsLeader()) {
+            logInfo("Starting job $jobName")
+            retryStoreFnrs(database, altinnLpsService)
+            retryStorePdfs(database, altinnLpsService)
+            logInfo("$jobName job successfully finished")
+        }
     }
 
     private fun retryStoreFnrs(database: DatabaseInterface, altinnLpsService: AltinnLPSService) {

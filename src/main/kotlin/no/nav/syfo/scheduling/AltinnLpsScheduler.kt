@@ -2,6 +2,7 @@ package no.nav.syfo.scheduling
 
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.service.AltinnLPSService
+import no.nav.syfo.util.LeaderElection
 import org.quartz.JobBuilder.newJob
 import org.quartz.JobDetail
 import org.quartz.Scheduler
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory
 class AltinnLpsScheduler(
     private val database: DatabaseInterface,
     private val altinnLpsService: AltinnLPSService,
+    private val leaderElection: LeaderElection,
 ) {
     private val log = LoggerFactory.getLogger(AltinnLpsScheduler::class.qualifiedName)
 
@@ -41,6 +43,7 @@ class AltinnLpsScheduler(
             .build()
         lpsRetryProcessLpsJob.jobDataMap[DB_SHORTNAME] = database
         lpsRetryProcessLpsJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
+        lpsRetryProcessLpsJob.jobDataMap[LEADER_ELECTION_SHORTNAME] = leaderElection
         val lpsRetryProcessLpsTrigger = newTrigger()
             .withIdentity(LPS_RETRY_PROCESS_LPS_TRIGGER, LPS_RETRY_GROUP)
             .startNow()
@@ -57,6 +60,7 @@ class AltinnLpsScheduler(
             .build()
         lpsRetryForwardLpsJob.jobDataMap[DB_SHORTNAME] = database
         lpsRetryForwardLpsJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
+        lpsRetryForwardLpsJob.jobDataMap[LEADER_ELECTION_SHORTNAME] = leaderElection
         val lpsRetryForwardLpsTrigger = newTrigger()
             .withIdentity(LPS_RETRY_FORWARD_LPS_TRIGGER, LPS_RETRY_GROUP)
             .startNow()

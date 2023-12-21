@@ -34,6 +34,7 @@ import no.nav.syfo.kafka.consumers.altinnkanal.LPSKafkaConsumer
 import no.nav.syfo.kafka.producers.NavLpsProducer
 import no.nav.syfo.scheduling.AltinnLpsScheduler
 import no.nav.syfo.service.AltinnLPSService
+import no.nav.syfo.util.LeaderElection
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
@@ -75,15 +76,16 @@ fun main() {
                 state.running = true
                 serverModule(env)
                 kafkaModule(
-                    env,
                     state,
                     backgroundTasksContext,
                     altinnLpsService,
+                    env,
                 )
                 schedulerModule(
                     backgroundTasksContext,
                     database,
                     altinnLpsService,
+                    env,
                 )
             }
         }
@@ -132,10 +134,10 @@ fun Application.serverModule(env: Environment) {
 }
 
 fun Application.kafkaModule(
-    env: Environment,
     appState: ApplicationState,
     backgroundTasksContext: CoroutineContext,
     altinnLPSService: AltinnLPSService,
+    env: Environment,
 ) {
     launch(backgroundTasksContext) {
         try {
@@ -150,10 +152,17 @@ fun Application.kafkaModule(
 fun Application.schedulerModule(
     backgroundTasksContext: CoroutineContext,
     database: DatabaseInterface,
-    altinnLpsService: AltinnLPSService
+    altinnLpsService: AltinnLPSService,
+    env: Environment,
 ) {
+    val leaderElection = LeaderElection(env.application)
+
     launch(backgroundTasksContext) {
-        val scheduler = AltinnLpsScheduler(database, altinnLpsService).startScheduler()
+        val scheduler = AltinnLpsScheduler(
+                database,
+                altinnLpsService,
+                leaderElection
+        ).startScheduler()
         Runtime.getRuntime().addShutdownHook(
             Thread {
                 scheduler.shutdown()

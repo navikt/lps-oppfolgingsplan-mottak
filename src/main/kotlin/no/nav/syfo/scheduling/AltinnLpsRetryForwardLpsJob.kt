@@ -12,6 +12,7 @@ import no.nav.syfo.metrics.COUNT_METRIKK_PROSSESERING_VELLYKKET
 import no.nav.syfo.service.AltinnLPSService
 import no.nav.syfo.service.domain.isBehovForBistandFraNAV
 import no.nav.syfo.service.xmlMapper
+import no.nav.syfo.util.LeaderElection
 import no.nav.syfo.util.mapFormdataToFagmelding
 import org.quartz.Job
 import org.quartz.JobExecutionContext
@@ -23,12 +24,15 @@ class AltinnLpsRetryForwardLpsJob: Job {
     private val jobLogPrefix = "[$jobName]:"
 
     override fun execute(context: JobExecutionContext) {
-        logInfo("Starting job $jobName")
         val jobDataMap = context.jobDetail.jobDataMap
         val database = jobDataMap[DB_SHORTNAME] as DatabaseInterface
         val altinnLpsService = jobDataMap[LPS_SERVICE_SHORTNAME] as AltinnLPSService
-        retryForwardAltinnLps(database, altinnLpsService)
-        logInfo("$jobName job successfully finished")
+        val leaderElection = jobDataMap[LEADER_ELECTION_SHORTNAME] as LeaderElection
+        if (leaderElection.thisPodIsLeader()) {
+            logInfo("Starting job $jobName")
+            retryForwardAltinnLps(database, altinnLpsService)
+            logInfo("$jobName job successfully finished")
+        }
     }
 
     private fun retryForwardAltinnLps(
