@@ -81,14 +81,15 @@ fun DatabaseInterface.storePdf(uuid: UUID, pdfBytes: ByteArray): Int {
 fun DatabaseInterface.storeJournalpostId(uuid: UUID, journalpostId: String): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
-        SET journalpost_id = ?
+        SET journalpost_id = ?, last_changed = ?
         WHERE uuid = ?
     """.trimIndent()
 
     return connection.use { connection ->
         val rowsUpdated = connection.prepareStatement(updateStatement).use {
             it.setString(1, journalpostId)
-            it.setObject(2, uuid)
+            it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+            it.setObject(3, uuid)
             it.executeUpdate()
         }
         connection.commit()
@@ -99,13 +100,14 @@ fun DatabaseInterface.storeJournalpostId(uuid: UUID, journalpostId: String): Int
 fun DatabaseInterface.setSentToNavTrue(uuid: UUID): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
-        SET sent_to_nav = TRUE
+        SET sent_to_nav = TRUE, last_changed = ?
         WHERE uuid = ?
     """.trimIndent()
 
     return connection.use { connection ->
         val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setObject(1, uuid)
+            it.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()))
+            it.setObject(2, uuid)
             it.executeUpdate()
         }
         connection.commit()
@@ -116,13 +118,14 @@ fun DatabaseInterface.setSentToNavTrue(uuid: UUID): Int {
 fun DatabaseInterface.setSentToGpTrue(uuid: UUID): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
-        SET sent_to_gp = TRUE
+        SET sent_to_gp = TRUE, last_changed = ?
         WHERE uuid = ?
     """.trimIndent()
 
     return connection.use { connection ->
         val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setObject(1, uuid)
+            it.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()))
+            it.setObject(2, uuid)
             it.executeUpdate()
         }
         connection.commit()
@@ -133,14 +136,15 @@ fun DatabaseInterface.setSentToGpTrue(uuid: UUID): Int {
 fun DatabaseInterface.updateSendToGpRetryCount(uuid: UUID, prevCount: Int): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
-        SET send_to_gp_retry_count = ?
+        SET send_to_gp_retry_count = ?, last_changed = ?
         WHERE uuid = ?
     """.trimIndent()
 
     return connection.use { connection ->
         val rowsUpdated = connection.prepareStatement(updateStatement).use {
             it.setInt(1, prevCount + 1)
-            it.setObject(2, uuid)
+            it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+            it.setObject(3, uuid)
             it.executeUpdate()
         }
         connection.commit()

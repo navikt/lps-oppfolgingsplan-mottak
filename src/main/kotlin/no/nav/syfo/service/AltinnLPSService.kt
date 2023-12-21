@@ -165,14 +165,13 @@ class AltinnLPSService(
             hasBehovForBistand,
             todayInEpoch
         )
-
+        navLpsProducer.sendAltinnLpsToNav(planToSendToNav)
+        database.setSentToNavTrue(uuid)
         if (hasBehovForBistand) {
             COUNT_METRIKK_BISTAND_FRA_NAV_TRUE.increment()
         } else {
             COUNT_METRIKK_BISTAND_FRA_NAV_FALSE.increment()
         }
-        navLpsProducer.sendAltinnLpsToNav(planToSendToNav)
-        database.setSentToNavTrue(uuid)
     }
 
     fun sendLpsPlanToGeneralPractitioner(
