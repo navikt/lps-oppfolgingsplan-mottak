@@ -36,13 +36,6 @@ class AltinnLPSService(
     private val sendToGpRetryThreshold: Int,
 ) {
     private val log: Logger = LoggerFactory.getLogger(AltinnLPSService::class.qualifiedName)
-    private val xmlMapper: ObjectMapper = XmlMapper(
-        JacksonXmlModule().apply {
-            setDefaultUseWrapper(false)
-        },
-    ).registerModule(JaxbAnnotationModule())
-        .registerKotlinModule()
-        .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
 
     fun persistLpsPlan(
         archiveReference: String,
@@ -158,7 +151,7 @@ class AltinnLPSService(
 
     fun sendToGpRetryThreshold() = sendToGpRetryThreshold
 
-    private fun sendLpsPlanToNav(
+    fun sendLpsPlanToNav(
         uuid: UUID,
         mostRecentFnr: String,
         orgnummer: String,

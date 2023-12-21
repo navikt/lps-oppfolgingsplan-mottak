@@ -23,10 +23,10 @@ class AltinnLpsScheduler(
         log.info("[SCHEDULER]: Started scheduler")
         try {
             scheduler.start()
-            val lpsRetryProcessingJob = generateLpsRetryProcessingJob()
-            val lpsRetrySendToGpJob = generateLpsRetrySendToGpJob()
-            scheduler.scheduleJob(lpsRetryProcessingJob.first, lpsRetryProcessingJob.second)
-            scheduler.scheduleJob(lpsRetrySendToGpJob.first, lpsRetrySendToGpJob.second)
+            val lpsRetryProcessLpsJob = generateLpsRetryProcessLpsJob()
+            val lpsRetryForwardLpsJob = generateLpsRetryForwardLpsJob()
+            scheduler.scheduleJob(lpsRetryProcessLpsJob.first, lpsRetryProcessLpsJob.second)
+            scheduler.scheduleJob(lpsRetryForwardLpsJob.first, lpsRetryForwardLpsJob.second)
             return scheduler
         } catch (e: SchedulerException) {
             log.error("[SCHEDULER]: SchedulerException encounter while running job ${e.message}", e)
@@ -35,47 +35,47 @@ class AltinnLpsScheduler(
         }
     }
 
-    fun generateLpsRetryProcessingJob(): Pair<JobDetail, SimpleTrigger> {
-        val lpsRetryProcessingJob = newJob(AltinnLpsRetryProcessingJob::class.java)
-            .withIdentity(LPS_RETRY_PROCESSING_JOB, LPS_RETRY_GROUP)
+    fun generateLpsRetryProcessLpsJob(): Pair<JobDetail, SimpleTrigger> {
+        val lpsRetryProcessLpsJob = newJob(AltinnLpsRetryProcessLpsJob::class.java)
+            .withIdentity(LPS_RETRY_PROCESS_LPS_JOB, LPS_RETRY_GROUP)
             .build()
-        lpsRetryProcessingJob.jobDataMap[DB_SHORTNAME] = database
-        lpsRetryProcessingJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
-        val lpsRetryProcessingTrigger = newTrigger()
-            .withIdentity(LPS_RETRY_PROCESSING_TRIGGER, LPS_RETRY_GROUP)
+        lpsRetryProcessLpsJob.jobDataMap[DB_SHORTNAME] = database
+        lpsRetryProcessLpsJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
+        val lpsRetryProcessLpsTrigger = newTrigger()
+            .withIdentity(LPS_RETRY_PROCESS_LPS_TRIGGER, LPS_RETRY_GROUP)
             .startNow()
             .withSchedule(simpleSchedule()
-                .withIntervalInMinutes(LPS_RETRY_PROCESSING_INTERVAL_MINUTES)
+                .withIntervalInMinutes(LPS_RETRY_PROCESS_LPS_INTERVAL_MINUTES)
                 .repeatForever())
             .build()
-        return Pair(lpsRetryProcessingJob, lpsRetryProcessingTrigger)
+        return Pair(lpsRetryProcessLpsJob, lpsRetryProcessLpsTrigger)
     }
 
-    fun generateLpsRetrySendToGpJob(): Pair<JobDetail, SimpleTrigger> {
-        val lpsRetrySendToGpJob = newJob(AltinnLpsRetrySendToGpJob::class.java)
-            .withIdentity(LPS_RETRY_SEND_TO_GP_JOB, LPS_RETRY_GROUP)
+    fun generateLpsRetryForwardLpsJob(): Pair<JobDetail, SimpleTrigger> {
+        val lpsRetryForwardLpsJob = newJob(AltinnLpsRetryForwardLpsJob::class.java)
+            .withIdentity(LPS_RETRY_FORWARD_LPS_JOB, LPS_RETRY_GROUP)
             .build()
-        lpsRetrySendToGpJob.jobDataMap[DB_SHORTNAME] = database
-        lpsRetrySendToGpJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
-        val lpsRetrySendToGpTrigger = newTrigger()
-            .withIdentity(LPS_RETRY_SEND_TO_GP_TRIGGER, LPS_RETRY_GROUP)
+        lpsRetryForwardLpsJob.jobDataMap[DB_SHORTNAME] = database
+        lpsRetryForwardLpsJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
+        val lpsRetryForwardLpsTrigger = newTrigger()
+            .withIdentity(LPS_RETRY_FORWARD_LPS_TRIGGER, LPS_RETRY_GROUP)
             .startNow()
             .withSchedule(simpleSchedule()
-                .withIntervalInMinutes(LPS_RETRY_SEND_TO_GP_INTERVAL_MINUTES)
+                .withIntervalInMinutes(LPS_RETRY_FORWARD_LPS_INTERVAL_MINUTES)
                 .repeatForever())
             .build()
-        return Pair(lpsRetrySendToGpJob, lpsRetrySendToGpTrigger)
+        return Pair(lpsRetryForwardLpsJob, lpsRetryForwardLpsTrigger)
     }
 
     companion object {
         const val LPS_RETRY_GROUP = "lpsRetryGroup"
 
-        const val LPS_RETRY_PROCESSING_TRIGGER = "lpsRetryProcessingTrigger"
-        const val LPS_RETRY_PROCESSING_JOB = "lpsRetryProcessingJob"
-        const val LPS_RETRY_PROCESSING_INTERVAL_MINUTES = 5
+        const val LPS_RETRY_PROCESS_LPS_TRIGGER = "lpsRetryProcessLpsTrigger"
+        const val LPS_RETRY_PROCESS_LPS_JOB = "lpsRetryProcessLpsJob"
+        const val LPS_RETRY_PROCESS_LPS_INTERVAL_MINUTES = 5
 
-        const val LPS_RETRY_SEND_TO_GP_TRIGGER = "lpsRetrySendToGpTrigger"
-        const val LPS_RETRY_SEND_TO_GP_JOB = "lpsRetrySendToGpJob"
-        const val LPS_RETRY_SEND_TO_GP_INTERVAL_MINUTES = 10
+        const val LPS_RETRY_FORWARD_LPS_TRIGGER = "lpsRetryForwardLpsTrigger"
+        const val LPS_RETRY_FORWARD_LPS_JOB = "lpsRetryForwardLpsJob"
+        const val LPS_RETRY_FORWARD_LPS_INTERVAL_MINUTES = 10
     }
 }

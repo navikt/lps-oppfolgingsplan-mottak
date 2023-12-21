@@ -8,9 +8,9 @@ import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.slf4j.LoggerFactory
 
-class AltinnLpsRetryProcessingJob: Job {
-    private val log = LoggerFactory.getLogger(AltinnLpsRetryProcessingJob::class.qualifiedName)
-    private val jobName = "RETRY_PROCESSING_JOB"
+class AltinnLpsRetryProcessLpsJob: Job {
+    private val log = LoggerFactory.getLogger(AltinnLpsRetryProcessLpsJob::class.qualifiedName)
+    private val jobName = "RETRY_PROCESS_LPS_JOB"
     private val jobLogPrefix = "[$jobName]:"
     override fun execute(context: JobExecutionContext) {
         logInfo("Starting job $jobName")

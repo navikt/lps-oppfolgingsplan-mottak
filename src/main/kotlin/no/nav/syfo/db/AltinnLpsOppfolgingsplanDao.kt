@@ -192,6 +192,23 @@ fun DatabaseInterface.getLpsWithoutGeneratedPdf(): List<AltinnLpsOppfolgingsplan
     }
 }
 
+
+fun DatabaseInterface.getLpsNotYetSentToNav(): List<AltinnLpsOppfolgingsplan> {
+    val queryStatement = """
+        SELECT *
+        FROM ALTINN_LPS
+        WHERE pdf is not null
+        AND should_send_to_nav
+        AND NOT sent_to_nav
+    """.trimIndent()
+
+    return connection.use { connection ->
+        connection.prepareStatement(queryStatement).use {
+            it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
+        }
+    }
+}
+
 fun DatabaseInterface.getLpsNotYetSentToGp(retryThreshold: Int): List<AltinnLpsOppfolgingsplan> {
     val queryStatement = """
         SELECT *
