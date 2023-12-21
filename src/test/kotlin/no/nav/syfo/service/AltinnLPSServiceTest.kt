@@ -63,6 +63,7 @@ class AltinnLPSServiceTest : DescribeSpec({
             storedLps.fnr shouldBe arbeidstakerFnr
             storedLps.pdf shouldNotBe null
             storedLps.sentToGp shouldBe true
+            storedLps.sentToNav shouldBe true
 
             verify(exactly = 1) {
                 isdialogmeldingConsumer.sendPlanToGeneralPractitioner(arbeidstakerFnr, pdfByteArray)
@@ -82,6 +83,7 @@ class AltinnLPSServiceTest : DescribeSpec({
             storedLps.fnr shouldBe arbeidstakerFnr2
             storedLps.pdf shouldNotBe null
             storedLps.sentToGp shouldBe false
+            storedLps.sentToNav shouldBe false
 
             verify(exactly = 0) {
                 isdialogmeldingConsumer.sendPlanToGeneralPractitioner(arbeidstakerFnr2, pdfByteArray)

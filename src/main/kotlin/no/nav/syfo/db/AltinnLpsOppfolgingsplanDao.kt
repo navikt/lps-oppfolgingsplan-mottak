@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions", "MagicNumber")
 package no.nav.syfo.db
 
 import no.nav.syfo.db.domain.AltinnLpsOppfolgingsplan
@@ -5,7 +6,6 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 
-@Suppress("MagicNumber")
 fun DatabaseInterface.storeAltinnLps(altinnOP: AltinnLpsOppfolgingsplan) {
     val insertStatement = """
         INSERT INTO ALTINN_LPS (
@@ -16,11 +16,10 @@ fun DatabaseInterface.storeAltinnLps(altinnOP: AltinnLpsOppfolgingsplan) {
             xml,
             should_send_to_nav,
             should_send_to_gp,
-            sent_to_gp,
             originally_created,
             created,
             last_changed
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """.trimIndent()
 
     connection.use { connection ->
@@ -32,17 +31,15 @@ fun DatabaseInterface.storeAltinnLps(altinnOP: AltinnLpsOppfolgingsplan) {
             it.setString(5, altinnOP.xml)
             it.setBoolean(6, altinnOP.shouldSendToNav)
             it.setBoolean(7, altinnOP.shouldSendToGp)
-            it.setBoolean(8, altinnOP.sentToGp)
-            it.setTimestamp(9, Timestamp.valueOf(altinnOP.originallyCreated))
-            it.setTimestamp(10, Timestamp.valueOf(altinnOP.created))
-            it.setTimestamp(11, Timestamp.valueOf(altinnOP.lastChanged))
+            it.setTimestamp(8, Timestamp.valueOf(altinnOP.originallyCreated))
+            it.setTimestamp(9, Timestamp.valueOf(altinnOP.created))
+            it.setTimestamp(10, Timestamp.valueOf(altinnOP.lastChanged))
             it.executeUpdate()
         }
         connection.commit()
     }
 }
 
-@Suppress("MagicNumber")
 fun DatabaseInterface.storeFnr(uuid: UUID, fnr: String): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
@@ -62,7 +59,6 @@ fun DatabaseInterface.storeFnr(uuid: UUID, fnr: String): Int {
     }
 }
 
-@Suppress("MagicNumber")
 fun DatabaseInterface.storePdf(uuid: UUID, pdfBytes: ByteArray): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
@@ -82,8 +78,42 @@ fun DatabaseInterface.storePdf(uuid: UUID, pdfBytes: ByteArray): Int {
     }
 }
 
-@Suppress("MagicNumber")
-fun DatabaseInterface.setSendToGpTrue(uuid: UUID): Int {
+fun DatabaseInterface.storeJournalpostId(uuid: UUID, journalpostId: String): Int {
+    val updateStatement = """
+        UPDATE ALTINN_LPS
+        SET journalpost_id = ?
+        WHERE uuid = ?
+    """.trimIndent()
+
+    return connection.use { connection ->
+        val rowsUpdated = connection.prepareStatement(updateStatement).use {
+            it.setString(1, journalpostId)
+            it.setObject(2, uuid)
+            it.executeUpdate()
+        }
+        connection.commit()
+        rowsUpdated
+    }
+}
+
+fun DatabaseInterface.setSentToNavTrue(uuid: UUID): Int {
+    val updateStatement = """
+        UPDATE ALTINN_LPS
+        SET sent_to_nav = TRUE
+        WHERE uuid = ?
+    """.trimIndent()
+
+    return connection.use { connection ->
+        val rowsUpdated = connection.prepareStatement(updateStatement).use {
+            it.setObject(1, uuid)
+            it.executeUpdate()
+        }
+        connection.commit()
+        rowsUpdated
+    }
+}
+
+fun DatabaseInterface.setSentToGpTrue(uuid: UUID): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
         SET sent_to_gp = TRUE
@@ -118,7 +148,6 @@ fun DatabaseInterface.updateSendToGpRetryCount(uuid: UUID, prevCount: Int): Int 
     }
 }
 
-@Suppress("MagicNumber")
 fun DatabaseInterface.getLpsByUuid(lpsUUID: UUID): AltinnLpsOppfolgingsplan {
     val queryStatement = """
         SELECT *
@@ -163,7 +192,6 @@ fun DatabaseInterface.getLpsWithoutGeneratedPdf(): List<AltinnLpsOppfolgingsplan
     }
 }
 
-@Suppress("MagicNumber")
 fun DatabaseInterface.getLpsNotYetSentToGp(retryThreshold: Int): List<AltinnLpsOppfolgingsplan> {
     val queryStatement = """
         SELECT *

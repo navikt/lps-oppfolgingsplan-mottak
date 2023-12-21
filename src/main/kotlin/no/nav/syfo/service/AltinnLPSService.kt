@@ -65,8 +65,9 @@ class AltinnLPSService(
             payload,
             shouldSendToNav,
             shouldSendToGP,
-            false,
+            false, sentToGp = false,
             0,
+            null,
             now,
             now,
             now
@@ -178,6 +179,7 @@ class AltinnLPSService(
             COUNT_METRIKK_BISTAND_FRA_NAV_FALSE.increment()
         }
         navLpsProducer.sendAltinnLpsToNav(planToSendToNav)
+        database.setSentToNavTrue(uuid)
     }
 
     fun sendLpsPlanToGeneralPractitioner(
@@ -187,7 +189,7 @@ class AltinnLPSService(
     ): Boolean {
         val success = isdialogmeldingConsumer.sendPlanToGeneralPractitioner(lpsFnr, pdf)
         if (success) {
-            database.setSendToGpTrue(uuid)
+            database.setSentToGpTrue(uuid)
             COUNT_METRIKK_DELT_MED_FASTLEGE.increment()
         }
         return success
