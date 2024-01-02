@@ -77,6 +77,7 @@ spec:
       external:
         - host: pdl-api.prod-fss-pub.nais.io
         - host: syfooppdfgen.intern.nav.no
+        - host: dokarkiv.prod-fss-pub.nais.io
       rules:
         application: isdialogmelding
         namespace: teamsykefravr
@@ -108,5 +109,9 @@ spec:
       value: https://isdialogmelding.intern.nav.no
     - name: ISDIALOGMELDING_CLIENT_ID
       value: api://prod-gcp.teamsykefravr.isdialogmelding/.default
+    - name: DOKARKIV_URL
+      value: https://dokarkiv.prod-fss-pub.nais.io
+    - name: DOKARKIV_SCOPE
+      value: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
     - name: SEND_TO_GP_RETRY_THRESHOLD
       value: "6"

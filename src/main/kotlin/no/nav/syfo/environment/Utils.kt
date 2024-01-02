@@ -72,6 +72,8 @@ fun getEnv(): Environment {
             opPdfGenUrl = getEnvVar("OP_PDFGEN_URL"),
             isdialogmeldingUrl = getEnvVar("ISDIALOGMELDING_URL"),
             isdialogmeldingClientId = getEnvVar("ISDIALOGMELDING_CLIENT_ID"),
+            dokarkivUrl = getEnvVar("DOKARKIV_URL"),
+            dokarkivScope = getEnvVar("DOKARKIV_SCOPE"),
         ),
         altinnLps = AltinnLpsEnv(
             sendToGpRetryThreshold = getEnvVar("SEND_TO_GP_RETRY_THRESHOLD").toInt()

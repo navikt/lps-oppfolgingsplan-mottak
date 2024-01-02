@@ -51,7 +51,9 @@
     "pdlScope": "pdl_scope",
     "opPdfGenUrl": "http://oppdfgen.no",
     "isdialogmeldingUrl": "http://isdialogmelding.io",
-    "isdialogmeldingClientId": "localhost.isdialogmelding"
+    "isdialogmeldingClientId": "localhost.isdialogmelding",
+    "dokarkivUrl": "http://dokarkiv.no",
+    "dokarkivScope": "dokarkiv_scope"
   },
   "altinnLps": {
     "sendToGpRetryThreshold": 6

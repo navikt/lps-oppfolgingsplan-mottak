@@ -2,11 +2,8 @@ package no.nav.syfo.scheduling
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
-import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.db.*
 import no.nav.syfo.db.domain.AltinnLpsOppfolgingsplan
-import no.nav.syfo.db.getLpsNotYetSentToGp
-import no.nav.syfo.db.getLpsNotYetSentToNav
-import no.nav.syfo.db.updateSendToGpRetryCount
 import no.nav.syfo.metrics.COUNT_METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING
 import no.nav.syfo.metrics.COUNT_METRIKK_PROSSESERING_VELLYKKET
 import no.nav.syfo.service.AltinnLPSService
@@ -39,18 +36,39 @@ class AltinnLpsRetryForwardLpsJob: Job {
         database: DatabaseInterface,
         altinnLpsService: AltinnLPSService,
     ) {
-        val sendToGpAttemptThreshold = altinnLpsService.sendToGpRetryThreshold()
+        forwardUnsentLpsToNav(database, altinnLpsService)
+        forwardUnsentLpsToGp(database, altinnLpsService)
+        forwardUnsentLpsToDokarkiv(database, altinnLpsService)
+    }
+
+    private fun forwardUnsentLpsToNav(
+            database: DatabaseInterface,
+            altinnLpsService: AltinnLPSService,
+    ) {
         val lpsNotYetSentToNav = database.getLpsNotYetSentToNav()
-        val lpsNotYetSentToGp = database.getLpsNotYetSentToGp(sendToGpAttemptThreshold)
-        forwardUnsentLpsToGp(database, altinnLpsService, lpsNotYetSentToGp)
-        forwardUnsentLpsToNav(altinnLpsService, lpsNotYetSentToNav)
+        lpsNotYetSentToNav.forEach { lps ->
+            val skjemainnhold = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(lps.xml).skjemainnhold
+            val oppfolgingsplan = mapFormdataToFagmelding(
+                    lps.fnr!!,
+                    skjemainnhold,
+            ).oppfolgingsplan
+            val harBehovForBistand = oppfolgingsplan.isBehovForBistandFraNAV()
+            altinnLpsService.sendLpsPlanToNav(
+                    lps.uuid,
+                    lps.fnr,
+                    lps.orgnummer,
+                    harBehovForBistand,
+            )
+        }
     }
 
     private fun forwardUnsentLpsToGp(
             database: DatabaseInterface,
             altinnLpsService: AltinnLPSService,
-            lpsNotYetSentToGp: List<AltinnLpsOppfolgingsplan>
+
     ) {
+        val retryThreshold = altinnLpsService.sendToGpRetryThreshold()
+        val lpsNotYetSentToGp = database.getLpsNotYetSentToGp(retryThreshold)
         lpsNotYetSentToGp.forEach { lps ->
             val success = altinnLpsService.sendLpsPlanToGeneralPractitioner(
                     lps.uuid,
@@ -66,23 +84,14 @@ class AltinnLpsRetryForwardLpsJob: Job {
         }
     }
 
-    private fun forwardUnsentLpsToNav(
-            altinnLpsService: AltinnLPSService,
-            lpsNotYetSentToNav: List<AltinnLpsOppfolgingsplan>
+    private fun forwardUnsentLpsToDokarkiv(
+            database: DatabaseInterface,
+            altinnLpsService: AltinnLPSService
     ) {
-        lpsNotYetSentToNav.forEach { lps ->
-            val skjemainnhold = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(lps.xml).skjemainnhold
-            val oppfolgingsplan = mapFormdataToFagmelding(
-                    lps.fnr!!,
-                    skjemainnhold,
-            ).oppfolgingsplan
-            val harBehovForBistand = oppfolgingsplan.isBehovForBistandFraNAV()
-            altinnLpsService.sendLpsPlanToNav(
-                    lps.uuid,
-                    lps.fnr,
-                    lps.orgnummer,
-                    harBehovForBistand,
-            )
+        val lpsNotYetSentToDokarkiv = database.getLpsNotYetSentToDokarkiv()
+        lpsNotYetSentToDokarkiv.forEach { lps ->
+            val journalpostId = altinnLpsService.sendLpsPlanToGosys(lps)
+            database.updateJournalpostId(lps.uuid, journalpostId)
         }
     }
 

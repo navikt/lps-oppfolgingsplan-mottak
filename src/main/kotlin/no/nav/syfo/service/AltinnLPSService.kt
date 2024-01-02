@@ -1,13 +1,8 @@
 package no.nav.syfo.service
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
+import no.nav.syfo.consumer.dokarkiv.DokarkivConsumer
 import no.nav.syfo.consumer.isdialogmelding.IsdialogmeldingConsumer
 import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -27,12 +22,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
+@Suppress("LongParameterList")
 class AltinnLPSService(
     private val pdlConsumer: PdlConsumer,
     private val opPdfGenConsumer: OpPdfGenConsumer,
     private val database: DatabaseInterface,
     private val navLpsProducer: NavLpsProducer,
     private val isdialogmeldingConsumer: IsdialogmeldingConsumer,
+    private val dokarkivConsumer: DokarkivConsumer,
     private val sendToGpRetryThreshold: Int,
 ) {
     private val log: Logger = LoggerFactory.getLogger(AltinnLPSService::class.qualifiedName)
@@ -41,7 +38,7 @@ class AltinnLPSService(
         archiveReference: String,
         payload: String,
     ): UUID {
-        val oppfolgingsplan = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(payload)
+        val oppfolgingsplan = xmlToOppfolgingsplan(payload)
         val arbeidstakerFnr = oppfolgingsplan.skjemainnhold.sykmeldtArbeidstaker.fnr
         val orgnummer = oppfolgingsplan.skjemainnhold.arbeidsgiver.orgnr
         val shouldSendToNav = oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTiNav
@@ -82,7 +79,7 @@ class AltinnLPSService(
 
         database.storeFnr(lpsUuid, mostRecentFnr)
 
-        val skjemainnhold = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(altinnLps.xml).skjemainnhold
+        val skjemainnhold = xmlToSkjemainnhold(altinnLps.xml)
         val lpsPdfModel = mapFormdataToFagmelding(
             mostRecentFnr,
             skjemainnhold,
@@ -132,7 +129,7 @@ class AltinnLPSService(
         fnr: String,
         xml: String,
     ): Boolean {
-        val skjemainnhold = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(xml).skjemainnhold
+        val skjemainnhold = xmlToSkjemainnhold(xml)
         val shouldNotBeSentToGP = !skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
         val lpsPdfModel = mapFormdataToFagmelding(
             fnr,
@@ -150,6 +147,10 @@ class AltinnLPSService(
     }
 
     fun sendToGpRetryThreshold() = sendToGpRetryThreshold
+
+    fun xmlToOppfolgingsplan(xml: String) = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(xml)
+
+    fun xmlToSkjemainnhold(xml: String) = xmlToOppfolgingsplan(xml).skjemainnhold
 
     fun sendLpsPlanToNav(
         uuid: UUID,
@@ -185,5 +186,12 @@ class AltinnLPSService(
             COUNT_METRIKK_DELT_MED_FASTLEGE.increment()
         }
         return success
+    }
+
+    fun sendLpsPlanToGosys(lps: AltinnLpsOppfolgingsplan): String {
+        val skjemainnhold = xmlToSkjemainnhold(lps.xml)
+        val virksomhetsnavn = skjemainnhold.arbeidsgiver.orgnavn
+
+        return dokarkivConsumer.journalforAltinnLps(lps, virksomhetsnavn)
     }
 }

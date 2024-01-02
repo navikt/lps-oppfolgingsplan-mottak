@@ -21,6 +21,7 @@ import no.nav.syfo.api.setupAuth
 import no.nav.syfo.api.swagger.registerSwaggerApi
 import no.nav.syfo.api.test.registerMaskinportenTokenApi
 import no.nav.syfo.consumer.azuread.AzureAdTokenConsumer
+import no.nav.syfo.consumer.dokarkiv.DokarkivConsumer
 import no.nav.syfo.consumer.isdialogmelding.IsdialogmeldingConsumer
 import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -56,12 +57,14 @@ fun main() {
     val isdialogmeldingConsumer = IsdialogmeldingConsumer(env.urls, aadTokenConsumer)
     val pdlConsumer = PdlConsumer(env.urls, aadTokenConsumer)
     val navLpsProducer = NavLpsProducer(env.kafka)
+    val dokarkivConsumer = DokarkivConsumer(env.urls, aadTokenConsumer)
     val altinnLpsService = AltinnLPSService(
         pdlConsumer,
         opPdfGenConsumer,
         database,
         navLpsProducer,
         isdialogmeldingConsumer,
+        dokarkivConsumer,
         env.altinnLps.sendToGpRetryThreshold,
     )
 

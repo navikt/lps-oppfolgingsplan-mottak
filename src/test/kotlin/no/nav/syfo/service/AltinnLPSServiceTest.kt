@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
+import no.nav.syfo.consumer.dokarkiv.DokarkivConsumer
 import no.nav.syfo.consumer.isdialogmelding.IsdialogmeldingConsumer
 import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
@@ -24,6 +25,7 @@ class AltinnLPSServiceTest : DescribeSpec({
     val pdlConsumer = mockk<PdlConsumer>()
     val navLpsProducer = mockk<NavLpsProducer>()
     val isdialogmeldingConsumer = mockk<IsdialogmeldingConsumer>()
+    val dokarkivConsumer = mockk<DokarkivConsumer>()
 
     val (archiveReference, arbeidstakerFnr, lpsXml) = lpsHelper.receiveLPS()
     val (archiveReference2, arbeidstakerFnr2, lpsXml2) = lpsHelper.receiveLPSWithoutDelingSet()
@@ -36,6 +38,7 @@ class AltinnLPSServiceTest : DescribeSpec({
         embeddedDatabase,
         navLpsProducer,
         isdialogmeldingConsumer,
+        dokarkivConsumer,
         env.altinnLps.sendToGpRetryThreshold,
     )
 

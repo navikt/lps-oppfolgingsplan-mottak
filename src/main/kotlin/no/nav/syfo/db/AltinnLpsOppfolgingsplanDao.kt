@@ -78,7 +78,7 @@ fun DatabaseInterface.storePdf(uuid: UUID, pdfBytes: ByteArray): Int {
     }
 }
 
-fun DatabaseInterface.storeJournalpostId(uuid: UUID, journalpostId: String): Int {
+fun DatabaseInterface.updateJournalpostId(uuid: UUID, journalpostId: String): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
         SET journalpost_id = ?, last_changed = ?
@@ -226,6 +226,22 @@ fun DatabaseInterface.getLpsNotYetSentToGp(retryThreshold: Int): List<AltinnLpsO
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
             it.setInt(1, retryThreshold)
+            it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
+        }
+    }
+}
+
+fun DatabaseInterface.getLpsNotYetSentToDokarkiv(): List<AltinnLpsOppfolgingsplan> {
+    val queryStatement = """
+        SELECT *
+        FROM ALTINN_LPS
+        WHERE sent_to_nav
+        AND pdf is not null
+        AND journalpost_id is null
+    """.trimIndent()
+
+    return connection.use { connection ->
+        connection.prepareStatement(queryStatement).use {
             it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
         }
     }
