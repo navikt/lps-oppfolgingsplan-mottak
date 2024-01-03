@@ -1,6 +1,6 @@
 package no.nav.syfo.kafka
 
-data class KOppfolgingsplanLPS(
+data class KOppfolgingsplanLps(
     val uuid: String,
     val fodselsnummer: String,
     val virksomhetsnummer: String,

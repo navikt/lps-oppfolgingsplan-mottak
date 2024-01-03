@@ -8,7 +8,7 @@ import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.db.*
 import no.nav.syfo.db.domain.AltinnLpsOppfolgingsplan
-import no.nav.syfo.kafka.KOppfolgingsplanLPS
+import no.nav.syfo.kafka.KOppfolgingsplanLps
 import no.nav.syfo.kafka.producers.NavLpsProducer
 import no.nav.syfo.metrics.COUNT_METRIKK_BISTAND_FRA_NAV_FALSE
 import no.nav.syfo.metrics.COUNT_METRIKK_BISTAND_FRA_NAV_TRUE
@@ -23,16 +23,16 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Suppress("LongParameterList")
-class AltinnLPSService(
+class AltinnLpsService(
     private val pdlConsumer: PdlConsumer,
     private val opPdfGenConsumer: OpPdfGenConsumer,
     private val database: DatabaseInterface,
     private val navLpsProducer: NavLpsProducer,
     private val isdialogmeldingConsumer: IsdialogmeldingConsumer,
     private val dokarkivConsumer: DokarkivConsumer,
-    private val sendToGpRetryThreshold: Int,
+    private val sendToFastlegeRetryThreshold: Int,
 ) {
-    private val log: Logger = LoggerFactory.getLogger(AltinnLPSService::class.qualifiedName)
+    private val log: Logger = LoggerFactory.getLogger(AltinnLpsService::class.qualifiedName)
 
     fun persistLpsPlan(
         archiveReference: String,
@@ -55,19 +55,19 @@ class AltinnLPSService(
             payload,
             shouldSendToNav,
             shouldSendToGP,
-            false, sentToGp = false,
+            false, sentToFastlege = false,
             0,
             null,
             now,
             now,
             now
         )
-        database.storeAltinnLps(lpsPlanToSave)
+        database.storeAltinnLpsOppfolgingsplan(lpsPlanToSave)
         return lpsPlanToSave.uuid
     }
 
     fun processLpsPlan(lpsUuid: UUID) {
-        val altinnLps = database.getLpsByUuid(lpsUuid)
+        val altinnLps = database.getAltinnLpsOppfolgingsplanByUuid(lpsUuid)
         val lpsFnr = altinnLps.lpsFnr
 
         val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
@@ -104,7 +104,7 @@ class AltinnLPSService(
 
         val shouldBeSentToGP = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
         if (shouldBeSentToGP) {
-            sendLpsPlanToGeneralPractitioner(
+            sendLpsPlanToFastlege(
                 lpsUuid,
                 lpsFnr,
                 pdf,
@@ -146,7 +146,7 @@ class AltinnLPSService(
         } ?: false
     }
 
-    fun sendToGpRetryThreshold() = sendToGpRetryThreshold
+    fun sendToFastlegeRetryThreshold() = sendToFastlegeRetryThreshold
 
     fun xmlToOppfolgingsplan(xml: String) = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(xml)
 
@@ -159,7 +159,7 @@ class AltinnLPSService(
         hasBehovForBistand: Boolean,
     ) {
         val todayInEpoch = LocalDate.now().toEpochDay().toInt()
-        val planToSendToNav = KOppfolgingsplanLPS(
+        val planToSendToNav = KOppfolgingsplanLps(
             uuid.toString(),
             mostRecentFnr,
             orgnummer,
@@ -175,14 +175,14 @@ class AltinnLPSService(
         }
     }
 
-    fun sendLpsPlanToGeneralPractitioner(
+    fun sendLpsPlanToFastlege(
         uuid: UUID,
         lpsFnr: String,
         pdf: ByteArray,
     ): Boolean {
-        val success = isdialogmeldingConsumer.sendPlanToGeneralPractitioner(lpsFnr, pdf)
+        val success = isdialogmeldingConsumer.sendPlanToFastlege(lpsFnr, pdf)
         if (success) {
-            database.setSentToGpTrue(uuid)
+            database.setSentToFastlegeTrue(uuid)
             COUNT_METRIKK_DELT_MED_FASTLEGE.increment()
         }
         return success

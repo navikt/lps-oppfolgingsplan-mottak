@@ -56,6 +56,6 @@
     "dokarkivScope": "dokarkiv_scope"
   },
   "altinnLps": {
-    "sendToGpRetryThreshold": 6
+    "sendToFastlegeRetryThreshold": 6
   }
 }

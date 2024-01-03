@@ -22,12 +22,12 @@ val xmlMapper: ObjectMapper = XmlMapper(
     .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
 
 class LpsHelper {
-    fun receiveLPS(): Triple<String, String, String> {
+    fun receiveLps(): Triple<String, String, String> {
         val (fnr, payload) = this.loadXML("/lps/lps_test.xml")
         return Triple(AR_1, fnr, payload)
     }
 
-    fun receiveLPSWithoutDelingSet(): Triple<String, String, String> {
+    fun receiveLpsWithoutDelingSet(): Triple<String, String, String> {
         val (fnr, payload) = loadXML("/lps/lps_test_ingen_deling.xml")
         return Triple(AR_2, fnr, payload)
     }

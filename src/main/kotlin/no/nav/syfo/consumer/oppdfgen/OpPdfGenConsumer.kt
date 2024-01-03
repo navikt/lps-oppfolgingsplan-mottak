@@ -18,7 +18,6 @@ import no.nav.syfo.service.domain.Fagmelding
 import org.slf4j.LoggerFactory
 import java.util.*
 
-@Suppress("TooGenericExceptionCaught")
 class OpPdfGenConsumer(
     private val urls: UrlEnv,
     private val appEnv: ApplicationEnv

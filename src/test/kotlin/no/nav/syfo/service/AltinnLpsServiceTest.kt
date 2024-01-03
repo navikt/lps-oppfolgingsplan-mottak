@@ -1,6 +1,5 @@
 package no.nav.syfo.service
 
-
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -10,14 +9,13 @@ import no.nav.syfo.consumer.isdialogmelding.IsdialogmeldingConsumer
 import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.db.EmbeddedDatabase
-import no.nav.syfo.db.getLpsByUuid
+import no.nav.syfo.db.getAltinnLpsOppfolgingsplanByUuid
 import no.nav.syfo.environment.getEnv
 import no.nav.syfo.kafka.producers.NavLpsProducer
 import no.nav.syfo.util.LpsHelper
 import no.nav.syfo.util.deleteRowsInAltinnLpsTable
 
-
-class AltinnLPSServiceTest : DescribeSpec({
+class AltinnLpsServiceTest : DescribeSpec({
     val env = getEnv()
     val embeddedDatabase = EmbeddedDatabase()
     val lpsHelper = LpsHelper()
@@ -27,19 +25,19 @@ class AltinnLPSServiceTest : DescribeSpec({
     val isdialogmeldingConsumer = mockk<IsdialogmeldingConsumer>()
     val dokarkivConsumer = mockk<DokarkivConsumer>()
 
-    val (archiveReference, arbeidstakerFnr, lpsXml) = lpsHelper.receiveLPS()
-    val (archiveReference2, arbeidstakerFnr2, lpsXml2) = lpsHelper.receiveLPSWithoutDelingSet()
+    val (archiveReference, arbeidstakerFnr, lpsXml) = lpsHelper.receiveLps()
+    val (archiveReference2, arbeidstakerFnr2, lpsXml2) = lpsHelper.receiveLpsWithoutDelingSet()
     val pdfByteArray = "<MOCK PDF CONTENT>".toByteArray()
 
 
-    val altinnLPSService = AltinnLPSService(
+    val altinnLpsService = AltinnLpsService(
         pdlConsumer,
         opPdfGenConsumer,
         embeddedDatabase,
         navLpsProducer,
         isdialogmeldingConsumer,
         dokarkivConsumer,
-        env.altinnLps.sendToGpRetryThreshold,
+        env.altinnLps.sendToFastlegeRetryThreshold,
     )
 
     beforeTest {
@@ -47,7 +45,7 @@ class AltinnLPSServiceTest : DescribeSpec({
         embeddedDatabase.deleteRowsInAltinnLpsTable()
         justRun { navLpsProducer.sendAltinnLpsToNav(any()) }
         every { opPdfGenConsumer.generatedPdfResponse(any()) } returns pdfByteArray
-        every { isdialogmeldingConsumer.sendPlanToGeneralPractitioner(any(), pdfByteArray) } returns true
+        every { isdialogmeldingConsumer.sendPlanToFastlege(any(), pdfByteArray) } returns true
         every { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns arbeidstakerFnr
         every { pdlConsumer.mostRecentFnr(arbeidstakerFnr2) } returns arbeidstakerFnr2
     }
@@ -57,19 +55,19 @@ class AltinnLPSServiceTest : DescribeSpec({
     describe("Receive Altinn-LPS from altinnkanal-2") {
 
         it ("Receive LPS with BistandFraNAV and DelMedFastlege set to true") {
-            val uuid = altinnLPSService.persistLpsPlan(archiveReference, lpsXml)
-            altinnLPSService.processLpsPlan(uuid)
+            val uuid = altinnLpsService.persistLpsPlan(archiveReference, lpsXml)
+            altinnLpsService.processLpsPlan(uuid)
 
-            val storedLps = embeddedDatabase.getLpsByUuid(uuid)
+            val storedLps = embeddedDatabase.getAltinnLpsOppfolgingsplanByUuid(uuid)
             storedLps.archiveReference shouldBe archiveReference
             storedLps.lpsFnr shouldBe arbeidstakerFnr
             storedLps.fnr shouldBe arbeidstakerFnr
             storedLps.pdf shouldNotBe null
-            storedLps.sentToGp shouldBe true
+            storedLps.sentToFastlege shouldBe true
             storedLps.sentToNav shouldBe true
 
             verify(exactly = 1) {
-                isdialogmeldingConsumer.sendPlanToGeneralPractitioner(arbeidstakerFnr, pdfByteArray)
+                isdialogmeldingConsumer.sendPlanToFastlege(arbeidstakerFnr, pdfByteArray)
             }
             verify(exactly = 1) {
                 navLpsProducer.sendAltinnLpsToNav(any())
@@ -77,19 +75,19 @@ class AltinnLPSServiceTest : DescribeSpec({
         }
 
         it("Receive LPS with BistandFraNAV and DelMedFastlege set to false") {
-            val uuid = altinnLPSService.persistLpsPlan(archiveReference2, lpsXml2)
-            altinnLPSService.processLpsPlan(uuid)
+            val uuid = altinnLpsService.persistLpsPlan(archiveReference2, lpsXml2)
+            altinnLpsService.processLpsPlan(uuid)
 
-            val storedLps = embeddedDatabase.getLpsByUuid(uuid)
+            val storedLps = embeddedDatabase.getAltinnLpsOppfolgingsplanByUuid(uuid)
             storedLps.archiveReference shouldBe archiveReference2
             storedLps.lpsFnr shouldBe arbeidstakerFnr2
             storedLps.fnr shouldBe arbeidstakerFnr2
             storedLps.pdf shouldNotBe null
-            storedLps.sentToGp shouldBe false
+            storedLps.sentToFastlege shouldBe false
             storedLps.sentToNav shouldBe false
 
             verify(exactly = 0) {
-                isdialogmeldingConsumer.sendPlanToGeneralPractitioner(arbeidstakerFnr2, pdfByteArray)
+                isdialogmeldingConsumer.sendPlanToFastlege(arbeidstakerFnr2, pdfByteArray)
             }
             verify(exactly = 0) {
                 navLpsProducer.sendAltinnLpsToNav(any())
@@ -100,10 +98,10 @@ class AltinnLPSServiceTest : DescribeSpec({
             val currentFnr = arbeidstakerFnr.reversed()
             every { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns currentFnr
 
-            val uuid = altinnLPSService.persistLpsPlan(archiveReference, lpsXml)
-            altinnLPSService.processLpsPlan(uuid)
+            val uuid = altinnLpsService.persistLpsPlan(archiveReference, lpsXml)
+            altinnLpsService.processLpsPlan(uuid)
 
-            val storedLps = embeddedDatabase.getLpsByUuid(uuid)
+            val storedLps = embeddedDatabase.getAltinnLpsOppfolgingsplanByUuid(uuid)
             storedLps.fnr shouldNotBe null
             storedLps.lpsFnr shouldNotBe storedLps.fnr
         }
@@ -112,18 +110,18 @@ class AltinnLPSServiceTest : DescribeSpec({
             every { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns null
             every { opPdfGenConsumer.generatedPdfResponse(any()) } returns null
 
-            val uuid = altinnLPSService.persistLpsPlan(archiveReference, lpsXml)
-            altinnLPSService.processLpsPlan(uuid)
+            val uuid = altinnLpsService.persistLpsPlan(archiveReference, lpsXml)
+            altinnLpsService.processLpsPlan(uuid)
 
-            val uuid2 = altinnLPSService.persistLpsPlan(archiveReference2, lpsXml2)
-            altinnLPSService.processLpsPlan(uuid2)
+            val uuid2 = altinnLpsService.persistLpsPlan(archiveReference2, lpsXml2)
+            altinnLpsService.processLpsPlan(uuid2)
 
-            val storedLps = embeddedDatabase.getLpsByUuid(uuid)
+            val storedLps = embeddedDatabase.getAltinnLpsOppfolgingsplanByUuid(uuid)
             storedLps.archiveReference shouldBe archiveReference
             storedLps.lpsFnr shouldBe arbeidstakerFnr
             storedLps.fnr shouldBe null
 
-            val storedLps2 = embeddedDatabase.getLpsByUuid(uuid2)
+            val storedLps2 = embeddedDatabase.getAltinnLpsOppfolgingsplanByUuid(uuid2)
             storedLps2.archiveReference shouldBe archiveReference2
             storedLps2.lpsFnr shouldBe arbeidstakerFnr2
             storedLps2.fnr shouldNotBe null

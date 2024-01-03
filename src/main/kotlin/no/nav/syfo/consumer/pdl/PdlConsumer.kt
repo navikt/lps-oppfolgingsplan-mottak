@@ -12,10 +12,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
 
-@Suppress("TooGenericExceptionCaught")
 class PdlConsumer(
     private val urls: UrlEnv,
-    private val aadTokensConsumer: AzureAdTokenConsumer,
+    private val azureAdTokenConsumer: AzureAdTokenConsumer,
 ) {
     private val client = httpClient()
     private val log: Logger = LoggerFactory.getLogger(PdlConsumer::class.qualifiedName)
@@ -50,7 +49,7 @@ class PdlConsumer(
 
     private fun getFnr(ident: String): HttpResponse? {
         return runBlocking {
-            val token = aadTokensConsumer.getToken(urls.pdlScope)
+            val token = azureAdTokenConsumer.getToken(urls.pdlScope)
             val bearerTokenString = "Bearer $token"
             val graphQuery =
                 this::class.java.getResource(IDENTER_QUERY)?.readText()?.replace("[\n\r]", "")

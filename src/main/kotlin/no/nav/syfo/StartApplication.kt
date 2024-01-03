@@ -31,10 +31,10 @@ import no.nav.syfo.db.grantAccessToIAMUsers
 import no.nav.syfo.environment.Environment
 import no.nav.syfo.environment.getEnv
 import no.nav.syfo.environment.isDev
-import no.nav.syfo.kafka.consumers.altinnkanal.LPSKafkaConsumer
+import no.nav.syfo.kafka.consumers.altinnkanal.LpsOppfolgingsplanKafkaConsumer
 import no.nav.syfo.kafka.producers.NavLpsProducer
 import no.nav.syfo.scheduling.AltinnLpsScheduler
-import no.nav.syfo.service.AltinnLPSService
+import no.nav.syfo.service.AltinnLpsService
 import no.nav.syfo.util.LeaderElection
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -52,20 +52,20 @@ fun main() {
     ).asCoroutineDispatcher()
     database = Database(env.database)
     database.grantAccessToIAMUsers()
-    val aadTokenConsumer = AzureAdTokenConsumer(env.auth)
+    val azureAdTokenConsumer = AzureAdTokenConsumer(env.auth)
     val opPdfGenConsumer = OpPdfGenConsumer(env.urls, env.application)
-    val isdialogmeldingConsumer = IsdialogmeldingConsumer(env.urls, aadTokenConsumer)
-    val pdlConsumer = PdlConsumer(env.urls, aadTokenConsumer)
+    val isdialogmeldingConsumer = IsdialogmeldingConsumer(env.urls, azureAdTokenConsumer)
+    val pdlConsumer = PdlConsumer(env.urls, azureAdTokenConsumer)
     val navLpsProducer = NavLpsProducer(env.kafka)
-    val dokarkivConsumer = DokarkivConsumer(env.urls, aadTokenConsumer)
-    val altinnLpsService = AltinnLPSService(
+    val dokarkivConsumer = DokarkivConsumer(env.urls, azureAdTokenConsumer)
+    val altinnLpsService = AltinnLpsService(
         pdlConsumer,
         opPdfGenConsumer,
         database,
         navLpsProducer,
         isdialogmeldingConsumer,
         dokarkivConsumer,
-        env.altinnLps.sendToGpRetryThreshold,
+        env.altinnLps.sendToFastlegeRetryThreshold,
     )
 
     val server = embeddedServer(
@@ -137,15 +137,15 @@ fun Application.serverModule(env: Environment) {
 }
 
 fun Application.kafkaModule(
-    appState: ApplicationState,
-    backgroundTasksContext: CoroutineContext,
-    altinnLPSService: AltinnLPSService,
-    env: Environment,
+        appState: ApplicationState,
+        backgroundTasksContext: CoroutineContext,
+        altinnLPSService: AltinnLpsService,
+        env: Environment,
 ) {
     launch(backgroundTasksContext) {
         try {
-            val lpsKafkaConsumer = LPSKafkaConsumer(env.kafka, altinnLPSService)
-            lpsKafkaConsumer.listen(appState)
+            val lpsOppfolgingsplanKafkaConsumer = LpsOppfolgingsplanKafkaConsumer(env.kafka, altinnLPSService)
+            lpsOppfolgingsplanKafkaConsumer.listen(appState)
         } finally {
             appState.running = false
         }
@@ -153,10 +153,10 @@ fun Application.kafkaModule(
 }
 
 fun Application.schedulerModule(
-    backgroundTasksContext: CoroutineContext,
-    database: DatabaseInterface,
-    altinnLpsService: AltinnLPSService,
-    env: Environment,
+        backgroundTasksContext: CoroutineContext,
+        database: DatabaseInterface,
+        altinnLpsService: AltinnLpsService,
+        env: Environment,
 ) {
     val leaderElection = LeaderElection(env.application)
 

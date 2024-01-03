@@ -31,7 +31,7 @@ import kotlin.collections.set
 
 const val TWO_MINUTES_IN_SECONDS = 120L
 
-@Suppress("TooGenericExceptionThrown", "ThrowsCount")
+@Suppress("ThrowsCount")
 class AzureAdTokenConsumer(authEnv: AuthEnv) {
     private val aadAccessTokenUrl = authEnv.azuread.accessTokenUrl
     private val clientId = authEnv.azuread.clientId

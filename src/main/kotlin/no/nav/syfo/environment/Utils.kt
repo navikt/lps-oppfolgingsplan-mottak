@@ -76,7 +76,7 @@ fun getEnv(): Environment {
             dokarkivScope = getEnvVar("DOKARKIV_SCOPE"),
         ),
         altinnLps = AltinnLpsEnv(
-            sendToGpRetryThreshold = getEnvVar("SEND_TO_GP_RETRY_THRESHOLD").toInt()
+            sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt()
         )
     )
 }

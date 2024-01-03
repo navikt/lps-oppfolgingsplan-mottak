@@ -6,17 +6,12 @@ import io.ktor.client.request.headers
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.api.util.httpClient
-import no.nav.syfo.consumer.NAV_CALL_ID_HEADER
 import no.nav.syfo.consumer.azuread.AzureAdTokenConsumer
-import no.nav.syfo.consumer.bearerToken
-import no.nav.syfo.consumer.createCallId
-import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
+import no.nav.syfo.consumer.createBearerToken
 import no.nav.syfo.db.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.environment.UrlEnv
 import org.slf4j.LoggerFactory
-import javax.ws.rs.ClientErrorException
 
-@Suppress("TooGenericExceptionCaught", "TooGenericExceptionThrown")
 class DokarkivConsumer(
         urls: UrlEnv,
         private val tokenConsumer: AzureAdTokenConsumer,
@@ -48,7 +43,7 @@ class DokarkivConsumer(
                 client.post(requestUrl) {
                     headers {
                         append(HttpHeaders.ContentType, ContentType.Application.Json)
-                        append(HttpHeaders.Authorization, bearerToken(token))
+                        append(HttpHeaders.Authorization, createBearerToken(token))
                     }
                     setBody(journalpostRequest)
                 }

@@ -7,19 +7,18 @@ import no.nav.syfo.kafka.ALTINNKANAL_TOPIC
 import no.nav.syfo.kafka.consumerProperties
 import no.nav.syfo.kafka.pollDurationInMillis
 import no.nav.syfo.metrics.COUNT_METRIKK_PROSSESERING_VELLYKKET
-import no.nav.syfo.service.AltinnLPSService
+import no.nav.syfo.service.AltinnLpsService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
 
-@Suppress("TooGenericExceptionCaught")
-class LPSKafkaConsumer(
+class LpsOppfolgingsplanKafkaConsumer(
     val env: KafkaEnv,
-    val altinnLPSService: AltinnLPSService
+    val altinnLPSService: AltinnLpsService
 ) {
-    private val log: Logger = LoggerFactory.getLogger(LPSKafkaConsumer::class.qualifiedName)
+    private val log: Logger = LoggerFactory.getLogger(LpsOppfolgingsplanKafkaConsumer::class.qualifiedName)
     private val kafkaListener: KafkaConsumer<String, ReceivedMessage>
 
     init {
@@ -37,7 +36,7 @@ class LPSKafkaConsumer(
                     altinnLPSService.processLpsPlan(storedLpsUuid)
                     COUNT_METRIKK_PROSSESERING_VELLYKKET.increment()
                 } catch (e: Exception) {
-                    log.error("Error encountered while processing LPS from altinn-kanal-2: ${e.message}", e)
+                    log.error("Error encountered while processing LPS-plan from altinn-kanal-2: ${e.message}", e)
                 }
             }
         }

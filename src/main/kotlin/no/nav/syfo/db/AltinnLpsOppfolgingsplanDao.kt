@@ -6,7 +6,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 
-fun DatabaseInterface.storeAltinnLps(altinnOP: AltinnLpsOppfolgingsplan) {
+fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppfolgingsplan) {
     val insertStatement = """
         INSERT INTO ALTINN_LPS (
             archive_reference,
@@ -15,7 +15,7 @@ fun DatabaseInterface.storeAltinnLps(altinnOP: AltinnLpsOppfolgingsplan) {
             orgnummer,
             xml,
             should_send_to_nav,
-            should_send_to_gp,
+            should_send_to_fastlege,
             originally_created,
             created,
             last_changed
@@ -24,16 +24,16 @@ fun DatabaseInterface.storeAltinnLps(altinnOP: AltinnLpsOppfolgingsplan) {
 
     connection.use { connection ->
         connection.prepareStatement(insertStatement).use {
-            it.setString(1, altinnOP.archiveReference)
-            it.setObject(2, altinnOP.uuid)
-            it.setString(3, altinnOP.lpsFnr)
-            it.setString(4, altinnOP.orgnummer)
-            it.setString(5, altinnOP.xml)
-            it.setBoolean(6, altinnOP.shouldSendToNav)
-            it.setBoolean(7, altinnOP.shouldSendToGp)
-            it.setTimestamp(8, Timestamp.valueOf(altinnOP.originallyCreated))
-            it.setTimestamp(9, Timestamp.valueOf(altinnOP.created))
-            it.setTimestamp(10, Timestamp.valueOf(altinnOP.lastChanged))
+            it.setString(1, altinnLpsPlan.archiveReference)
+            it.setObject(2, altinnLpsPlan.uuid)
+            it.setString(3, altinnLpsPlan.lpsFnr)
+            it.setString(4, altinnLpsPlan.orgnummer)
+            it.setString(5, altinnLpsPlan.xml)
+            it.setBoolean(6, altinnLpsPlan.shouldSendToNav)
+            it.setBoolean(7, altinnLpsPlan.shouldSendToFastlege)
+            it.setTimestamp(8, Timestamp.valueOf(altinnLpsPlan.originallyCreated))
+            it.setTimestamp(9, Timestamp.valueOf(altinnLpsPlan.created))
+            it.setTimestamp(10, Timestamp.valueOf(altinnLpsPlan.lastChanged))
             it.executeUpdate()
         }
         connection.commit()
@@ -115,10 +115,10 @@ fun DatabaseInterface.setSentToNavTrue(uuid: UUID): Int {
     }
 }
 
-fun DatabaseInterface.setSentToGpTrue(uuid: UUID): Int {
+fun DatabaseInterface.setSentToFastlegeTrue(uuid: UUID): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
-        SET sent_to_gp = TRUE, last_changed = ?
+        SET sent_to_fastlege = TRUE, last_changed = ?
         WHERE uuid = ?
     """.trimIndent()
 
@@ -133,10 +133,10 @@ fun DatabaseInterface.setSentToGpTrue(uuid: UUID): Int {
     }
 }
 
-fun DatabaseInterface.updateSendToGpRetryCount(uuid: UUID, prevCount: Int): Int {
+fun DatabaseInterface.updateSendToFastlegeRetryCount(uuid: UUID, prevCount: Int): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
-        SET send_to_gp_retry_count = ?, last_changed = ?
+        SET send_to_fastlege_retry_count = ?, last_changed = ?
         WHERE uuid = ?
     """.trimIndent()
 
@@ -152,7 +152,7 @@ fun DatabaseInterface.updateSendToGpRetryCount(uuid: UUID, prevCount: Int): Int 
     }
 }
 
-fun DatabaseInterface.getLpsByUuid(lpsUUID: UUID): AltinnLpsOppfolgingsplan {
+fun DatabaseInterface.getAltinnLpsOppfolgingsplanByUuid(lpsUUID: UUID): AltinnLpsOppfolgingsplan {
     val queryStatement = """
         SELECT *
         FROM ALTINN_LPS
@@ -167,7 +167,7 @@ fun DatabaseInterface.getLpsByUuid(lpsUUID: UUID): AltinnLpsOppfolgingsplan {
     }
 }
 
-fun DatabaseInterface.getLpsWithoutMostRecentFnr(): List<AltinnLpsOppfolgingsplan> {
+fun DatabaseInterface.getAltinnLpsOppfolgingsplanWithoutMostRecentFnr(): List<AltinnLpsOppfolgingsplan> {
     val queryStatement = """
         SELECT *
         FROM ALTINN_LPS
@@ -181,7 +181,7 @@ fun DatabaseInterface.getLpsWithoutMostRecentFnr(): List<AltinnLpsOppfolgingspla
     }
 }
 
-fun DatabaseInterface.getLpsWithoutGeneratedPdf(): List<AltinnLpsOppfolgingsplan> {
+fun DatabaseInterface.getAltinnLpsOppfolgingsplanWithoutGeneratedPdf(): List<AltinnLpsOppfolgingsplan> {
     val queryStatement = """
         SELECT *
         FROM ALTINN_LPS
@@ -197,7 +197,7 @@ fun DatabaseInterface.getLpsWithoutGeneratedPdf(): List<AltinnLpsOppfolgingsplan
 }
 
 
-fun DatabaseInterface.getLpsNotYetSentToNav(): List<AltinnLpsOppfolgingsplan> {
+fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToNav(): List<AltinnLpsOppfolgingsplan> {
     val queryStatement = """
         SELECT *
         FROM ALTINN_LPS
@@ -213,14 +213,15 @@ fun DatabaseInterface.getLpsNotYetSentToNav(): List<AltinnLpsOppfolgingsplan> {
     }
 }
 
-fun DatabaseInterface.getLpsNotYetSentToGp(retryThreshold: Int): List<AltinnLpsOppfolgingsplan> {
+fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThreshold: Int):
+        List<AltinnLpsOppfolgingsplan> {
     val queryStatement = """
         SELECT *
         FROM ALTINN_LPS
         WHERE pdf is not null
-        AND should_send_to_gp
-        AND NOT sent_to_gp 
-        AND send_to_gp_retry_count <= ?
+        AND should_send_to_fastlege
+        AND NOT sent_to_fastlege 
+        AND send_to_fastlege_retry_count <= ?
     """.trimIndent()
 
     return connection.use { connection ->
@@ -231,7 +232,7 @@ fun DatabaseInterface.getLpsNotYetSentToGp(retryThreshold: Int): List<AltinnLpsO
     }
 }
 
-fun DatabaseInterface.getLpsNotYetSentToDokarkiv(): List<AltinnLpsOppfolgingsplan> {
+fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv(): List<AltinnLpsOppfolgingsplan> {
     val queryStatement = """
         SELECT *
         FROM ALTINN_LPS
