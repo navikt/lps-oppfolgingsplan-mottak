@@ -5,5 +5,5 @@ data class JournalpostResponse(
     val journalpostId: Int,
     val journalpostferdigstilt: Boolean,
     val journalstatus: String,
-    val melding: String,
+    val melding: String?,
 )
