@@ -76,6 +76,7 @@ spec:
         - host: syfooppdfgen.intern.dev.nav.no
         - host: dokarkiv.dev-fss-pub.nais.io
       rules:
+        - application: syfooppdfgen
         - application: isdialogmelding
           namespace: teamsykefravr
   ingresses:

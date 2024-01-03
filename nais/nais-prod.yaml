@@ -79,8 +79,9 @@ spec:
         - host: syfooppdfgen.intern.nav.no
         - host: dokarkiv.prod-fss-pub.nais.io
       rules:
-        application: isdialogmelding
-        namespace: teamsykefravr
+        - application: syfooppdfgen
+        - application: isdialogmelding
+          namespace: teamsykefravr
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.nav.no"
     - "https://lps-oppfolgingsplan-mottak.intern.nav.no"

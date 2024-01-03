@@ -16,7 +16,6 @@ import no.nav.syfo.environment.ApplicationEnv
 import no.nav.syfo.environment.UrlEnv
 import no.nav.syfo.service.domain.Fagmelding
 import org.slf4j.LoggerFactory
-import java.util.*
 
 class OpPdfGenConsumer(
     private val urls: UrlEnv,
