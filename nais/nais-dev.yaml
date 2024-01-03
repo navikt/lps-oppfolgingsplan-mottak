@@ -100,9 +100,9 @@ spec:
     - name: PDL_SCOPE
       value: api://dev-fss.pdl.pdl-api/.default
     - name: OP_PDFGEN_URL
-      value: https://syfooppdfgen.intern.dev.nav.no
+      value: http://syfooppdfgen
     - name: ISDIALOGMELDING_URL
-      value: https://isdialogmelding.intern.dev.nav.no
+      value: http://isdialogmelding.teamsykefravr
     - name: ISDIALOGMELDING_CLIENT_ID
       value: api://dev-gcp.teamsykefravr.isdialogmelding/.default
     - name: DOKARKIV_URL

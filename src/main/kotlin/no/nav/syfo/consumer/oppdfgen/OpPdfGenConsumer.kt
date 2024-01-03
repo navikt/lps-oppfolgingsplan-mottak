@@ -24,23 +24,21 @@ class OpPdfGenConsumer(
 ) {
     private val client = httpClient()
 
-    fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
+    suspend fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
         val requestUrl = "${urls.opPdfGenUrl}/$pathUrl"
-        val response = runBlocking {
-            val requestBody = mapper.writeValueAsString(fagmelding)
-            try {
-                client.post(requestUrl) {
-                    headers {
-                        append(HttpHeaders.ContentType, ContentType.Application.Json)
-                        append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
-                        append(NAV_CALL_ID_HEADER, createCallId())
-                    }
-                    setBody(requestBody)
+        val requestBody = mapper.writeValueAsString(fagmelding)
+        val response = try {
+            client.post(requestUrl) {
+                headers {
+                    append(HttpHeaders.ContentType, ContentType.Application.Json)
+                    append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
+                    append(NAV_CALL_ID_HEADER, createCallId())
                 }
-            } catch (e: Exception) {
-                log.error("Call to get generate pdf for LPS-plan failed due to exception: ${e.message}", e)
-                throw e
+                setBody(requestBody)
             }
+        } catch (e: Exception) {
+            log.error("Call to get generate PDF for LPS-plan failed due to exception: ${e.message}", e)
+            throw e
         }
 
         return when(response.status) {

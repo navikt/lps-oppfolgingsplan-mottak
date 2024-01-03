@@ -44,10 +44,10 @@ class AltinnLpsServiceTest : DescribeSpec({
         clearAllMocks()
         embeddedDatabase.deleteRowsInAltinnLpsTable()
         justRun { navLpsProducer.sendAltinnLpsToNav(any()) }
-        every { opPdfGenConsumer.generatedPdfResponse(any()) } returns pdfByteArray
-        every { isdialogmeldingConsumer.sendPlanToFastlege(any(), pdfByteArray) } returns true
-        every { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns arbeidstakerFnr
-        every { pdlConsumer.mostRecentFnr(arbeidstakerFnr2) } returns arbeidstakerFnr2
+        coEvery { opPdfGenConsumer.generatedPdfResponse(any()) } returns pdfByteArray
+        coEvery { isdialogmeldingConsumer.sendPlanToFastlege(any(), pdfByteArray) } returns true
+        coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns arbeidstakerFnr
+        coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr2) } returns arbeidstakerFnr2
     }
 
     afterSpec { embeddedDatabase.stop() }
@@ -66,7 +66,7 @@ class AltinnLpsServiceTest : DescribeSpec({
             storedLps.sentToFastlege shouldBe true
             storedLps.sentToNav shouldBe true
 
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 isdialogmeldingConsumer.sendPlanToFastlege(arbeidstakerFnr, pdfByteArray)
             }
             verify(exactly = 1) {
@@ -86,7 +86,7 @@ class AltinnLpsServiceTest : DescribeSpec({
             storedLps.sentToFastlege shouldBe false
             storedLps.sentToNav shouldBe false
 
-            verify(exactly = 0) {
+            coVerify(exactly = 0) {
                 isdialogmeldingConsumer.sendPlanToFastlege(arbeidstakerFnr2, pdfByteArray)
             }
             verify(exactly = 0) {
@@ -96,7 +96,7 @@ class AltinnLpsServiceTest : DescribeSpec({
 
         it("Arbeidstaker has FNR different from LPS-form") {
             val currentFnr = arbeidstakerFnr.reversed()
-            every { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns currentFnr
+            coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns currentFnr
 
             val uuid = altinnLpsService.persistLpsPlan(archiveReference, lpsXml)
             altinnLpsService.processLpsPlan(uuid)
@@ -107,8 +107,8 @@ class AltinnLpsServiceTest : DescribeSpec({
         }
 
         it("LPS plan is scheduled for retry when either FNR-fetching or PDF-generation fails") {
-            every { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns null
-            every { opPdfGenConsumer.generatedPdfResponse(any()) } returns null
+            coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns null
+            coEvery { opPdfGenConsumer.generatedPdfResponse(any()) } returns null
 
             val uuid = altinnLpsService.persistLpsPlan(archiveReference, lpsXml)
             altinnLpsService.processLpsPlan(uuid)

@@ -1,5 +1,6 @@
 package no.nav.syfo.kafka.consumers.altinnkanal
 
+import kotlinx.coroutines.runBlocking
 import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.syfo.ApplicationState
 import no.nav.syfo.environment.KafkaEnv
@@ -33,7 +34,9 @@ class LpsOppfolgingsplanKafkaConsumer(
                 try {
                     val storedLpsUuid = receiveAndPersistLpsFromAltinn(record)
                     kafkaListener.commitSync()
-                    altinnLPSService.processLpsPlan(storedLpsUuid)
+                    runBlocking {
+                        altinnLPSService.processLpsPlan(storedLpsUuid)
+                    }
                     COUNT_METRIKK_PROSSESERING_VELLYKKET.increment()
                 } catch (e: Exception) {
                     log.error("Error encountered while processing LPS-plan from altinn-kanal-2: ${e.message}", e)

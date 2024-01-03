@@ -4,6 +4,11 @@ import no.nav.syfo.db.domain.AltinnLpsOppfolgingsplan
 import java.sql.ResultSet
 import java.util.*
 
+fun <T> ResultSet.toObject(mapper: ResultSet.() -> T): T {
+    next()
+    return mapper()
+}
+
 fun <T> ResultSet.toList(mapper: ResultSet.() -> T) = mutableListOf<T>().apply {
     while (next()) {
         add(mapper())

@@ -18,16 +18,14 @@ class IsdialogmeldingConsumer(
     private val log = LoggerFactory.getLogger(IsdialogmeldingConsumer::class.qualifiedName)
     private val client = httpClient()
 
-    fun sendPlanToFastlege(
+    suspend fun sendPlanToFastlege(
         sykmeldtFnr: String,
         planAsPdf: ByteArray,
     ): Boolean {
         val requestUrl = "${urls.isdialogmeldingUrl}/$SEND_LPS_PDF_TO_FASTLEGE_PATH"
         val rsOppfoelgingsplan = RSOppfoelgingsplan(sykmeldtFnr, planAsPdf)
-
-        val response = runBlocking {
-            val token = azureAdTokenConsumer.getToken(urls.isdialogmeldingClientId)
-            try {
+        val token = azureAdTokenConsumer.getToken(urls.isdialogmeldingClientId)
+        val response = try {
                 client.post(requestUrl) {
                     headers {
                         append(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -40,7 +38,6 @@ class IsdialogmeldingConsumer(
                 log.error("Exception while sending altinn-LPS to fastlege", e)
                 throw e
             }
-        }
 
         return when (response.status) {
             HttpStatusCode.OK -> {

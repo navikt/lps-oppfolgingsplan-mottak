@@ -1,6 +1,7 @@
 package no.nav.syfo.scheduling
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
 import no.nav.syfo.db.*
 import no.nav.syfo.metrics.COUNT_METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING
@@ -26,12 +27,14 @@ class AltinnLpsRetryForwardLpsJob: Job {
         val leaderElection = jobDataMap[LEADER_ELECTION_SHORTNAME] as LeaderElection
         if (leaderElection.thisPodIsLeader()) {
             logInfo("Starting job $jobName")
-            retryForwardAltinnLps(database, altinnLpsService)
+            runBlocking {
+                retryForwardAltinnLps(database, altinnLpsService)
+            }
             logInfo("$jobName job successfully finished")
         }
     }
 
-    private fun retryForwardAltinnLps(
+    private suspend fun retryForwardAltinnLps(
             database: DatabaseInterface,
             altinnLpsService: AltinnLpsService,
     ) {
@@ -61,7 +64,7 @@ class AltinnLpsRetryForwardLpsJob: Job {
         }
     }
 
-    private fun forwardUnsentLpsToFastlege(
+    private suspend fun forwardUnsentLpsToFastlege(
             database: DatabaseInterface,
             altinnLpsService: AltinnLpsService,
 
@@ -84,7 +87,7 @@ class AltinnLpsRetryForwardLpsJob: Job {
         }
     }
 
-    private fun forwardUnsentLpsToDokarkiv(
+    private suspend fun forwardUnsentLpsToDokarkiv(
             database: DatabaseInterface,
             altinnLpsService: AltinnLpsService
     ) {

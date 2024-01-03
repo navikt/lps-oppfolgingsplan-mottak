@@ -19,15 +19,13 @@ class PdlConsumer(
     private val client = httpClient()
     private val log: Logger = LoggerFactory.getLogger(PdlConsumer::class.qualifiedName)
 
-    fun mostRecentFnr(fnr: String): String? {
+    suspend fun mostRecentFnr(fnr: String): String? {
         val response = getFnr(fnr)
 
         return when (response?.status) {
             HttpStatusCode.OK -> {
-                runBlocking {
-                    val pdlResponse = response.body<PdlIdentResponse>().data?.hentIdenter?.identer?.first()?.ident
-                    pdlResponse
-                }
+                val pdlResponse = response.body<PdlIdentResponse>().data?.hentIdenter?.identer?.first()?.ident
+                pdlResponse
             }
 
             HttpStatusCode.NoContent -> {
@@ -47,27 +45,24 @@ class PdlConsumer(
         }
     }
 
-    private fun getFnr(ident: String): HttpResponse? {
-        return runBlocking {
-            val token = azureAdTokenConsumer.getToken(urls.pdlScope)
-            val bearerTokenString = "Bearer $token"
-            val graphQuery =
-                this::class.java.getResource(IDENTER_QUERY)?.readText()?.replace("[\n\r]", "")
-                    ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
-            val requestBody = PdlRequest(graphQuery, Variables(ident))
-            try {
-                client.post(urls.pdlUrl) {
-                    headers {
-                        append(PDL_BEHANDLINGSNUMMER_HEADER, BEHANDLINGSNUMMER_DIGITAL_OPPFOLGINGSPLAN)
-                        append(HttpHeaders.ContentType, ContentType.Application.Json)
-                        append(HttpHeaders.Authorization, bearerTokenString)
-                    }
-                    setBody(requestBody)
+    private suspend fun getFnr(ident: String): HttpResponse? {
+        val token = azureAdTokenConsumer.getToken(urls.pdlScope)
+        val bearerTokenString = "Bearer $token"
+        val graphQuery = this::class.java.getResource(IDENTER_QUERY)?.readText()?.replace("[\n\r]", "")
+                ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
+        val requestBody = PdlRequest(graphQuery, Variables(ident))
+        return try {
+            client.post(urls.pdlUrl) {
+                headers {
+                    append(PDL_BEHANDLINGSNUMMER_HEADER, BEHANDLINGSNUMMER_DIGITAL_OPPFOLGINGSPLAN)
+                    append(HttpHeaders.ContentType, ContentType.Application.Json)
+                    append(HttpHeaders.Authorization, bearerTokenString)
                 }
-            } catch (e: Exception) {
-                log.error("Error while calling PDL: ${e.message}", e)
-                null
+                setBody(requestBody)
             }
+        } catch (e: Exception) {
+            log.error("Error while calling PDL: ${e.message}", e)
+            null
         }
     }
 }

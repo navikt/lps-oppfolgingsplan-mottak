@@ -21,7 +21,7 @@ class DokarkivConsumer(
     private val client = httpClient()
     private val log = LoggerFactory.getLogger(DokarkivConsumer::class.qualifiedName)
 
-    fun journalforAltinnLps(
+    suspend fun journalforAltinnLps(
             lps: AltinnLpsOppfolgingsplan,
             virksomhetsnavn: String,
     ): String {
@@ -35,22 +35,20 @@ class DokarkivConsumer(
         return sendRequestToDokarkiv(journalpostRequest)
     }
 
-    private fun sendRequestToDokarkiv(journalpostRequest: JournalpostRequest): String {
-        val response = runBlocking {
-            val token = tokenConsumer.getToken(scope)
-            val requestUrl = baseUrl + JOURNALPOST_API_PATH
-            try {
-                client.post(requestUrl) {
-                    headers {
-                        append(HttpHeaders.ContentType, ContentType.Application.Json)
-                        append(HttpHeaders.Authorization, createBearerToken(token))
-                    }
-                    setBody(journalpostRequest)
+    private suspend fun sendRequestToDokarkiv(journalpostRequest: JournalpostRequest): String {
+        val token = tokenConsumer.getToken(scope)
+        val requestUrl = baseUrl + JOURNALPOST_API_PATH
+        val response = try {
+            client.post(requestUrl) {
+                headers {
+                    append(HttpHeaders.ContentType, ContentType.Application.Json)
+                    append(HttpHeaders.Authorization, createBearerToken(token))
                 }
-            } catch (e: Exception) {
-                log.error("Could not send Altinn-LPS to dokarkiv", e)
-                throw e
+                setBody(journalpostRequest)
             }
+        } catch (e: Exception) {
+            log.error("Could not send Altinn-LPS to dokarkiv", e)
+            throw e
         }
 
         val responseBody = when(response.status) {

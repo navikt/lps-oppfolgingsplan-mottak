@@ -162,8 +162,8 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanByUuid(lpsUUID: UUID): AltinnLp
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
             it.setObject(1, lpsUUID)
-            it.executeQuery().toList { toAltinnLpsOppfolgingsplan() }
-        }.first()
+            it.executeQuery().toObject { toAltinnLpsOppfolgingsplan() }
+        }
     }
 }
 

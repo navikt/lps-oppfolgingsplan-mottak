@@ -1,5 +1,6 @@
 package no.nav.syfo.scheduling
 
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.db.DatabaseInterface
 import no.nav.syfo.db.getAltinnLpsOppfolgingsplanWithoutGeneratedPdf
 import no.nav.syfo.db.getAltinnLpsOppfolgingsplanWithoutMostRecentFnr
@@ -21,13 +22,15 @@ class AltinnLpsRetryProcessLpsJob: Job {
         val leaderElection = jobDataMap[LEADER_ELECTION_SHORTNAME] as LeaderElection
         if (leaderElection.thisPodIsLeader()) {
             logInfo("Starting job $jobName")
-            retryStoreFnrs(database, altinnLpsService)
-            retryStorePdfs(database, altinnLpsService)
+            runBlocking {
+                retryStoreFnrs(database, altinnLpsService)
+                retryStorePdfs(database, altinnLpsService)
+            }
             logInfo("$jobName job successfully finished")
         }
     }
 
-    private fun retryStoreFnrs(database: DatabaseInterface, altinnLpsService: AltinnLpsService) {
+    private suspend fun retryStoreFnrs(database: DatabaseInterface, altinnLpsService: AltinnLpsService) {
         val lpsWithoutMostRecentFnr = database.getAltinnLpsOppfolgingsplanWithoutMostRecentFnr()
         val lpsPlansWithoutMostRecentFnrSize = lpsWithoutMostRecentFnr.size
         if (lpsPlansWithoutMostRecentFnrSize == 0) {
@@ -42,7 +45,7 @@ class AltinnLpsRetryProcessLpsJob: Job {
         logInfo("$successfulRetriesCount/${lpsPlansWithoutMostRecentFnrSize} fnrs successfully retried and stored")
     }
 
-    private fun retryStorePdfs(
+    private suspend fun retryStorePdfs(
             database: DatabaseInterface,
             altinnLpsService: AltinnLpsService,
     ) {

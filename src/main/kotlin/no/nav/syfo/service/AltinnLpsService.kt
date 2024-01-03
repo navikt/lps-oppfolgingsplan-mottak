@@ -1,6 +1,7 @@
 package no.nav.syfo.service
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
 import no.nav.syfo.consumer.dokarkiv.DokarkivConsumer
 import no.nav.syfo.consumer.isdialogmelding.IsdialogmeldingConsumer
@@ -42,37 +43,38 @@ class AltinnLpsService(
         val arbeidstakerFnr = oppfolgingsplan.skjemainnhold.sykmeldtArbeidstaker.fnr
         val orgnummer = oppfolgingsplan.skjemainnhold.arbeidsgiver.orgnr
         val shouldSendToNav = oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTiNav
-        val shouldSendToGP = oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
+        val shouldSendToFastlege = oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
         val now = LocalDateTime.now()
 
         val lpsPlanToSave = AltinnLpsOppfolgingsplan(
-            archiveReference,
-            UUID.randomUUID(),
-            arbeidstakerFnr,
-            null,
-            orgnummer,
-            null,
-            payload,
-            shouldSendToNav,
-            shouldSendToGP,
-            false, sentToFastlege = false,
-            0,
-            null,
-            now,
-            now,
-            now
+            archiveReference = archiveReference,
+            uuid = UUID.randomUUID(),
+            lpsFnr = arbeidstakerFnr,
+            fnr = null,
+            orgnummer = orgnummer,
+            pdf = null,
+            xml = payload,
+            shouldSendToNav = shouldSendToNav,
+            shouldSendToFastlege = shouldSendToFastlege,
+            sentToNav = false,
+            sentToFastlege = false,
+            sendToFastlegeRetryCount = 0,
+            journalpostId = null,
+            originallyCreated = now,
+            created = now,
+            lastChanged = now
         )
         database.storeAltinnLpsOppfolgingsplan(lpsPlanToSave)
         return lpsPlanToSave.uuid
     }
 
-    fun processLpsPlan(lpsUuid: UUID) {
+    suspend fun processLpsPlan(lpsUuid: UUID) {
         val altinnLps = database.getAltinnLpsOppfolgingsplanByUuid(lpsUuid)
         val lpsFnr = altinnLps.lpsFnr
 
         val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
         if (mostRecentFnr == null) {
-            log.info("[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS" +
+            log.warn("[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS" +
                     "with AR: ${altinnLps.archiveReference}")
             return
         }
@@ -86,7 +88,7 @@ class AltinnLpsService(
         )
         val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
         if (pdf == null) {
-            log.info("[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with AR: ${altinnLps.archiveReference}")
+            log.warn("[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with AR: ${altinnLps.archiveReference}")
             return
         }
 
@@ -112,7 +114,7 @@ class AltinnLpsService(
         }
     }
 
-    fun retryStoreFnr(
+    suspend fun retryStoreFnr(
         uuid: UUID,
         lpsFnr: String,
     ): Boolean {
@@ -124,7 +126,7 @@ class AltinnLpsService(
         } ?: false
     }
 
-    fun retryStorePdf(
+    suspend fun retryStorePdf(
         uuid: UUID,
         fnr: String,
         xml: String,
@@ -175,7 +177,7 @@ class AltinnLpsService(
         }
     }
 
-    fun sendLpsPlanToFastlege(
+    suspend fun sendLpsPlanToFastlege(
         uuid: UUID,
         lpsFnr: String,
         pdf: ByteArray,
@@ -188,7 +190,7 @@ class AltinnLpsService(
         return success
     }
 
-    fun sendLpsPlanToGosys(lps: AltinnLpsOppfolgingsplan): String {
+    suspend fun sendLpsPlanToGosys(lps: AltinnLpsOppfolgingsplan): String {
         val skjemainnhold = xmlToSkjemainnhold(lps.xml)
         val virksomhetsnavn = skjemainnhold.arbeidsgiver.orgnavn
 
