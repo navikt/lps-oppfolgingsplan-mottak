@@ -92,7 +92,11 @@ fun main() {
                 )
             }
         }
-    )
+    ) {
+        connectionGroupSize = 8
+        workerGroupSize = 8
+        callGroupSize = 16
+    }
 
     Runtime.getRuntime().addShutdownHook(
         Thread {
