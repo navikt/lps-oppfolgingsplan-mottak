@@ -116,3 +116,9 @@ spec:
       value: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
     - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
       value: "6"
+    - name: TOGGLE_SEND_TO_NAV
+      value: "false"
+    - name: TOGGLE_SEND_TO_FASTLEGE
+      value: "false"
+    - name: TOGGLE_JOURNALFOR
+      value: "false"

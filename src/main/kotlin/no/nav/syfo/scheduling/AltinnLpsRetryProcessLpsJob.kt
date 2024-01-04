@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 
 class AltinnLpsRetryProcessLpsJob: Job {
     private val log = LoggerFactory.getLogger(AltinnLpsRetryProcessLpsJob::class.qualifiedName)
-    private val jobName = "RETRY_PROCESS_LPS_JOB"
+    private val jobName = "PROCESS_LPS_JOB"
     private val jobLogPrefix = "[$jobName]:"
     override fun execute(context: JobExecutionContext) {
 

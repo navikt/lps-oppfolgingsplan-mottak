@@ -9,6 +9,7 @@ import no.nav.syfo.consumer.oppdfgen.OpPdfGenConsumer
 import no.nav.syfo.consumer.pdl.PdlConsumer
 import no.nav.syfo.db.*
 import no.nav.syfo.db.domain.AltinnLpsOppfolgingsplan
+import no.nav.syfo.environment.ToggleEnv
 import no.nav.syfo.kafka.KOppfolgingsplanLps
 import no.nav.syfo.kafka.producers.NavLpsProducer
 import no.nav.syfo.metrics.COUNT_METRIKK_BISTAND_FRA_NAV_FALSE
@@ -32,6 +33,7 @@ class AltinnLpsService(
     private val isdialogmeldingConsumer: IsdialogmeldingConsumer,
     private val dokarkivConsumer: DokarkivConsumer,
     private val sendToFastlegeRetryThreshold: Int,
+    private val toggles: ToggleEnv,
 ) {
     private val log: Logger = LoggerFactory.getLogger(AltinnLpsService::class.qualifiedName)
 
@@ -95,7 +97,7 @@ class AltinnLpsService(
         database.storePdf(lpsUuid, pdf)
 
         val shouldSendToNav = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTiNav
-        if (shouldSendToNav) {
+        if (shouldSendToNav && toggles.sendToNavToggle) {
             sendLpsPlanToNav(
                 lpsUuid,
                 mostRecentFnr,
@@ -105,7 +107,7 @@ class AltinnLpsService(
         }
 
         val shouldBeSentToGP = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
-        if (shouldBeSentToGP) {
+        if (shouldBeSentToGP && toggles.sendToFastlegeToggle) {
             sendLpsPlanToFastlege(
                 lpsUuid,
                 lpsFnr,

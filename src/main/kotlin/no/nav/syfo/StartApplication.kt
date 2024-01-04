@@ -43,7 +43,13 @@ import kotlin.coroutines.CoroutineContext
 val state: ApplicationState = ApplicationState()
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
+const val THREAD_POOL_WORKER_GROUP_SIZE = 8
+const val THREAD_POOL_CALL_GROUP_SIZE = 16
+const val THREAD_POOL_CONNECTION_GROUP_SIZE = 8
+
+
 lateinit var database: DatabaseInterface
+
 
 fun main() {
     val env = getEnv()
@@ -66,6 +72,7 @@ fun main() {
         isdialogmeldingConsumer,
         dokarkivConsumer,
         env.altinnLps.sendToFastlegeRetryThreshold,
+        env.toggles,
     )
 
     val server = embeddedServer(
@@ -93,9 +100,9 @@ fun main() {
             }
         }
     ) {
-        connectionGroupSize = 8
-        workerGroupSize = 8
-        callGroupSize = 16
+        connectionGroupSize = THREAD_POOL_CONNECTION_GROUP_SIZE
+        workerGroupSize = THREAD_POOL_WORKER_GROUP_SIZE
+        callGroupSize = THREAD_POOL_CALL_GROUP_SIZE
     }
 
     Runtime.getRuntime().addShutdownHook(
@@ -166,9 +173,10 @@ fun Application.schedulerModule(
 
     launch(backgroundTasksContext) {
         val scheduler = AltinnLpsScheduler(
-                database,
-                altinnLpsService,
-                leaderElection
+            database,
+            altinnLpsService,
+            leaderElection,
+            env.toggles,
         ).startScheduler()
         Runtime.getRuntime().addShutdownHook(
             Thread {

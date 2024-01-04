@@ -76,7 +76,12 @@ fun getEnv(): Environment {
             dokarkivScope = getEnvVar("DOKARKIV_SCOPE"),
         ),
         altinnLps = AltinnLpsEnv(
-            sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt()
+            sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt(),
+        ),
+        toggles = ToggleEnv(
+            sendToNavToggle = getEnvVar("TOGGLE_SEND_TO_NAV").toBoolean(),
+            sendToFastlegeToggle = getEnvVar("TOGGLE_SEND_TO_FASTLEGE").toBoolean(),
+            journalforToggle = getEnvVar("TOGGLE_JOURNALFOR").toBoolean(),
         )
     )
 }
@@ -95,3 +100,5 @@ fun getLocalEnv(): Environment =
 fun Application.isDev(env: Environment, codeToRun: () -> Unit) {
     if (env.application.cluster == DEV_CLUSTER) codeToRun()
 }
+
+fun String.toBoolean() = this == "true"

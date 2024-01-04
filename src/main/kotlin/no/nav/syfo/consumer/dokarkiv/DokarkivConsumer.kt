@@ -13,8 +13,8 @@ import no.nav.syfo.environment.UrlEnv
 import org.slf4j.LoggerFactory
 
 class DokarkivConsumer(
-        urls: UrlEnv,
-        private val tokenConsumer: AzureAdTokenConsumer,
+    urls: UrlEnv,
+    private val tokenConsumer: AzureAdTokenConsumer,
 ) {
     private val baseUrl = urls.dokarkivUrl
     private val scope = urls.dokarkivScope

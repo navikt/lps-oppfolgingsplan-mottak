@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
 import no.nav.syfo.db.*
+import no.nav.syfo.environment.ToggleEnv
 import no.nav.syfo.metrics.COUNT_METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING
 import no.nav.syfo.metrics.COUNT_METRIKK_PROSSESERING_VELLYKKET
 import no.nav.syfo.service.AltinnLpsService
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory
 
 class AltinnLpsRetryForwardLpsJob: Job {
     private val log = LoggerFactory.getLogger(AltinnLpsRetryForwardLpsJob::class.qualifiedName)
-    private val jobName = "RETRY_FORWARD_LPS_JOB"
+    private val jobName = "FORWARD_LPS_JOB"
     private val jobLogPrefix = "[$jobName]:"
 
     override fun execute(context: JobExecutionContext) {
@@ -25,10 +26,11 @@ class AltinnLpsRetryForwardLpsJob: Job {
         val database = jobDataMap[DB_SHORTNAME] as DatabaseInterface
         val altinnLpsService = jobDataMap[LPS_SERVICE_SHORTNAME] as AltinnLpsService
         val leaderElection = jobDataMap[LEADER_ELECTION_SHORTNAME] as LeaderElection
+        val toggles = jobDataMap[TOGGLES_SHORTNAME] as ToggleEnv
         if (leaderElection.thisPodIsLeader()) {
             logInfo("Starting job $jobName")
             runBlocking {
-                retryForwardAltinnLps(database, altinnLpsService)
+                retryForwardAltinnLps(database, altinnLpsService, toggles)
             }
             logInfo("$jobName job successfully finished")
         }
@@ -37,10 +39,17 @@ class AltinnLpsRetryForwardLpsJob: Job {
     private suspend fun retryForwardAltinnLps(
             database: DatabaseInterface,
             altinnLpsService: AltinnLpsService,
+            toggles: ToggleEnv,
     ) {
-        forwardUnsentLpsToNav(database, altinnLpsService)
-        forwardUnsentLpsToFastlege(database, altinnLpsService)
-        forwardUnsentLpsToDokarkiv(database, altinnLpsService)
+        if (toggles.sendToNavToggle) {
+            forwardUnsentLpsToNav(database, altinnLpsService)
+        }
+        if (toggles.sendToFastlegeToggle) {
+            forwardUnsentLpsToFastlege(database, altinnLpsService)
+        }
+        if (toggles.journalforToggle) {
+            forwardUnsentLpsToDokarkiv(database, altinnLpsService)
+        }
     }
 
     private fun forwardUnsentLpsToNav(

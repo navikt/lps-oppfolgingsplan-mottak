@@ -57,5 +57,10 @@
   },
   "altinnLps": {
     "sendToFastlegeRetryThreshold": 6
+  },
+  "toggles": {
+    "sendToFastlegeToggle": true,
+    "sendToNavToggle": true,
+    "journalforToggle": true
   }
 }

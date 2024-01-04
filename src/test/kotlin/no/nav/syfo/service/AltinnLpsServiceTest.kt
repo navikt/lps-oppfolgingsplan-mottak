@@ -38,6 +38,7 @@ class AltinnLpsServiceTest : DescribeSpec({
         isdialogmeldingConsumer,
         dokarkivConsumer,
         env.altinnLps.sendToFastlegeRetryThreshold,
+        env.toggles,
     )
 
     beforeTest {
