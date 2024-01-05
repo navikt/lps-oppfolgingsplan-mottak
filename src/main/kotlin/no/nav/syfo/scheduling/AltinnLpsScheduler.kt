@@ -80,10 +80,10 @@ class AltinnLpsScheduler(
 
         const val RETRY_PROCESSING_LPS_PLAN_TRIGGER = "RetryProccesingLpsPlanTrigger"
         const val RETRY_PROCESSING_LPS_PLAN_JOB = "RetryProccesingLpsPlanJob"
-        const val RETRY_PROCESSING_LPS_PLAN_INTERVAL_IN_MINUTES = 5
+        const val RETRY_PROCESSING_LPS_PLAN_INTERVAL_IN_MINUTES = 45
 
         const val RETRY_FORWARD_LPS_PLAN_TRIGGER = "RetryForwardLpsPlanTrigger"
         const val RETRY_FORWARD_LPS_PLAN_JOB = "RetryForwardLpsPlanJob"
-        const val RETRY_FORWARD_LPS_PLAN_INTERVAL_IN_MINUTES = 3
+        const val RETRY_FORWARD_LPS_PLAN_INTERVAL_IN_MINUTES = 60
     }
 }
