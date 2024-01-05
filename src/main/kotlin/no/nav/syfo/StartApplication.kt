@@ -47,9 +47,7 @@ const val THREAD_POOL_WORKER_GROUP_SIZE = 8
 const val THREAD_POOL_CALL_GROUP_SIZE = 16
 const val THREAD_POOL_CONNECTION_GROUP_SIZE = 8
 
-
 lateinit var database: DatabaseInterface
-
 
 fun main() {
     val env = getEnv()

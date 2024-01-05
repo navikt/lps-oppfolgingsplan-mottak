@@ -19,8 +19,7 @@ class AltinnLpsScheduler(
     private val altinnLpsService: AltinnLpsService,
     private val leaderElection: LeaderElection,
     private val toggles: ToggleEnv,
-
-    ) {
+) {
     private val log = LoggerFactory.getLogger(AltinnLpsScheduler::class.qualifiedName)
 
     fun startScheduler(): Scheduler {

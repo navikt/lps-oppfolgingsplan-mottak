@@ -120,12 +120,17 @@ class AltinnLpsService(
         uuid: UUID,
         lpsFnr: String,
     ): Boolean {
-        val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
-        return mostRecentFnr?.let {
-            database.storeFnr(uuid, mostRecentFnr)
-            log.info("Successfully stored fnr on retry attempt for altinn-lps with UUID: $uuid")
-            true
-        } ?: false
+        return try {
+            val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
+            mostRecentFnr?.let {
+                database.storeFnr(uuid, mostRecentFnr)
+                log.info("Successfully stored fnr on retry attempt for altinn-lps with UUID: $uuid")
+                true
+            } ?: false
+        } catch (e: RuntimeException) {
+            log.error("Error encountered while retrying fnr fetch", e)
+            false
+        }
     }
 
     suspend fun retryStorePdf(
@@ -133,21 +138,26 @@ class AltinnLpsService(
         fnr: String,
         xml: String,
     ): Boolean {
-        val skjemainnhold = xmlToSkjemainnhold(xml)
-        val shouldNotBeSentToGP = !skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
-        val lpsPdfModel = mapFormdataToFagmelding(
-            fnr,
-            skjemainnhold,
-        )
-        val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
-        return pdf?.let {
-            database.storePdf(uuid, pdf)
-            log.info("Successfully stored PDF on retry attempt for altinn-lps with UUID: $uuid")
-            if (shouldNotBeSentToGP) {
-                COUNT_METRIKK_PROSSESERING_VELLYKKET.increment()
-            }
-            true
-        } ?: false
+        return try {
+            val skjemainnhold = xmlToSkjemainnhold(xml)
+            val shouldNotBeSentToGP = !skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
+            val lpsPdfModel = mapFormdataToFagmelding(
+                fnr,
+                skjemainnhold,
+            )
+            val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
+            pdf?.let {
+                database.storePdf(uuid, pdf)
+                log.info("Successfully stored PDF on retry attempt for altinn-lps with UUID: $uuid")
+                if (shouldNotBeSentToGP) {
+                    COUNT_METRIKK_PROSSESERING_VELLYKKET.increment()
+                }
+                true
+            } ?: false
+        } catch (e: RuntimeException) {
+            log.error("Error encountered while retrying PDF-generation", e)
+            false
+        }
     }
 
     fun sendToFastlegeRetryThreshold() = sendToFastlegeRetryThreshold

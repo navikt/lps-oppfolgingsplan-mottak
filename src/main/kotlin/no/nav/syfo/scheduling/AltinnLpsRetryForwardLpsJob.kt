@@ -64,29 +64,37 @@ class AltinnLpsRetryForwardLpsJob: Job {
                     skjemainnhold,
             ).oppfolgingsplan
             val harBehovForBistand = oppfolgingsplan.isBehovForBistandFraNAV()
-            altinnLpsService.sendLpsPlanToNav(
+            try {
+                altinnLpsService.sendLpsPlanToNav(
                     lps.uuid,
                     lps.fnr,
                     lps.orgnummer,
                     harBehovForBistand,
-            )
+                )
+            } catch (e: RuntimeException) {
+                log.error("Could not forward altinn-lps with uuid ${lps.uuid} to NAV", e)
+            }
         }
     }
 
     private suspend fun forwardUnsentLpsToFastlege(
             database: DatabaseInterface,
             altinnLpsService: AltinnLpsService,
-
-            ) {
+    ) {
         val retryThreshold = altinnLpsService.sendToFastlegeRetryThreshold()
         val altinnLpsOppfolgingsplanNotYetSentToFastlege =
                 database.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThreshold)
         altinnLpsOppfolgingsplanNotYetSentToFastlege.forEach { lps ->
-            val success = altinnLpsService.sendLpsPlanToFastlege(
+            val success = try {
+                altinnLpsService.sendLpsPlanToFastlege(
                     lps.uuid,
                     lps.lpsFnr,
                     lps.pdf!!
-            )
+                )
+            } catch (e: RuntimeException) {
+                log.error("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege", e)
+                false
+            }
             if (!success) {
                 database.updateSendToFastlegeRetryCount(lps.uuid, lps.sendToFastlegeRetryCount)
             } else {
@@ -102,8 +110,14 @@ class AltinnLpsRetryForwardLpsJob: Job {
     ) {
         val altinnLpsOppfolgingsplanNotYetSentToDokarkiv = database.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv()
         altinnLpsOppfolgingsplanNotYetSentToDokarkiv.forEach { lps ->
-            val journalpostId = altinnLpsService.sendLpsPlanToGosys(lps)
-            database.updateJournalpostId(lps.uuid, journalpostId)
+            val journalpostId = try {
+                 altinnLpsService.sendLpsPlanToGosys(lps)
+            } catch (e: RuntimeException) {
+                log.error("Could not forward altinn-lps with uuid ${lps.uuid} to DokArkiv", e)
+                null
+            }
+            journalpostId?.let { database.updateJournalpostId(lps.uuid, journalpostId) }
+
         }
     }
 
