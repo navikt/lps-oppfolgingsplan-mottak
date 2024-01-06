@@ -13,14 +13,18 @@ const val DEV_CLUSTER = "dev-gcp"
 
 val objectMapper = ObjectMapper().registerKotlinModule()
 
+@Suppress("LongMethod")
 fun getEnv(): Environment {
     if (isLocal()) {
         return getLocalEnv()
     }
     return Environment(
         application = ApplicationEnv(
+            appName = getEnvVar("NAIS_APP_NAME"),
             port = getEnvVar("APPLICATION_PORT").toInt(),
             cluster = getEnvVar("NAIS_CLUSTER_NAME"),
+            coroutineThreadPoolSize = getEnvVar("COROUTINE_THREAD_POOL_SIZE").toInt(),
+            electorPath = getEnvVar("ELECTOR_PATH")
         ),
         auth = AuthEnv(
             maskinporten = AuthMaskinporten(
@@ -34,6 +38,12 @@ fun getEnv(): Environment {
             basic = AuthBasic(
                 username = getPropertyFromSecretsFile("username"),
                 password = getPropertyFromSecretsFile("password"),
+            ),
+            azuread = AzureAd(
+                clientId = getEnvVar("AZURE_APP_CLIENT_ID"),
+                clientSecret = getEnvVar("AZURE_APP_CLIENT_SECRET"),
+                accessTokenUrl = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
+                wellKnownUrl = getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
             )
         ),
         database = DbEnv(
@@ -42,6 +52,36 @@ fun getEnv(): Environment {
             dbName = getEnvVar("GCP_DB_DATABASE"),
             dbUsername = getEnvVar("GCP_DB_USERNAME"),
             dbPassword = getEnvVar("GCP_DB_PASSWORD"),
+        ),
+        kafka = KafkaEnv(
+            brokerUrl = getEnvVar("KAFKA_BROKERS"),
+            schemaRegistry = KafkaSchemaRegistryEnv(
+                url = getEnvVar("KAFKA_SCHEMA_REGISTRY"),
+                username = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
+                password = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
+            ),
+            sslConfig = KafkaSslEnv(
+                truststoreLocation = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
+                keystoreLocation = getEnvVar("KAFKA_KEYSTORE_PATH"),
+                credstorePassword = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),
+            ),
+        ),
+        urls = UrlEnv(
+            pdlUrl = getEnvVar("PDL_URL"),
+            pdlScope = getEnvVar("PDL_SCOPE"),
+            opPdfGenUrl = getEnvVar("OP_PDFGEN_URL"),
+            isdialogmeldingUrl = getEnvVar("ISDIALOGMELDING_URL"),
+            isdialogmeldingClientId = getEnvVar("ISDIALOGMELDING_CLIENT_ID"),
+            dokarkivUrl = getEnvVar("DOKARKIV_URL"),
+            dokarkivScope = getEnvVar("DOKARKIV_SCOPE"),
+        ),
+        altinnLps = AltinnLpsEnv(
+            sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt(),
+        ),
+        toggles = ToggleEnv(
+            sendToNavToggle = getEnvVar("TOGGLE_SEND_TO_NAV").toBoolean(),
+            sendToFastlegeToggle = getEnvVar("TOGGLE_SEND_TO_FASTLEGE").toBoolean(),
+            journalforToggle = getEnvVar("TOGGLE_JOURNALFOR").toBoolean(),
         )
     )
 }
@@ -60,3 +100,5 @@ fun getLocalEnv(): Environment =
 fun Application.isDev(env: Environment, codeToRun: () -> Unit) {
     if (env.application.cluster == DEV_CLUSTER) codeToRun()
 }
+
+fun String.toBoolean() = this == "true"

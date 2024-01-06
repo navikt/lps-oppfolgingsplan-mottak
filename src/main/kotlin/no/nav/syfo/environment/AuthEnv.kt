@@ -2,7 +2,8 @@ package no.nav.syfo.environment
 
 data class AuthEnv(
     val maskinporten: AuthMaskinporten,
-    val basic: AuthBasic
+    val basic: AuthBasic,
+    val azuread: AzureAd,
 )
 data class AuthMaskinporten(
     val wellKnownUrl: String,
@@ -10,10 +11,17 @@ data class AuthMaskinporten(
     val scope: String,
     val tokenUrl: String,
     val clientId: String,
-    val clientJwk: String
+    val clientJwk: String,
 )
 
 data class AuthBasic(
     val username: String,
-    val password: String
+    val password: String,
+)
+
+data class AzureAd(
+    val clientId: String,
+    val clientSecret: String,
+    val accessTokenUrl: String,
+    val wellKnownUrl: String,
 )

@@ -36,10 +36,10 @@ spec:
     timeout: 5
   resources:
     limits:
-      cpu: 500m
+      cpu: 1000m
       memory: 512Mi
     requests:
-      cpu: 250m
+      cpu: 500m
       memory: 256Mi
   replicas:
     min: 1
@@ -69,12 +69,52 @@ spec:
   prometheus:
     enabled: true
     path: /prometheus
+  accessPolicy:
+    outbound:
+      external:
+        - host: pdl-api.dev-fss-pub.nais.io
+        - host: syfooppdfgen.intern.dev.nav.no
+        - host: dokarkiv.dev-fss-pub.nais.io
+      rules:
+        - application: syfooppdfgen
+        - application: isdialogmelding
+          namespace: teamsykefravr
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no"
   filesFrom:
     - secret: lps-oppfolgingsplan-mottak-secrets
+  azure:
+    application:
+      enabled: true
+  kafka:
+    pool: nav-dev
+  leaderElection: true
   env:
     - name: KTOR_ENV
       value: remote
     - name: APPLICATION_PORT
       value: "8080"
+    - name: COROUTINE_THREAD_POOL_SIZE
+      value: "4"
+    - name: PDL_URL
+      value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: PDL_SCOPE
+      value: api://dev-fss.pdl.pdl-api/.default
+    - name: OP_PDFGEN_URL
+      value: http://syfooppdfgen
+    - name: ISDIALOGMELDING_URL
+      value: http://isdialogmelding.teamsykefravr
+    - name: ISDIALOGMELDING_CLIENT_ID
+      value: api://dev-gcp.teamsykefravr.isdialogmelding/.default
+    - name: DOKARKIV_URL
+      value: https://dokarkiv.dev-fss-pub.nais.io
+    - name: DOKARKIV_SCOPE
+      value: api://dev-fss.teamdokumenthandtering.dokarkiv-q1/.default
+    - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
+      value: "6"
+    - name: TOGGLE_SEND_TO_NAV
+      value: "false"
+    - name: TOGGLE_SEND_TO_FASTLEGE
+      value: "false"
+    - name: TOGGLE_JOURNALFOR
+      value: "false"
