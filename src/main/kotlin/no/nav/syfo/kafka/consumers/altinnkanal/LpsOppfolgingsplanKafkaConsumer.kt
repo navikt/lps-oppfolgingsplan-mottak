@@ -48,6 +48,7 @@ class LpsOppfolgingsplanKafkaConsumer(
     private fun receiveAndPersistLpsFromAltinn(record: ConsumerRecord<String, ReceivedMessage>): UUID {
         val receivedMessage = record.value()
         val archiveReference = receivedMessage.getArchiveReference()
+        log.info("Receiving Altinn-LPS with AR: $archiveReference")
         val payload = receivedMessage.getXmlMessage()
         return altinnLPSService.persistLpsPlan(archiveReference, payload)
     }
