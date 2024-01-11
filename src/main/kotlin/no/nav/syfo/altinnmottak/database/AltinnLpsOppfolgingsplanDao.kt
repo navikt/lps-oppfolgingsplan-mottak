@@ -20,10 +20,9 @@ fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppf
             should_send_to_nav,
             should_send_to_fastlege,
             archive_reference,
-            originally_created,
             created,
             last_changed
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """.trimIndent()
 
     connection.use { connection ->
@@ -35,14 +34,60 @@ fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppf
             it.setBoolean(5, altinnLpsPlan.shouldSendToNav)
             it.setBoolean(6, altinnLpsPlan.shouldSendToFastlege)
             it.setString(7, altinnLpsPlan.archiveReference)
-            it.setTimestamp(8, Timestamp.valueOf(altinnLpsPlan.originallyCreated))
-            it.setTimestamp(9, Timestamp.valueOf(altinnLpsPlan.created))
-            it.setTimestamp(10, Timestamp.valueOf(altinnLpsPlan.lastChanged))
+            it.setTimestamp(8, Timestamp.valueOf(altinnLpsPlan.created))
+            it.setTimestamp(9, Timestamp.valueOf(altinnLpsPlan.lastChanged))
             it.executeUpdate()
         }
         connection.commit()
     }
 }
+
+fun DatabaseInterface.storeMigratedAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppfolgingsplan) {
+    val insertStatement = """
+        INSERT INTO ALTINN_LPS (
+            uuid,
+            lps_fnr,
+            fnr,
+            orgnummer,
+            pdf,
+            xml,
+            should_send_to_nav,
+            should_send_to_fastlege,
+            sent_to_nav,
+            sent_to_fastlege,
+            send_to_fastlege_retry_count,
+            journalpost_id,
+            archive_reference,
+            created,
+            last_changed,
+            migrated
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """.trimIndent()
+
+    connection.use { connection ->
+        connection.prepareStatement(insertStatement).use {
+            it.setObject(1, altinnLpsPlan.uuid)
+            it.setString(2, altinnLpsPlan.lpsFnr)
+            it.setString(3, altinnLpsPlan.fnr)
+            it.setString(4, altinnLpsPlan.orgnummer)
+            it.setBytes(5, altinnLpsPlan.pdf)
+            it.setString(6, altinnLpsPlan.xml)
+            it.setBoolean(7, altinnLpsPlan.shouldSendToNav)
+            it.setBoolean(8, altinnLpsPlan.shouldSendToFastlege)
+            it.setBoolean(9, altinnLpsPlan.sentToNav)
+            it.setBoolean(10, altinnLpsPlan.sentToFastlege)
+            it.setInt(11, altinnLpsPlan.sendToFastlegeRetryCount)
+            it.setString(12, altinnLpsPlan.journalpostId)
+            it.setString(13, altinnLpsPlan.archiveReference)
+            it.setTimestamp(14, Timestamp.valueOf(altinnLpsPlan.created))
+            it.setTimestamp(15, Timestamp.valueOf(LocalDateTime.now()))
+            it.setBoolean(16, true)
+            it.executeUpdate()
+        }
+        connection.commit()
+    }
+}
+
 
 fun DatabaseInterface.storeFnr(uuid: UUID, fnr: String): Int {
     val updateStatement = """
@@ -208,6 +253,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToNav(): List<AltinnL
         WHERE pdf is not null
         AND should_send_to_nav
         AND NOT sent_to_nav
+        AND migrated = false
     """.trimIndent()
 
     return connection.use { connection ->
@@ -226,6 +272,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThres
         AND should_send_to_fastlege
         AND NOT sent_to_fastlege 
         AND send_to_fastlege_retry_count <= ?
+        AND migrated = false
     """.trimIndent()
 
     return connection.use { connection ->
@@ -243,6 +290,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv(): List<Al
         WHERE sent_to_nav
         AND pdf is not null
         AND journalpost_id is null
+        AND migrated = false
     """.trimIndent()
 
     return connection.use { connection ->

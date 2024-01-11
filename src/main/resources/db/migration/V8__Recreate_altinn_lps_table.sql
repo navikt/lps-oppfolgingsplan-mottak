@@ -17,9 +17,9 @@ CREATE TABLE ALTINN_LPS
     send_to_fastlege_retry_count INTEGER     NOT NULL DEFAULT 0,
     journalpost_id               VARCHAR(20),
     archive_reference            VARCHAR(40),
-    originally_created           TIMESTAMP   NOT NULL,
     created                      TIMESTAMP   NOT NULL,
-    last_changed                 TIMESTAMP   NOT NULL
+    last_changed                 TIMESTAMP   NOT NULL,
+    migrated                     BOOLEAN     NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX fnr_index ON ALTINN_LPS (fnr);

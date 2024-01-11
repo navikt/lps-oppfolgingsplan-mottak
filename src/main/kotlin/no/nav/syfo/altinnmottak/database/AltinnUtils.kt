@@ -18,7 +18,6 @@ fun ResultSet.toAltinnLpsOppfolgingsplan() = AltinnLpsOppfolgingsplan(
     sendToFastlegeRetryCount = getInt("send_to_fastlege_retry_count"),
     journalpostId = getString("journalpost_id"),
     archiveReference = getString("archive_reference"),
-    originallyCreated = getTimestamp("originally_created").toLocalDateTime(),
     created = getTimestamp("created").toLocalDateTime(),
     lastChanged = getTimestamp("last_changed").toLocalDateTime(),
 )

@@ -50,7 +50,6 @@ val altinnLpsPlan = AltinnLpsOppfolgingsplan(
     sentToFastlege = false,
     sendToFastlegeRetryCount = 0,
     journalpostId = null,
-    originallyCreated = LocalDateTime.now(),
     created = LocalDateTime.now(),
     lastChanged = LocalDateTime.now()
 )
