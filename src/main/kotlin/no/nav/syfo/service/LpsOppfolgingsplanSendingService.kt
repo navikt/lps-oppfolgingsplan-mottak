@@ -33,8 +33,6 @@ class LpsOppfolgingsplanSendingService(
         } else if (toggles.sendLpsPlanToNavToggle && shouldBeSentToNav(mottaker)) {
             // TODO
             sentToNavId = null
-        } else {
-            throw IllegalArgumentException("Invalid mottaker field")
         }
         return LpsOppfolgingsplan(sykmeldtFnr = sykmeldtFnr, sentToFastlegeId = sentToFastlegeId, sentToNavId = sentToNavId)
     }
