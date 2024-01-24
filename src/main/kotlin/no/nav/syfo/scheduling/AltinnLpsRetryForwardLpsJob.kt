@@ -41,13 +41,13 @@ class AltinnLpsRetryForwardLpsJob: Job {
             altinnLpsService: AltinnLpsService,
             toggles: ToggleEnv,
     ) {
-        if (toggles.sendToNavToggle) {
+        if (toggles.sendAltinnLpsPlanToNavToggle) {
             forwardUnsentLpsToNav(database, altinnLpsService)
         }
-        if (toggles.sendToFastlegeToggle) {
+        if (toggles.sendAltinnLpsPlanToFastlegeToggle) {
             forwardUnsentLpsToFastlege(database, altinnLpsService)
         }
-        if (toggles.journalforToggle) {
+        if (toggles.journalforAltinnLpsPlanToggle) {
             forwardUnsentLpsToDokarkiv(database, altinnLpsService)
         }
     }

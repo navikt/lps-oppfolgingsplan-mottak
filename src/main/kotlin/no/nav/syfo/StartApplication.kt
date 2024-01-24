@@ -38,6 +38,7 @@ import no.nav.syfo.service.AltinnLpsService
 import no.nav.syfo.util.LeaderElection
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import no.nav.syfo.service.LpsOppfolgingsplanSendingService
 import kotlin.coroutines.CoroutineContext
 
 val state: ApplicationState = ApplicationState()
@@ -72,7 +73,13 @@ fun main() {
         env.altinnLps.sendToFastlegeRetryThreshold,
         env.toggles,
     )
-
+    val lpsOppfolgingsplanSendingService = LpsOppfolgingsplanSendingService(
+        opPdfGenConsumer,
+        navLpsProducer,
+        isdialogmeldingConsumer,
+        dokarkivConsumer,
+        env.toggles,
+    )
     val server = embeddedServer(
         Netty,
         applicationEngineEnvironment {
@@ -82,7 +89,7 @@ fun main() {
 
             module {
                 state.running = true
-                serverModule(env)
+                serverModule(env, isdialogmeldingConsumer, lpsOppfolgingsplanSendingService)
                 kafkaModule(
                     state,
                     backgroundTasksContext,
@@ -112,7 +119,11 @@ fun main() {
     server.start(wait = true)
 }
 
-fun Application.serverModule(env: Environment) {
+fun Application.serverModule(
+    env: Environment,
+    isdialogmeldingConsumer: IsdialogmeldingConsumer,
+    lpsOppfolgingsplanSendingService: LpsOppfolgingsplanSendingService,
+) {
     install(ContentNegotiation) {
         jackson {
             registerKotlinModule()
@@ -132,7 +143,7 @@ fun Application.serverModule(env: Environment) {
     routing {
         registerNaisApi(state)
         registerPrometheusApi()
-        registerOppfolgingsplanApi(database)
+        registerOppfolgingsplanApi(database, isdialogmeldingConsumer,  lpsOppfolgingsplanSendingService )
         registerSwaggerApi()
     }
 

@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 fun createOppfolgingsplanMeta(): OppfolgingsplanMeta {
     return OppfolgingsplanMeta(
         utfyllingsdato = LocalDateTime.now(),
-        mottaker = Mottaker.NAV,
+        mottaker = Mottaker.NAVOGFASTLEGE,
         sykmeldtFnr = "123456789",
         virksomhet = Virksomhet(
             virksomhetsnavn = "Ørsta Rådhus",

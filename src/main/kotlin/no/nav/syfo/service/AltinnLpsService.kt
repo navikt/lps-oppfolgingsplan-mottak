@@ -1,7 +1,6 @@
 package no.nav.syfo.service
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import kotlinx.coroutines.runBlocking
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
 import no.nav.syfo.consumer.dokarkiv.DokarkivConsumer
 import no.nav.syfo.consumer.isdialogmelding.IsdialogmeldingConsumer
@@ -97,7 +96,7 @@ class AltinnLpsService(
         database.storePdf(lpsUuid, pdf)
 
         val shouldSendToNav = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTiNav
-        if (shouldSendToNav && toggles.sendToNavToggle) {
+        if (shouldSendToNav && toggles.sendAltinnLpsPlanToNavToggle) {
             sendLpsPlanToNav(
                 lpsUuid,
                 mostRecentFnr,
@@ -107,7 +106,7 @@ class AltinnLpsService(
         }
 
         val shouldBeSentToGP = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
-        if (shouldBeSentToGP && toggles.sendToFastlegeToggle) {
+        if (shouldBeSentToGP && toggles.sendAltinnLpsPlanToFastlegeToggle) {
             sendLpsPlanToFastlege(
                 lpsUuid,
                 lpsFnr,
@@ -194,7 +193,7 @@ class AltinnLpsService(
         lpsFnr: String,
         pdf: ByteArray,
     ): Boolean {
-        val success = isdialogmeldingConsumer.sendPlanToFastlege(lpsFnr, pdf)
+        val success = isdialogmeldingConsumer.sendAltinnLpsPlanToFastlege(lpsFnr, pdf)
         if (success) {
             database.setSentToFastlegeTrue(uuid)
             COUNT_METRIKK_DELT_MED_FASTLEGE.increment()
