@@ -8,7 +8,7 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
-import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.application.database.DatabaseInterface
 
 const val AR_1 = "AR0000000"
 const val AR_2 = "AR0000001"

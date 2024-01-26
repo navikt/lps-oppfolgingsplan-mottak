@@ -1,7 +1,7 @@
 package no.nav.syfo.util
 
 import no.nav.helse.op2016.Skjemainnhold
-import no.nav.syfo.service.domain.*
+import no.nav.syfo.altinnmottak.domain.*
 
 fun mapFormdataToFagmelding(
     fnr: String,
