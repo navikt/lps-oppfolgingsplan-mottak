@@ -2,17 +2,14 @@ package no.nav.syfo.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.headers
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.append
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import no.nav.syfo.api.util.httpClient
-import no.nav.syfo.environment.ApplicationEnv
+import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.application.environment.ApplicationEnv
 import java.net.InetAddress
 
 class LeaderElection(val application: ApplicationEnv) {
@@ -36,7 +33,7 @@ class LeaderElection(val application: ApplicationEnv) {
     }
 
     private suspend fun callElectorPath(path: String): String {
-        val client = httpClient()
+        val client = httpClientDefault()
         val leaderResponse = client.get(path) {
             headers {
                 append(HttpHeaders.Accept, ContentType.Application.Json)

@@ -1,6 +1,6 @@
 package no.nav.syfo.mockdata
 
-import no.nav.syfo.api.lps.*
+import no.nav.syfo.oppfolgingsplanmottak.domain.*
 import java.time.LocalDateTime
 
 fun createOppfolgingsplanMeta(): OppfolgingsplanMeta {

@@ -100,6 +100,8 @@ dependencies {
     implementation("javax.ws.rs:javax.ws.rs-api:$javaxVersion")
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
     implementation("io.ktor:ktor-server-cors:$ktorVersion")
+    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
+    implementation("io.ktor:ktor-server-call-id:$ktorVersion")
 
     // Database
     implementation("org.postgresql:postgresql:$postgresVersion")
@@ -112,6 +114,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     // Metrics and Prometheus
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
@@ -172,7 +175,7 @@ java.toolchain {
 
 tasks {
     withType<ShadowJar> {
-        manifest.attributes["Main-Class"] = "no.nav.syfo.StartApplicationKt"
+        manifest.attributes["Main-Class"] = "no.nav.syfo.AppKt"
     }
     withType<Test> {
         useJUnitPlatform()

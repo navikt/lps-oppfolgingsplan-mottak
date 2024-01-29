@@ -26,13 +26,13 @@ spec:
       consumes:
         - name: "nav:oppfolgingsplan:v1.lps.write"
   liveness:
-    path: /isAlive
+    path: /internal/is_alive
     initialDelay: 10
     timeout: 5
     periodSeconds: 10
     failureThreshold: 5
   readiness:
-    path: /isReady
+    path: /internal/is_ready
     initialDelay: 10
     periodSeconds: 5
     timeout: 5
