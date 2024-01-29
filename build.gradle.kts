@@ -175,7 +175,7 @@ java.toolchain {
 
 tasks {
     withType<ShadowJar> {
-        manifest.attributes["Main-Class"] = "no.nav.syfo.StartApplicationKt"
+        manifest.attributes["Main-Class"] = "no.nav.syfo.AppKt"
     }
     withType<Test> {
         useJUnitPlatform()
