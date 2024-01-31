@@ -1,11 +1,17 @@
 package no.nav.syfo
 
 import com.typesafe.config.ConfigFactory
-import io.ktor.server.application.*
-import io.ktor.server.config.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.application.ApplicationStarted
+import io.ktor.server.config.HoconApplicationConfig
+import io.ktor.server.engine.ApplicationEngineEnvironment
+import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.engine.connector
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.engine.stop
+import io.ktor.server.netty.Netty
 import kotlinx.coroutines.asCoroutineDispatcher
+import no.nav.syfo.altinnmottak.AltinnLpsService
+import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.database.Database
@@ -13,14 +19,13 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.grantAccessToIAMUsers
 import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.application.kafka.kafkaModule
-import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
 import no.nav.syfo.application.scheduling.schedulerModule
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.client.pdl.PdlClient
-import no.nav.syfo.altinnmottak.AltinnLpsService
+import no.nav.syfo.client.wellknown.getWellKnown
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -35,27 +40,29 @@ lateinit var database: DatabaseInterface
 
 fun main() {
     val server = embeddedServer(
-        factory = Netty, environment = createApplicationEngineEnvironment()
+        factory = Netty,
+        environment = createApplicationEngineEnvironment(),
     ) {
         connectionGroupSize = THREAD_POOL_CONNECTION_GROUP_SIZE
         workerGroupSize = THREAD_POOL_WORKER_GROUP_SIZE
         callGroupSize = THREAD_POOL_CALL_GROUP_SIZE
     }
 
-    Runtime.getRuntime().addShutdownHook(Thread {
-        server.stop(SERVER_SHUTDOWN_GRACE_PERIOD, SERVER_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)
-    })
+    Runtime.getRuntime().addShutdownHook(
+        Thread {
+            server.stop(SERVER_SHUTDOWN_GRACE_PERIOD, SERVER_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)
+        },
+    )
 
     server.start(wait = true)
 }
 
-private fun createApplicationEngineEnvironment(
-): ApplicationEngineEnvironment {
+private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     val logger = LoggerFactory.getLogger("ktor.application")
     val appState = ApplicationState()
     val appEnv = getEnv()
     val backgroundTasksContext = Executors.newFixedThreadPool(
-        appEnv.application.coroutineThreadPoolSize
+        appEnv.application.coroutineThreadPoolSize,
     ).asCoroutineDispatcher()
     database = Database(appEnv.database)
     database.grantAccessToIAMUsers()
@@ -75,6 +82,13 @@ private fun createApplicationEngineEnvironment(
         appEnv.altinnLps.sendToFastlegeRetryThreshold,
         appEnv.toggles,
     )
+    val wellKnownInternalAzureAD = getWellKnown(
+        wellKnownUrl = appEnv.auth.azuread.wellKnownUrl,
+    )
+
+    val wellKnownMaskinporten = getWellKnown(
+        wellKnownUrl = appEnv.auth.maskinporten.wellKnownUrl,
+    )
 
     val applicationEngineEnvironment = applicationEngineEnvironment {
         log = logger
@@ -83,7 +97,7 @@ private fun createApplicationEngineEnvironment(
             port = appEnv.application.port
         }
         module {
-            apiModule(appState, database, appEnv)
+            apiModule(appState, database, appEnv, wellKnownMaskinporten, wellKnownInternalAzureAD)
             kafkaModule(
                 appState,
                 backgroundTasksContext,
@@ -106,4 +120,3 @@ private fun createApplicationEngineEnvironment(
 
     return applicationEngineEnvironment
 }
-

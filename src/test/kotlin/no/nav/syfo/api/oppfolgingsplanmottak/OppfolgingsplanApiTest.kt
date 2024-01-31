@@ -6,17 +6,20 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.string.shouldContain
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import io.ktor.server.testing.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.testing.testApplication
 import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.db.EmbeddedDatabase
 import no.nav.syfo.mockdata.createDefaultOppfolgingsplanDTOMock
+import no.nav.syfo.mockdata.testApiModule
 import no.nav.syfo.oppfolgingsplanmottak.successText
 
 class OppfolgingsplanApiTest : DescribeSpec({
@@ -28,7 +31,7 @@ class OppfolgingsplanApiTest : DescribeSpec({
         it("Should get a dummy response for POST") {
             testApplication {
                 application {
-                    apiModule(ApplicationState(alive = true, ready = true), embeddedDatabase, getEnv())
+                    testApiModule(ApplicationState(alive = true, ready = true), embeddedDatabase, getEnv())
                 }
                 val client = createClient {
                     install(ContentNegotiation) {
@@ -40,8 +43,7 @@ class OppfolgingsplanApiTest : DescribeSpec({
                     }
                 }
                 val oppfolgingsplanDTO = createDefaultOppfolgingsplanDTOMock()
-                val response = client.post("/api/v1/lps/write")
-                {
+                val response = client.post("/api/v1/lps/write") {
                     contentType(ContentType.Application.Json)
                     setBody(oppfolgingsplanDTO)
                 }
@@ -51,5 +53,4 @@ class OppfolgingsplanApiTest : DescribeSpec({
             }
         }
     }
-
 })
