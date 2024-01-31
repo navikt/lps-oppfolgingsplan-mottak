@@ -11,8 +11,8 @@ fun Application.testApiModule(
     database: DatabaseInterface,
     environment: ApplicationEnvironment,
 ) {
-    val wellKnownInternalAzureAD = wellKnownInternalAzureAD()
-    val wellKnownMaskinporten = wellKnownInternalAzureAD()
+    val wellKnownInternalAzureAD = wellKnown()
+    val wellKnownMaskinporten = wellKnown()
     this.apiModule(
         applicationState = applicationState,
         database = database,
