@@ -7,12 +7,12 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.syfo.application.api.auth.JwtIssuerType
-import no.nav.syfo.application.environment.isLocal
+
+const val VEILEDER_LPS_METADATA_PATH = "/api/internad/v3/oppfolgingsplan/lps"
 
 fun Routing.registerVeilederApi() {
-    route("/api/internad/v3/oppfolgingsplan/lps") {
-        val isLocal = isLocal()
-        authenticate(JwtIssuerType.INTERNAL_AZUREAD.name, optional = isLocal) {
+    route(VEILEDER_LPS_METADATA_PATH) {
+        authenticate(JwtIssuerType.INTERNAL_AZUREAD.name) {
             get {
                 call.respondText("OK")
             }

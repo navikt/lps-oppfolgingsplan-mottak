@@ -15,9 +15,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.testApplication
-import no.nav.syfo.application.ApplicationState
-import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.db.EmbeddedDatabase
+import no.nav.syfo.mockdata.ExternalMockEnvironment
 import no.nav.syfo.mockdata.createDefaultOppfolgingsplanDTOMock
 import no.nav.syfo.mockdata.testApiModule
 import no.nav.syfo.oppfolgingsplanmottak.successText
@@ -31,7 +30,7 @@ class OppfolgingsplanApiTest : DescribeSpec({
         it("Should get a dummy response for POST") {
             testApplication {
                 application {
-                    testApiModule(ApplicationState(alive = true, ready = true), embeddedDatabase, getEnv())
+                    testApiModule(ExternalMockEnvironment.instance, embeddedDatabase)
                 }
                 val client = createClient {
                     install(ContentNegotiation) {

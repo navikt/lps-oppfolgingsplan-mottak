@@ -1,23 +1,18 @@
 package no.nav.syfo.mockdata
 
 import io.ktor.server.application.Application
-import no.nav.syfo.application.ApplicationEnvironment
-import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.database.DatabaseInterface
 
 fun Application.testApiModule(
-    applicationState: ApplicationState,
+    externalMockEnvironment: ExternalMockEnvironment,
     database: DatabaseInterface,
-    environment: ApplicationEnvironment,
 ) {
-    val wellKnownInternalAzureAD = wellKnown()
-    val wellKnownMaskinporten = wellKnown()
     this.apiModule(
-        applicationState = applicationState,
+        applicationState = externalMockEnvironment.applicationState,
         database = database,
-        environment = environment,
-        wellKnownMaskinporten = wellKnownMaskinporten,
-        wellKnownInternalAzureAD = wellKnownInternalAzureAD,
+        environment = externalMockEnvironment.environment,
+        wellKnownMaskinporten = externalMockEnvironment.wellKnownMaskinporten,
+        wellKnownInternalAzureAD = externalMockEnvironment.wellKnownInternalAzureAD,
     )
 }
