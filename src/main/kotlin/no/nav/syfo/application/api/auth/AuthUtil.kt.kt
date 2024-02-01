@@ -46,4 +46,8 @@ fun validIssuer(credentials: JWTCredential, validIssuer: String) = credentials.p
 fun validScope(credentials: JWTCredential, validScope: String) =
     credentials.getClaim("scope", String::class) == validScope
 
+fun JWTCredential.inExpectedAudience(expectedAudience: List<String>) = expectedAudience.any {
+    this.payload.audience.contains(it)
+}
+
 fun ApplicationCall.getToken() = request.header("Authorization")?.removePrefix("Bearer ")

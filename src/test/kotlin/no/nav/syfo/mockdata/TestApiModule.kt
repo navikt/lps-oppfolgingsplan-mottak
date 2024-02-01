@@ -13,5 +13,6 @@ fun Application.testApiModule(
         database = database,
         environment = externalMockEnvironment.environment,
         wellKnownMaskinporten = externalMockEnvironment.wellKnownMaskinporten,
+        wellKnownInternalAzureAD = externalMockEnvironment.wellKnownInternalAzureAD,
     )
 }

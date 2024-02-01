@@ -82,6 +82,9 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
         appEnv.altinnLps.sendToFastlegeRetryThreshold,
         appEnv.toggles,
     )
+    val wellKnownInternalAzureAD = getWellKnown(
+        wellKnownUrl = appEnv.auth.azuread.wellKnownUrl,
+    )
 
     val wellKnownMaskinporten = getWellKnown(
         wellKnownUrl = appEnv.auth.maskinporten.wellKnownUrl,
@@ -94,7 +97,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
             port = appEnv.application.port
         }
         module {
-            apiModule(appState, database, appEnv, wellKnownMaskinporten)
+            apiModule(appState, database, appEnv, wellKnownMaskinporten, wellKnownInternalAzureAD)
             kafkaModule(
                 appState,
                 backgroundTasksContext,
