@@ -68,7 +68,3 @@ data class PdlErrorExtension(
     val code: String?,
     val classification: String
 )
-
-enum class IdentType {
-    FOLKEREGISTERIDENT
-}
