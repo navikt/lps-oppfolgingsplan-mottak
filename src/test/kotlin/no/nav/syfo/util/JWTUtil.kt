@@ -14,8 +14,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
-fun validMaskinportenToken() = generateJWT(
-    audience = ExternalMockEnvironment.instance.environment.auth.maskinporten.clientId,
+fun validMaskinportenToken() = generateMaskinportenJWT(
     issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
     scope = ExternalMockEnvironment.instance.environment.auth.maskinporten.scope,
 )
@@ -23,12 +22,9 @@ fun validMaskinportenToken() = generateJWT(
 const val KEY_ID = "localhost-signer"
 
 // Mock of JWT-token supplied by AzureAD. KeyId must match kid i jwkset.json
-fun generateJWT(
-    audience: String,
+fun generateMaskinportenJWT(
     issuer: String,
-    navIdent: String? = null,
-    subject: String? = null,
-    scope: String? = null,
+    scope: String,
     expiry: LocalDateTime? = LocalDateTime.now().plusHours(1),
 ): String {
     val now = Date()
@@ -37,18 +33,11 @@ fun generateJWT(
 
     return JWT.create()
         .withKeyId(KEY_ID)
-        .withSubject(subject ?: "subject")
         .withIssuer(issuer)
-        .withAudience(audience)
         .withJWTId(UUID.randomUUID().toString())
-        .withClaim("ver", "1.0")
-        .withClaim("nonce", "myNonce")
-        .withClaim("auth_time", now)
-        .withClaim("nbf", now)
         .withClaim("iat", now)
         .withClaim("exp", Date.from(expiry?.atZone(ZoneId.systemDefault())?.toInstant()))
         .withClaim("scope", scope)
-        .withClaim(JWT_CLAIM_NAVIDENT, navIdent)
         .sign(alg)
 }
 
