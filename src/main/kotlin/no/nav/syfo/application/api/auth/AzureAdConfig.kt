@@ -24,7 +24,7 @@ fun AuthenticationConfig.configureAzureAdJwt(
             if (credentialsHasExpectedAudience) {
                 JWTPrincipal(credential.payload)
             } else {
-                log.warn(
+                log.error(
                     "Auth: Unexpected audience for jwt {}, {}",
                     StructuredArguments.keyValue("issuer", credential.payload.issuer),
                     StructuredArguments.keyValue("audience", credential.payload.audience),

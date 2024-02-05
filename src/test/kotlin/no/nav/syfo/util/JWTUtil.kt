@@ -28,7 +28,7 @@ fun validMaskinportenToken() = generateMaskinportenJWT(
 
 const val KEY_ID = "localhost-signer"
 
-// Mock of JWT-token supplied by AzureAD. KeyId must match kid i jwkset.json
+// Mock of JWT-token supplied by AzureAD. KeyId must match kid in jwkset.json
 fun generateAzureAdJWT(
     audience: String,
     issuer: String,
@@ -50,7 +50,7 @@ fun generateAzureAdJWT(
         .sign(alg)
 }
 
-// Mock of JWT-token supplied by AzureAD. KeyId must match kid i jwkset.json
+// Mock of JWT-token supplied by AzureAD. KeyId must match kid in jwkset.json
 fun generateMaskinportenJWT(
     issuer: String,
     scope: String,
