@@ -13,6 +13,13 @@ import java.text.ParseException
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
+import no.nav.syfo.mockdata.UserConstants
+
+fun validVeilederToken(navIdent: String = UserConstants.VEILEDER_IDENT) = generateAzureAdJWT(
+    audience = ExternalMockEnvironment.instance.environment.auth.azuread.clientId,
+    issuer = ExternalMockEnvironment.instance.wellKnownInternalAzureAD.issuer,
+    navIdent = navIdent,
+)
 
 fun validMaskinportenToken() = generateMaskinportenJWT(
     issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
@@ -21,7 +28,29 @@ fun validMaskinportenToken() = generateMaskinportenJWT(
 
 const val KEY_ID = "localhost-signer"
 
-// Mock of JWT-token supplied by AzureAD. KeyId must match kid i jwkset.json
+// Mock of JWT-token supplied by AzureAD. KeyId must match kid in jwkset.json
+fun generateAzureAdJWT(
+    audience: String,
+    issuer: String,
+    navIdent: String? = null,
+    expiry: LocalDateTime? = LocalDateTime.now().plusHours(1),
+): String {
+    val now = Date()
+    val key = getDefaultRSAKey()
+    val alg = Algorithm.RSA256(key.toRSAPublicKey(), key.toRSAPrivateKey())
+
+    return JWT.create()
+        .withKeyId(KEY_ID)
+        .withIssuer(issuer)
+        .withAudience(audience)
+        .withJWTId(UUID.randomUUID().toString())
+        .withClaim("iat", now)
+        .withClaim("exp", Date.from(expiry?.atZone(ZoneId.systemDefault())?.toInstant()))
+        .withClaim(JWT_CLAIM_NAVIDENT, navIdent)
+        .sign(alg)
+}
+
+// Mock of JWT-token supplied by AzureAD. KeyId must match kid in jwkset.json
 fun generateMaskinportenJWT(
     issuer: String,
     scope: String,

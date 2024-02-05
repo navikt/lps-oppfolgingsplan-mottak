@@ -8,7 +8,9 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.routing
 import no.nav.syfo.application.ApplicationEnvironment
 import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.api.auth.AzureAdJwtIssuer
 import no.nav.syfo.application.api.auth.MaskinportenJwtIssuer
+import no.nav.syfo.application.api.auth.configureAzureAdJwt
 import no.nav.syfo.application.api.auth.configureBasicAuthentication
 import no.nav.syfo.application.api.auth.configureMaskinportenJwt
 import no.nav.syfo.application.api.swagger.registerSwaggerApi
@@ -18,12 +20,14 @@ import no.nav.syfo.application.metric.registerPrometheusApi
 import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
 import no.nav.syfo.oppfolgingsplanmottak.registerOppfolgingsplanApi
+import no.nav.syfo.veileder.registerVeilederApi
 
 fun Application.apiModule(
     applicationState: ApplicationState,
     database: DatabaseInterface,
     environment: ApplicationEnvironment,
     wellKnownMaskinporten: WellKnown,
+    wellKnownInternalAzureAD: WellKnown,
 ) {
     installMetrics()
     installCallId()
@@ -34,6 +38,12 @@ fun Application.apiModule(
             MaskinportenJwtIssuer(
                 validScope = environment.auth.maskinporten.scope,
                 wellKnown = wellKnownMaskinporten,
+            ),
+        )
+        configureAzureAdJwt(
+            AzureAdJwtIssuer(
+                acceptedAudienceList = listOf(environment.auth.azuread.clientId),
+                wellKnown = wellKnownInternalAzureAD,
             ),
         )
         if (environment.isDev()) {
@@ -53,6 +63,7 @@ fun Application.apiModule(
         )
         registerPrometheusApi()
         registerOppfolgingsplanApi(database)
+        registerVeilederApi()
         registerSwaggerApi()
         if (environment.isDev()) {
             registerMaskinportenTokenApi(environment)
