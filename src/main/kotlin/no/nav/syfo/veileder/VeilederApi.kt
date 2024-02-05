@@ -8,7 +8,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.syfo.application.api.auth.JwtIssuerType
 
-const val VEILEDER_LPS_METADATA_PATH = "/api/internad/v3/oppfolgingsplan/lps"
+const val VEILEDER_LPS_METADATA_PATH = "/api/internad/v1/oppfolgingsplan/lps"
 
 fun Routing.registerVeilederApi() {
     route(VEILEDER_LPS_METADATA_PATH) {
