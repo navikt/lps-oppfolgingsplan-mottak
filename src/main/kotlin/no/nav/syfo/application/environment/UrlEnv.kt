@@ -8,4 +8,6 @@ data class UrlEnv(
     val isdialogmeldingClientId: String,
     val dokarkivUrl: String,
     val dokarkivScope: String,
+    val istilgangskontrollUrl: String,
+    val istilgangskontrollClientId: String,
 )

@@ -74,6 +74,8 @@ fun getEnv(): ApplicationEnvironment {
             isdialogmeldingClientId = getEnvVar("ISDIALOGMELDING_CLIENT_ID"),
             dokarkivUrl = getEnvVar("DOKARKIV_URL"),
             dokarkivScope = getEnvVar("DOKARKIV_SCOPE"),
+            istilgangskontrollUrl = getEnvVar("ISTILGANGSKONTROLL_URL"),
+            istilgangskontrollClientId = getEnvVar("ISTILGANGSKONTROLL_CLIENT_ID"),
         ),
         altinnLps = AltinnLpsEnv(
             sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt(),
