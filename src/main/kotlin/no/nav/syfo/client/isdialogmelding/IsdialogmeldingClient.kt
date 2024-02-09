@@ -24,7 +24,7 @@ class IsdialogmeldingClient(
     ): Boolean {
         val requestUrl = "${urls.isdialogmeldingUrl}/$SEND_LPS_PDF_TO_FASTLEGE_PATH"
         val rsOppfoelgingsplan = RSOppfoelgingsplan(sykmeldtFnr, planAsPdf)
-        val token = azureAdClient.getSystemToken(urls.isdialogmeldingClientId) ?.accessToken
+        val token = azureAdClient.getSystemToken(urls.isdialogmeldingClientId)?.accessToken
             ?: throw RuntimeException("Failed to Send plan to fastlege: No token was found")
         val response = try {
             client.post(requestUrl) {
