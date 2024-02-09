@@ -4,6 +4,7 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.client.wellknown.WellKnown
 import java.nio.file.Paths
+import no.nav.syfo.client.azuread.AzureAdClient
 
 fun wellKnownInternalAzureAD(): WellKnown {
     val path = "src/test/resources/jwkset.json"
@@ -27,8 +28,11 @@ class ExternalMockEnvironment private constructor() {
 
     val applicationState: ApplicationState = ApplicationState(alive = true, ready = true)
     val environment = getEnv()
+    val mockHttpClient = mockHttpClient(environment = environment)
     val wellKnownMaskinporten = wellKnownMaskinporten()
     val wellKnownInternalAzureAD = wellKnownInternalAzureAD()
+
+    val azureAdClient = AzureAdClient(environment.auth, httpClient = mockHttpClient)
 
     companion object {
         val instance: ExternalMockEnvironment = ExternalMockEnvironment()
