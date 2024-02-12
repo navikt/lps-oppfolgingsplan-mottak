@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLps
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.OppfolgingsplanDTO
 
 fun Routing.registerOppfolgingsplanApi(
@@ -27,7 +28,7 @@ fun Routing.registerOppfolgingsplanApi(
     route("/api/v1/followupplan/write") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post {
-                val oppfolgingsplanDTO = call.receive<OppfolgingsplanDTO>()
+                val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 call.respondText("TODO")
             }
         }

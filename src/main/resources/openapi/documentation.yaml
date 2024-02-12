@@ -24,11 +24,11 @@ paths:
             '*/*':
               schema:
                 type: "string"
-  /api/v1/oppfolgingsplan/write:
+  /api/v1/followupplan/write:
     post:
       description: "Submit follow-up plan to NAV and/or general practitioner"
       tags:
-        - Oppfølgingsplan API
+        - Followup-plan API
       security:
         - bearerAuth: [ ]
       requestBody:
