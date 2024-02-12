@@ -1,4 +1,4 @@
-CREATE TABLE OPPFOLGINGSPLAN_LPS_V1
+CREATE TABLE FOLLOW_UP_PLAN_LPS_V1
 (
     uuid                                             UUID PRIMARY KEY,
     organization_number                              VARCHAR(9)  NOT NULL,
@@ -11,10 +11,8 @@ CREATE TABLE OPPFOLGINGSPLAN_LPS_V1
     other_facilitation_options                       TEXT,
     follow_up                                        TEXT        NOT NULL,
     evaluation_date                                  DATE        NOT NULL,
-    send_plan_to_nav                                 BOOLEAN     NOT NULL,
     needs_help_from_nav                              BOOLEAN,
     needs_help_from_nav_description                  TEXT,
-    send_plan_to_general_practitioner                BOOLEAN     NOT NULL,
     message_to_general_practitioner                  TEXT,
     additional_information                           TEXT,
     contact_person_full_name                         TEXT        NOT NULL,
@@ -22,8 +20,10 @@ CREATE TABLE OPPFOLGINGSPLAN_LPS_V1
     employee_has_contributed_to_plan                 BOOLEAN     NOT NULL,
     employee_has_not_contributed_to_plan_description TEXT,
     pdf                                              BYTEA,
-    sent_to_nav                                      BOOLEAN     NOT NULL DEFAULT FALSE,
-    sent_to_general_practitioner                     BOOLEAN     NOT NULL DEFAULT FALSE,
+    send_plan_to_nav                                 BOOLEAN     NOT NULL,
+    sent_to_nav_at                                   TIMESTAMP,
+    send_plan_to_general_practitioner                BOOLEAN     NOT NULL,
+    sent_to_general_practitioner_at                  TIMESTAMP,
     send_to_general_practitioner_retry_count         INTEGER     NOT NULL DEFAULT 0,
     journalpost_id                                   VARCHAR(20),
     created_at                                       TIMESTAMP   NOT NULL,
