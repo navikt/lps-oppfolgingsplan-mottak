@@ -29,6 +29,7 @@ import no.nav.syfo.client.wellknown.getWellKnown
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
@@ -57,6 +58,7 @@ fun main() {
     server.start(wait = true)
 }
 
+@Suppress("LongMethod")
 private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     val logger = LoggerFactory.getLogger("ktor.application")
     val appState = ApplicationState()
@@ -90,6 +92,12 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
         wellKnownUrl = appEnv.auth.maskinporten.wellKnownUrl,
     )
 
+    val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
+        azureAdClient = azureAdClient,
+        url = appEnv.urls.istilgangskontrollUrl,
+        clientId = appEnv.urls.istilgangskontrollClientId,
+    )
+
     val applicationEngineEnvironment = applicationEngineEnvironment {
         log = logger
         config = HoconApplicationConfig(ConfigFactory.load())
@@ -97,7 +105,14 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
             port = appEnv.application.port
         }
         module {
-            apiModule(appState, database, appEnv, wellKnownMaskinporten, wellKnownInternalAzureAD)
+            apiModule(
+                appState,
+                database,
+                appEnv,
+                wellKnownMaskinporten,
+                wellKnownInternalAzureAD,
+                veilederTilgangskontrollClient
+            )
             kafkaModule(
                 appState,
                 backgroundTasksContext,

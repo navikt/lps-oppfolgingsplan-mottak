@@ -53,7 +53,9 @@
     "isdialogmeldingUrl": "http://isdialogmelding.io",
     "isdialogmeldingClientId": "localhost.isdialogmelding",
     "dokarkivUrl": "http://dokarkiv.no",
-    "dokarkivScope": "dokarkiv_scope"
+    "dokarkivScope": "dokarkiv_scope",
+    "istilgangskontrollUrl": "isTilgangskontrollUrl",
+    "istilgangskontrollClientId": "localhost.istilgangskontroll"
   },
   "altinnLps": {
     "sendToFastlegeRetryThreshold": 6

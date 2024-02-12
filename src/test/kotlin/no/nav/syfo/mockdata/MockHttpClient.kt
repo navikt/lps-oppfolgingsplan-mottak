@@ -12,6 +12,9 @@ fun mockHttpClient(environment: ApplicationEnvironment) = HttpClient(MockEngine)
             val requestUrl = request.url.encodedPath
             when {
                 requestUrl == "/${environment.auth.azuread.accessTokenUrl}" -> azureAdMockResponse()
+                requestUrl.startsWith("/${environment.urls.istilgangskontrollUrl}") -> tilgangskontrollResponse(
+                    request
+                )
                 else -> error("Unhandled ${request.url.encodedPath}")
             }
         }
