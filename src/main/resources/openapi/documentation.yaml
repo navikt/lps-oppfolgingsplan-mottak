@@ -66,7 +66,7 @@ components:
         employeeIdentificationNumber:
           type: "string"
           description: "A Norwegian national identity number or D number."
-        typicalWorkDay:
+        typicalWorkday:
           type: "string"
           description: "Description of a typical day at work."
         tasksThatCanStillBeDone:
@@ -123,7 +123,7 @@ components:
           description: "Description of why the employee does not have contributed to the plan. Obligatory if employeeHasContributedToPlan is false."
       required:
       - "employeeIdentificationNumber"
-      - "typicalWorkDay"
+      - "typicalWorkday"
       - "tasksThatCanStillBeDone"
       - "tasksThatCanNotBeDone"
       - "previousFacilitation"

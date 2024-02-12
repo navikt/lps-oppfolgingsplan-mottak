@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 data class FollowUpPlanDTO(
     val employeeIdentificationNumber: String,
-    val typicalWorkDay: String,
+    val typicalWorkday: String,
     val tasksThatCanStillBeDone: String,
     val tasksThatCanNotBeDone: String,
     val previousFacilitation: String,
