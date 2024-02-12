@@ -3,7 +3,7 @@ CREATE TABLE OPPFOLGINGSPLAN_LPS_V1
     uuid                                             UUID PRIMARY KEY,
     organization_number                              VARCHAR(9)  NOT NULL,
     employee_identification_number                   VARCHAR(11) NOT NULL,
-    typical_work_day                                 TEXT        NOT NULL,
+    typical_workday                                  TEXT        NOT NULL,
     tasks_that_can_still_be_done                     TEXT        NOT NULL,
     tasks_that_can_not_be_done                       TEXT        NOT NULL,
     previous_facilitation                            TEXT        NOT NULL,
