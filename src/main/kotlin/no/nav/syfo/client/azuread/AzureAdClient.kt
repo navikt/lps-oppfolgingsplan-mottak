@@ -1,90 +1,80 @@
 package no.nav.syfo.client.azuread
 
-import io.ktor.client.HttpClient
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.Parameters
-import java.util.concurrent.ConcurrentHashMap
-import no.nav.syfo.application.environment.AuthEnv
 import no.nav.syfo.client.httpClientProxy
+import no.nav.syfo.application.environment.AuthEnv
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.Instant
+import javax.ws.rs.BadRequestException
+import javax.ws.rs.InternalServerErrorException
 import kotlin.collections.set
 
+const val TWO_MINUTES_IN_SECONDS = 120L
+
 @Suppress("ThrowsCount")
-class AzureAdClient(
-    authEnv: AuthEnv,
-    private val httpClient: HttpClient = httpClientProxy(),
-) {
+class AzureAdClient(authEnv: AuthEnv) {
     private val aadAccessTokenUrl = authEnv.azuread.accessTokenUrl
     private val clientId = authEnv.azuread.clientId
     private val clientSecret = authEnv.azuread.clientSecret
+    private val log: Logger = LoggerFactory.getLogger(AzureAdAccessToken::class.qualifiedName)
+    private val httpClientWithProxy = httpClientProxy()
 
-    suspend fun getOnBehalfOfToken(scopeClientId: String, token: String): AzureAdToken? = getAccessToken(
-        Parameters.build {
-            append("client_id", clientId)
-            append("client_secret", clientSecret)
-            append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-            append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-            append("assertion", token)
-            append("scope", "api://$scopeClientId/.default")
-            append("requested_token_use", "on_behalf_of")
-        }
-    )?.toAzureAdToken()
+    @Volatile
+    private var tokenMap = HashMap<String, AzureAdAccessToken>()
 
-    suspend fun getSystemToken(scopeClientId: String): AzureAdToken? {
-        val cacheKey = "${CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX}$scopeClientId"
-        val cachedToken = cache.get(key = cacheKey)
-        return if (cachedToken?.isExpired() == false) {
-            cachedToken
-        } else {
-            val azureAdTokenResponse = getAccessToken(
-                Parameters.build {
-                    append("client_id", clientId)
-                    append("client_secret", clientSecret)
-                    append("grant_type", "client_credentials")
-                    append("scope", "api://$scopeClientId/.default")
-                }
-            )
-            azureAdTokenResponse?.let { token ->
-                token.toAzureAdToken().also {
-                    cache[cacheKey] = it
-                }
-            }
-        }
-    }
+    suspend fun getToken(resource: String): String {
+        val omToMinutter = Instant.now().plusSeconds(TWO_MINUTES_IN_SECONDS)
 
-    private suspend fun getAccessToken(
-        formParameters: Parameters,
-    ): AzureAdTokenResponse? =
-        try {
-            val response: HttpResponse = httpClient.post(aadAccessTokenUrl) {
+        val token: AzureAdAccessToken? = tokenMap[resource]
+
+        if (token == null || token.issuedOn!!.plusSeconds(token.expires_in).isBefore(omToMinutter)) {
+            log.info("Henter nytt token fra Azure AD for scope : $resource")
+
+            val response = httpClientWithProxy.post(aadAccessTokenUrl) {
                 accept(ContentType.Application.Json)
-                setBody(FormDataContent(formParameters))
+
+                setBody(
+                    FormDataContent(
+                        Parameters.build {
+                            append("client_id", clientId)
+                            append("scope", resource)
+                            append("grant_type", "client_credentials")
+                            append("client_secret", clientSecret)
+                        },
+                    ),
+                )
             }
-            response.body<AzureAdTokenResponse>()
-        } catch (e: ResponseException) {
-            handleUnexpectedResponseException(e)
-            null
+            when (response.status) {
+                HttpStatusCode.OK ->
+                    tokenMap[resource] = response.body()
+                HttpStatusCode.BadGateway ->
+                    throw BadRequestException(exceptionErrorMessage("Bad request - $resource"))
+                HttpStatusCode.InternalServerError ->
+                    throw InternalServerErrorException(exceptionErrorMessage("Internal server error - $response"))
+                else ->
+                    throw RuntimeException(exceptionErrorMessage("Exception - $response"))
+            }
         }
-
-    private fun handleUnexpectedResponseException(
-        responseException: ResponseException,
-    ) {
-        log.error(
-            "Error while requesting AzureAdAccessToken with statusCode=${responseException.response.status.value}",
-            responseException
-        )
+        return tokenMap[resource]!!.access_token
     }
 
-    companion object {
-        const val CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX = "azuread-token-system-"
-        private val cache = ConcurrentHashMap<String, AzureAdToken>()
-        private val log = LoggerFactory.getLogger(AzureAdClient::class.java)
-    }
+    private fun exceptionErrorMessage(msg: String) = "Could not get token from AzureAD: $msg"
 }
+
+
+@Suppress("ConstructorParameterNaming")
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AzureAdAccessToken(
+    val access_token: String,
+    val expires_in: Long,
+    val issuedOn: Instant? = Instant.now(),
+)

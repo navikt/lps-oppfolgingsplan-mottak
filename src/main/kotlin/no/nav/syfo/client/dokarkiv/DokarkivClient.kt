@@ -35,10 +35,8 @@ class DokarkivClient(
         return sendRequestToDokarkiv(journalpostRequest)
     }
 
-    @Suppress("ThrowsCount")
     private suspend fun sendRequestToDokarkiv(journalpostRequest: JournalpostRequest): String {
-        val token = azureAdClient.getSystemToken(scope) ?.accessToken
-            ?: throw RuntimeException("Failed to Journalfor: No token was found")
+        val token = azureAdClient.getToken(scope)
         val requestUrl = baseUrl + JOURNALPOST_API_PATH
         val response = try {
             client.post(requestUrl) {
