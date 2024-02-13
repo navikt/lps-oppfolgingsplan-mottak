@@ -15,11 +15,12 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.application.ApplicationEnvironment
+import no.nav.syfo.client.httpClientDefault
 import java.util.*
 
 private const val TWO_MINUTES_IN_SECONDS = 120
+private const val CONSUMER_ORG = "310069590"
 private val httpClient = httpClientDefault()
 
 fun Routing.registerMaskinportenTokenApi(
@@ -28,8 +29,10 @@ fun Routing.registerMaskinportenTokenApi(
     route("/api/test/token") {
         authenticate("test-token") {
             get {
+                val log = call.application.log
                 val jwtGrant = generateJwtGrant(env)
                 val maskinportenTokenUrl = env.auth.maskinporten.tokenUrl
+
                 val response: HttpResponse = httpClient.submitForm(
                     url = maskinportenTokenUrl,
                     formParameters = parameters {
@@ -37,18 +40,21 @@ fun Routing.registerMaskinportenTokenApi(
                         append("assertion", jwtGrant)
                     }
                 )
+
                 val maskinportenResponse: MaskinportenResponse = response.body()
-                val maskinPortenAccessToken = maskinportenResponse.access_token
-                maskinPortenAccessToken?.let { token ->
+
+                if (maskinportenResponse.access_token != null) {
+                    call.respond(HttpStatusCode.OK, maskinportenResponse.access_token)
+                } else {
+                    log.error(
+                        "Token error: ${maskinportenResponse.error} " +
+                                "Description: ${maskinportenResponse.error_description}"
+                    )
                     call.respond(
-                        status = HttpStatusCode.OK,
-                        message = token
+                        HttpStatusCode.InternalServerError,
+                        errorMsg(maskinportenResponse.error, maskinportenResponse.error_description)
                     )
                 }
-                call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    message = errorMsg(maskinportenResponse.error, maskinportenResponse.error_description)
-                )
             }
         }
     }
@@ -56,17 +62,13 @@ fun Routing.registerMaskinportenTokenApi(
 
 private fun generateJwtGrant(env: ApplicationEnvironment): String {
     val authEnv = env.auth.maskinporten
-    val scope = authEnv.scope
-    val audience = authEnv.issuer
-    val clientId = authEnv.clientId
-    val clientJwk = authEnv.clientJwk
-    val rsaKey = RSAKey.parse(clientJwk)
+    val rsaKey = RSAKey.parse(authEnv.clientJwk)
     val signedJwt = SignedJWT(
         rsaSignatureFromKey(rsaKey),
         jwtClaimSet(
-            scope,
-            audience,
-            clientId
+            authEnv.scope,
+            authEnv.issuer,
+            authEnv.clientId,
         )
     )
     signedJwt.sign(RSASSASigner(rsaKey.toPrivateKey()))
@@ -82,13 +84,14 @@ private fun rsaSignatureFromKey(key: RSAKey) =
 private fun jwtClaimSet(
     scope: String,
     audience: String,
-    clientId: String
+    clientId: String,
 ): JWTClaimsSet {
     val now = Date()
     return JWTClaimsSet.Builder()
         .audience(audience)
         .issuer(clientId)
         .claim("scope", scope)
+        .claim("consumer_org", CONSUMER_ORG)
         .issueTime(now)
         .expirationTime(setExpirationTimeTwoMinutesAhead(now))
         .build()

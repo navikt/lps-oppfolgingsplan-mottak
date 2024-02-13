@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jose.jwk.RSAKey
 import no.nav.syfo.mockdata.ExternalMockEnvironment
+import no.nav.syfo.mockdata.UserConstants
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -13,7 +14,6 @@ import java.text.ParseException
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
-import no.nav.syfo.mockdata.UserConstants
 
 fun validVeilederToken(navIdent: String = UserConstants.VEILEDER_IDENT) = generateAzureAdJWT(
     audience = ExternalMockEnvironment.instance.environment.auth.azuread.clientId,
@@ -21,10 +21,13 @@ fun validVeilederToken(navIdent: String = UserConstants.VEILEDER_IDENT) = genera
     navIdent = navIdent,
 )
 
-fun validMaskinportenToken() = generateMaskinportenJWT(
-    issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
-    scope = ExternalMockEnvironment.instance.environment.auth.maskinporten.scope,
-)
+fun validMaskinportenToken(consumerOrgnumber: String = "123456789", supplierOrgnumber: String = "889640782") =
+    generateMaskinportenJWT(
+        issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
+        scope = ExternalMockEnvironment.instance.environment.auth.maskinporten.scope,
+        consumerOrgnumber = consumerOrgnumber,
+        supplierOrgnumber = supplierOrgnumber
+    )
 
 const val KEY_ID = "localhost-signer"
 
@@ -55,6 +58,8 @@ fun generateMaskinportenJWT(
     issuer: String,
     scope: String,
     expiry: LocalDateTime? = LocalDateTime.now().plusHours(1),
+    consumerOrgnumber: String,
+    supplierOrgnumber: String
 ): String {
     val now = Date()
     val key = getDefaultRSAKey()
@@ -67,6 +72,14 @@ fun generateMaskinportenJWT(
         .withClaim("iat", now)
         .withClaim("exp", Date.from(expiry?.atZone(ZoneId.systemDefault())?.toInstant()))
         .withClaim("scope", scope)
+        .withClaim(
+            "consumer",
+            mapOf("authority" to "iso6523-actorid-upis", "ID" to "0192:$consumerOrgnumber")
+        )
+        .withClaim(
+            "supplier",
+            mapOf("authority" to "iso6523-actorid-upis", "ID" to "0192:$supplierOrgnumber")
+        )
         .sign(alg)
 }
 
