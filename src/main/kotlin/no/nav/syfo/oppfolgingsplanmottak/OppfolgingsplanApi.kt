@@ -10,6 +10,8 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLps
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.OppfolgingsplanDTO
+import no.nav.syfo.util.getOrgnumberFromClaims
+import no.nav.syfo.util.getScopeFromClaims
 
 fun Routing.registerOppfolgingsplanApi(
     database: DatabaseInterface,
@@ -28,7 +30,18 @@ fun Routing.registerOppfolgingsplanApi(
     route("/api/v1/followupplan/write") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post {
+                val log = call.application.log
+                log.info("Testing: Received new oppfolgingsplan")
+
+                val orgnumber = getOrgnumberFromClaims()
+                log.info("Testing: Orgnumber is $orgnumber")
+
+                val scope = getScopeFromClaims()
+                log.info("Testing: Scope is $scope")
+
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
+                log.info("Testing: identificationNumber is ${followUpPlanDTO.employeeIdentificationNumber}")
+
                 call.respondText("TODO")
             }
         }
