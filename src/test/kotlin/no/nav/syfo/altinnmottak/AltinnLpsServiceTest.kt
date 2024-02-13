@@ -13,7 +13,7 @@ import no.nav.syfo.altinnmottak.database.getAltinnLpsOppfolgingsplanByUuid
 import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
 import no.nav.syfo.util.LpsHelper
-import no.nav.syfo.util.deleteRowsInAltinnLpsTable
+import no.nav.syfo.util.deleteData
 
 class AltinnLpsServiceTest : DescribeSpec({
     val env = getEnv()
@@ -43,7 +43,7 @@ class AltinnLpsServiceTest : DescribeSpec({
 
     beforeTest {
         clearAllMocks()
-        embeddedDatabase.deleteRowsInAltinnLpsTable()
+        embeddedDatabase.deleteData()
         justRun { navLpsProducer.sendAltinnLpsToNav(any()) }
         coEvery { opPdfGenConsumer.generatedPdfResponse(any()) } returns pdfByteArray
         coEvery { isdialogmeldingConsumer.sendPlanToFastlege(any(), pdfByteArray) } returns true

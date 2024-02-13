@@ -68,6 +68,7 @@ fun Application.apiModule(
         registerOppfolgingsplanApi(database)
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
+            database = database,
         )
         registerSwaggerApi()
         if (environment.isDev()) {
