@@ -94,6 +94,7 @@ class OppfolgingsplanApiTest : DescribeSpec({
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
+
                 response shouldHaveStatus HttpStatusCode.OK
             }
         }

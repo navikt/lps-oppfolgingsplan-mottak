@@ -11,6 +11,8 @@ import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLps
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.OppfolgingsplanDTO
+import no.nav.syfo.util.getLpsOrgnumberFromClaims
+import no.nav.syfo.util.getOrgnumberFromClaims
 import java.util.*
 
 fun Routing.registerOppfolgingsplanApi(
@@ -31,12 +33,14 @@ fun Routing.registerOppfolgingsplanApi(
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post {
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
+
                 database.storeFollowUpPlan(
                     uuid = UUID.randomUUID(),
                     followUpPlanDTO = followUpPlanDTO,
-                    organizationNumber = "todo", //Skal hentes fra token claims (supplier ID)
-                    lpsOrgnumber = "todo" //Skal hentes fra token claims (provider ID)
+                    organizationNumber = getOrgnumberFromClaims(),
+                    lpsOrgnumber = getLpsOrgnumberFromClaims()
                 )
+
                 call.respondText("TODO")
             }
         }
