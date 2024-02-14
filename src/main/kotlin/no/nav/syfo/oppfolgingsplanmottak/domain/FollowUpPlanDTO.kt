@@ -24,17 +24,21 @@ data class FollowUpPlanDTO(
     val employeeHasNotContributedToPlanDescription: String?
 ) {
     init {
+        fun contributionDescriptionUsedCorrectly(): Boolean {
+            if (employeeHasContributedToPlan) {
+                return employeeHasNotContributedToPlanDescription == null
+            }
+            return employeeHasNotContributedToPlanDescription != null
+        }
+
         require(!(needsHelpFromNav == true && !sendPlanToNav)) {
             "needsHelpFromNav cannot be true if sendPlanToNav is false"
         }
         require(needsHelpFromNav != true || !needsHelpFromNavDescription.isNullOrBlank()) {
             "needsHelpFromNavDescription is obligatory if needsHelpFromNav is true"
         }
-        require(employeeHasContributedToPlan || !employeeHasNotContributedToPlanDescription.isNullOrBlank()) {
-            "employeeHasNotContributedToPlanDescription is obligatory if employeeHasContributedToPlan is false"
-        }
-        require(!employeeHasContributedToPlan || employeeHasNotContributedToPlanDescription == null) {
-            "employeeHasNotContributedToPlanDescription cannot be used if employeeHasContributedToPlan is true"
+        require(contributionDescriptionUsedCorrectly()) {
+            "employeeHasNotContributedToPlanDescription is mandatory and can only be used if employeeHasContributedToPlan = false"
         }
     }
 }

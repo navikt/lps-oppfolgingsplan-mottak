@@ -72,6 +72,9 @@ spec:
     enabled: true
     path: /prometheus
   accessPolicy:
+    inbound:
+      rules:
+        - application: oppfolgingsplan-lps-demo
     outbound:
       external:
         - host: pdl-api.dev-fss-pub.nais.io
