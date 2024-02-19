@@ -121,6 +121,9 @@ components:
         employeeHasNotContributedToPlanDescription:
           type: "string"
           description: "Description of why the employee does not have contributed to the plan. Obligatory if employeeHasContributedToPlan is false."
+        lpsName:
+          type: "string"
+          description: "Name of the consumer system sending in this plan"
       required:
       - "employeeIdentificationNumber"
       - "typicalWorkday"

@@ -21,7 +21,8 @@ data class FollowUpPlanDTO(
     val contactPersonFullName: String,
     val contactPersonPhoneNumber: String,
     val employeeHasContributedToPlan: Boolean,
-    val employeeHasNotContributedToPlanDescription: String?
+    val employeeHasNotContributedToPlanDescription: String?,
+    val lpsName: String
 ) {
     init {
         fun contributionDescriptionUsedCorrectly(): Boolean {
