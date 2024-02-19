@@ -1,49 +1,16 @@
 openapi: "3.0.3"
 info:
-  title: "LPS oppfølgingsplan API"
-  description: "Mottak av oppfølgingsplaner fra LPS-leverandører"
-  version: "0.0.1"
-
+  title: "LPS follow-up plan API"
+  description: "Maskinporten API for submitting follow-up plans to NAV and/or the employees general practitioner."
+  version: "1.0.0"
 paths:
-  /api/v1/lps/write:
-    post:
-      description: "Send inn oppfølgingsplan til NAV"
-      tags:
-        - Oppfølgingsplan API
-      security:
-        - bearerAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OppfolgingsplanDTO"
-        required: true
-      responses:
-        "200":
-          description: "Success: Oppfølgingsplanen ble sendt inn til NAV"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-        "401":
-          description: "Unauthorized: Feil med maskinporten-token"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                type: "string"
   /api/test/token:
     get:
       description: "Henter maskinporten-token for testmiljø"
       tags:
         - Token for testmiljø
       security:
-        - basicAuth: []
+        - basicAuth: [ ]
       responses:
         "200":
           description: "OK"
@@ -57,116 +24,117 @@ paths:
             '*/*':
               schema:
                 type: "string"
-
+  /api/v1/followupplan/write:
+    post:
+      description: "Submit follow-up plan to NAV and/or general practitioner"
+      tags:
+        - Followup-plan API
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/FollowUpPlanDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "TODO"
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Token fra maskinporten
+      description: Token from maskinporten
     basicAuth:
       type: http
       scheme: basic
       description: "Kun til bruk for test-token"
 
   schemas:
-    OppfolgingsplanDTO:
+    FollowUpPlanDTO:
       type: "object"
       properties:
-        oppfolgingsplanMeta:
-          $ref: "#/components/schemas/OppfolgingsplanMeta"
-        arbeidssituasjon:
-          $ref: "#/components/schemas/Arbeidssituasjon"
-        tilrettelegging:
-          $ref: "#/components/schemas/Tilrettelegging"
-        behovForBistandFraNAV:
+        employeeIdentificationNumber:
           type: "string"
-          example: "Ja, ønsker hjelp med..."
-        behovForAvklaringMedSykmelder:
+          description: "A Norwegian national identity number or D number."
+        typicalWorkday:
           type: "string"
-          example: "Fastlege må vurdere hvorvidt.."
-        utfyllendeOpplysninger:
+          description: "Description of a typical day at work."
+        tasksThatCanStillBeDone:
           type: "string"
-          example: "I tillegg ønsker vi å opplyse om.."
+          description: "Ordinary tasks that still can be done."
+        tasksThatCanNotBeDone:
+          type: "string"
+          description: "Ordinary tasks that can no longer be done because of illness."
+        previousFacilitation:
+          type: "string"
+          description: "Any previous facilitation that has been done related to the employee's current illness."
+        plannedFacilitation:
+          type: "string"
+          description: "Description of facilitation that will be done from now on."
+        otherFacilitationOptions:
+          type: "string"
+          description: "Are there any other options for facilitation at the workplace that have not been tried out yet?"
+        followUp:
+          type: "string"
+          description: "How will the employer/leader follow up the planned facilitation?"
+        evaluationDate:
+          type: "string"
+          format: "date"
+          description: "When will the employer/leader and employee evaluate this oppfolgingsplan?"
+        sendPlanToNav:
+          type: "boolean"
+          description: "Do you want to send this plan to NAV?"
+        needsHelpFromNav:
+          type: "boolean"
+          description: "Do you need help from NAV? If yes, a task will be created at NAVs internal systems. Only relevant if the plan should be sent to NAV."
+        needsHelpFromNavDescription:
+          type: "string"
+          description: "Description of what kind of help is needed. Obligatory if needsHelpFromNav is true."
+        sendPlanToGeneralPractitioner:
+          type: "boolean"
+          description: "Do you want to send this plan to the employee's general practitioner?"
+        messageToGeneralPractitioner:
+          type: "string"
+          description: "Message to the general practitioner."
+        additionalInformation:
+          type: "string"
+          description: "Additional information, if relevant."
+        contactPersonFullName:
+          type: "string"
+          description: "Full name of the person responsible for following up the employee. Typically the nearest leader."
+        contactPersonPhoneNumber:
+          type: "string"
+          description: "Phone number of the person responsible for following up the employee."
+        employeeHasContributedToPlan:
+          type: "boolean"
+          description: "Has the employee been involved in the process of creating this plan?"
+        employeeHasNotContributedToPlanDescription:
+          type: "string"
+          description: "Description of why the employee does not have contributed to the plan. Obligatory if employeeHasContributedToPlan is false."
+        lpsName:
+          type: "string"
+          description: "Name of the consumer system sending in this plan"
       required:
-        - oppfolgingsplanMeta
-        - arbeidssituasjon
-        - tilrettelegging
-    OppfolgingsplanMeta:
-      type: "object"
-      properties:
-        utfyllingsdato:
-          type: "string"
-          format: "date-time"
-        mottaker:
-          type: "string"
-          enum:
-            - "NAV"
-            - "FASTLEGE"
-            - "NAVOGFASTLEGE"
-        sykmeldtFnr:
-          type: "string"
-          example: "123456789"
-        virksomhet:
-          $ref: "#/components/schemas/Virksomhet"
-      required:
-        - utfyllingsdato
-        - mottaker
-        - sykmeldtFnr
-        - virksomhet
-    Arbeidssituasjon:
-      type: "object"
-      properties:
-        stillingAvdeling:
-          type: "string"
-          example: "Jobber som utvikler i XYZ"
-        ordinaereArbeidsoppgaver:
-          type: "string"
-          example: "Programmering på XYZ sitt kontor, samt noe hjemmekontor"
-        ordinaereArbeidsoppgaverSomIkkeKanUtfoeres:
-          type: "string"
-          example: "Kan ikke lenger bruke vanlig mus og tastatur pga senebetennelse"
-      required:
-        - stillingAvdeling
-        - ordinaereArbeidsoppgaver
-    Tilrettelegging:
-      type: "object"
-      properties:
-        hvaHarBlittForsokt:
-          type: "string"
-          example: "Forsøkte å..."
-        tilretteleggingIDag:
-          type: "string"
-          example: "Har anskaffet ergonomisk mus og tastatur"
-        fremtidigePlaner:
-          type: "string"
-          example: "Vurdere andre typer ergonomisk utstyr for å avlaste armen bedre"
-      required:
-        - tilretteleggingIDag
-    Virksomhet:
-      type: "object"
-      properties:
-        virksomhetsnavn:
-          type: "string"
-          example: "XYZ"
-        virksomhetsnummer:
-          type: "string"
-          example: "99999999"
-        naermesteLederFornavn:
-          type: "string"
-          example: "Leder1"
-        naermesteLederEtternavn:
-          type: "string"
-          example: "Ledesen"
-        telefonNaermesteLeder:
-          type: "string"
-          example: "99999999"
-      required:
-        - virksomhetsnavn
-        - virksomhetsnummer
-        - naermesteLederFornavn
-        - naermesteLederEtternavn
-        - telefonNaermesteLeder
-
-
+      - "employeeIdentificationNumber"
+      - "typicalWorkday"
+      - "tasksThatCanStillBeDone"
+      - "tasksThatCanNotBeDone"
+      - "previousFacilitation"
+      - "plannedFacilitation"
+      - "followUp"
+      - "evaluationDate"
+      - "sendPlanToNav"
+      - "sendPlanToGeneralPractitioner"
+      - "contactPersonFullName"
+      - "contactPersonPhoneNumber"
+      - "employeeHasContributedToPlan"

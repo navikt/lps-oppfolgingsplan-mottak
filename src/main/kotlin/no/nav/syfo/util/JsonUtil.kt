@@ -4,7 +4,7 @@ import com.google.gson.*
 import java.lang.reflect.Type
 import java.time.LocalDateTime
 
-fun gsonSerializer() =
+fun gsonSerializer(): Gson =
     GsonBuilder()
         .registerTypeAdapter(LocalDateTime::class.java,  LocalDateTimeAdapter())
         .create()

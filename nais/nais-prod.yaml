@@ -26,13 +26,13 @@ spec:
       consumes:
         - name: "nav:oppfolgingsplan:v1.lps.write"
   liveness:
-    path: /isAlive
+    path: /internal/is_alive
     initialDelay: 10
     timeout: 5
     periodSeconds: 10
     failureThreshold: 5
   readiness:
-    path: /isReady
+    path: /internal/is_ready
     initialDelay: 10
     periodSeconds: 5
     timeout: 5
@@ -105,17 +105,21 @@ spec:
     - name: PDL_URL
       value: https://pdl-api.prod-fss-pub.nais.io/graphql
     - name: PDL_SCOPE
-      value: api://prod-fss.pdl.pdl-api/.default
+      value: prod-fss.pdl.pdl-api
     - name: OP_PDFGEN_URL
       value: http://syfooppdfgen
     - name: ISDIALOGMELDING_URL
       value: http://isdialogmelding.teamsykefravr
     - name: ISDIALOGMELDING_CLIENT_ID
-      value: api://prod-gcp.teamsykefravr.isdialogmelding/.default
+      value: prod-gcp.teamsykefravr.isdialogmelding
     - name: DOKARKIV_URL
       value: https://dokarkiv.prod-fss-pub.nais.io
     - name: DOKARKIV_SCOPE
-      value: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
+      value: prod-fss.teamdokumenthandtering.dokarkiv
+    - name: ISTILGANGSKONTROLL_URL
+      value: http://istilgangskontroll
+    - name: ISTILGANGSKONTROLL_CLIENT_ID
+      value: prod-gcp.teamsykefravr.istilgangskontroll
     - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
       value: "6"
     - name: TOGGLE_SEND_LPS_PLAN_TO_NAV

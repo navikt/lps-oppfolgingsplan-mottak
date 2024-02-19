@@ -1,5 +1,5 @@
 # lps-oppfolgingsplan-mottak
-External API used by LPS-systems (lønn -og personalsystem) for submitting oppfølgingsplaner to NAV
+Maskinporten-API for submitting oppfølgingsplaner to NAV
 
 ## 🚀 Initial setup
 - Install and configure the [Detect IDEA plugin](https://plugins.jetbrains.com/plugin/10761-detekt) for live code analysis

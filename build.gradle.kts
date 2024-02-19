@@ -3,31 +3,31 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0"
 
-val ktorVersion = "2.3.7"
-val prometheusVersion = "0.15.0"
-val micrometerVersion = "1.8.4"
+val ktorVersion = "2.3.8"
+val prometheusVersion = "0.16.0"
+val micrometerVersion = "1.12.3"
 val slf4jVersion = "1.7.36"
-val logbackVersion = "1.2.11"
+val logbackVersion = "1.4.14"
 val javaxVersion = "2.1.1"
-val logstashEncoderVersion = "7.0.1"
-val jacksonVersion = "2.15.3"
+val logstashEncoderVersion = "7.4"
+val jacksonVersion = "2.16.1"
 val jacksonDatabindVersion = "2.13.2.2"
 val javaJwtVersion = "4.4.0"
-val nimbusVersion = "9.31"
+val nimbusVersion = "9.37.3"
 val detektVersion = "1.23.0"
-val kotestVersion = "5.6.2"
+val kotestVersion = "5.8.0"
 val kotestExtensionsVersion = "2.0.0"
-val kotlinVersion = "1.8.22"
-val mockkVersion = "1.13.5"
-val postgresVersion = "42.6.0"
+val kotlinVersion = "1.9.22"
+val mockkVersion = "1.13.9"
+val postgresVersion = "42.7.1"
 val postgresEmbeddedVersion = "0.13.3"
-val hikariVersion = "5.0.1"
+val hikariVersion = "5.1.0"
 val flywayVersion = "7.5.2"
 val gsonVersion = "2.10.1"
 val kafkaVersion = "3.6.1"
 val altinnKanalSchemasVersion = "2.0.0"
 val avroVersion = "1.11.3"
-val confluentVersion = "7.5.2"
+val confluentVersion = "7.6.0"
 val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
 val helseXmlVersion = "1.0.4"
 val quartzSchedulerVersion = "2.3.2"
@@ -36,11 +36,11 @@ val githubUser: String by project
 val githubPassword: String by project
 
 plugins {
-    kotlin("jvm") version "1.8.22"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.8.21"
-    id("com.diffplug.gradle.spotless") version "3.18.0"
+    kotlin("jvm") version "1.9.22"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.22"
+    id("com.diffplug.spotless") version "6.25.0"
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("io.gitlab.arturbosch.detekt") version "1.23.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.5"
 }
 
 allOpen {
@@ -100,6 +100,8 @@ dependencies {
     implementation("javax.ws.rs:javax.ws.rs-api:$javaxVersion")
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
     implementation("io.ktor:ktor-server-cors:$ktorVersion")
+    implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
+    implementation("io.ktor:ktor-server-call-id:$ktorVersion")
 
     // Database
     implementation("org.postgresql:postgresql:$postgresVersion")
@@ -112,6 +114,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
     // Metrics and Prometheus
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micrometerVersion")
     implementation("io.prometheus:simpleclient_common:$prometheusVersion")
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
@@ -143,6 +146,7 @@ dependencies {
     // Testing
     testImplementation(kotlin("test"))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
@@ -172,7 +176,7 @@ java.toolchain {
 
 tasks {
     withType<ShadowJar> {
-        manifest.attributes["Main-Class"] = "no.nav.syfo.StartApplicationKt"
+        manifest.attributes["Main-Class"] = "no.nav.syfo.AppKt"
     }
     withType<Test> {
         useJUnitPlatform()
