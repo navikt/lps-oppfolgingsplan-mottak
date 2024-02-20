@@ -86,6 +86,8 @@ spec:
         - application: syfooppdfgen
         - application: isdialogmelding
           namespace: teamsykefravr
+        - application: istilgangskontroll
+          namespace: teamsykefravr
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no"
   filesFrom:
@@ -119,7 +121,7 @@ spec:
     - name: DOKARKIV_SCOPE
       value: dev-fss.teamdokumenthandtering.dokarkiv-q1
     - name: ISTILGANGSKONTROLL_URL
-      value: http://istilgangskontroll
+      value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: dev-gcp.teamsykefravr.istilgangskontroll
     - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
