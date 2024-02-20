@@ -75,7 +75,8 @@ val oppfolgingsplan = FollowUpPlanDTO(
     contactPersonFullName = "Nissefar",
     contactPersonPhoneNumber = "99887766",
     employeeHasContributedToPlan = true,
-    employeeHasNotContributedToPlanDescription = null
+    employeeHasNotContributedToPlanDescription = null,
+    lpsName = "TEST"
 )
 
 class VeilederApiTest : DescribeSpec({
