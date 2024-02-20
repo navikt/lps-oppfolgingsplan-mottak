@@ -17,10 +17,12 @@ import no.nav.syfo.application.api.swagger.registerSwaggerApi
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.environment.isDev
 import no.nav.syfo.application.metric.registerPrometheusApi
+import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
 import no.nav.syfo.oppfolgingsplanmottak.registerOppfolgingsplanApi
+import no.nav.syfo.service.LpsOppfolgingsplanSendingService
 import no.nav.syfo.veileder.registerVeilederApi
 
 @Suppress("LongParameterList")
@@ -31,6 +33,8 @@ fun Application.apiModule(
     wellKnownMaskinporten: WellKnown,
     wellKnownInternalAzureAD: WellKnown,
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
+    isdialogmeldingClient: IsdialogmeldingClient,
+    lpsOppfolgingsplanSendingService: LpsOppfolgingsplanSendingService,
 ) {
     installMetrics()
     installCallId()
@@ -65,7 +69,7 @@ fun Application.apiModule(
             database = database,
         )
         registerPrometheusApi()
-        registerOppfolgingsplanApi(database)
+        registerOppfolgingsplanApi(database, isdialogmeldingClient, lpsOppfolgingsplanSendingService)
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
         )
