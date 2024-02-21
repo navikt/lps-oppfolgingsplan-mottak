@@ -1,6 +1,11 @@
 package no.nav.syfo.mockdata
 
-import no.nav.syfo.oppfolgingsplanmottak.domain.*
+import no.nav.syfo.oppfolgingsplanmottak.domain.Arbeidssituasjon
+import no.nav.syfo.oppfolgingsplanmottak.domain.Mottaker
+import no.nav.syfo.oppfolgingsplanmottak.domain.OppfolgingsplanDTO
+import no.nav.syfo.oppfolgingsplanmottak.domain.OppfolgingsplanMeta
+import no.nav.syfo.oppfolgingsplanmottak.domain.Tilrettelegging
+import no.nav.syfo.oppfolgingsplanmottak.domain.Virksomhet
 import java.time.LocalDateTime
 
 fun createOppfolgingsplanMeta(): OppfolgingsplanMeta {
@@ -22,7 +27,7 @@ fun createArbeidssituasjon(): Arbeidssituasjon {
     return Arbeidssituasjon(
         stillingAvdeling = "Utvikler",
         ordinaereArbeidsoppgaver = "Utvikler en del greier",
-        ordinaereArbeidsoppgaverSomIkkeKanUtfoeres = "Kan ikke bruke tastatur lenger"
+        ordinaereArbeidsoppgaverSomIkkeKanUtfoeres = "Kan ikke bruke tastatur lenger",
     )
 }
 
@@ -30,7 +35,7 @@ fun createTilrettelegging(): Tilrettelegging {
     return Tilrettelegging(
         hvaHarBlittForsokt = null,
         tilretteleggingIDag = "Byttet tastatur med VR-briller",
-        fremtidigePlaner = null
+        fremtidigePlaner = null,
     )
 }
 
@@ -41,6 +46,6 @@ fun createDefaultOppfolgingsplanDTOMock(): OppfolgingsplanDTO {
         tilrettelegging = createTilrettelegging(),
         behovForAvklaringMedSykmelder = null,
         behovForBistandFraNAV = null,
-        utfyllendeOpplysninger = null
+        utfyllendeOpplysninger = null,
     )
 }

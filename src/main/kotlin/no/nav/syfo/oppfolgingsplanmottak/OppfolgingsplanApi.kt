@@ -30,23 +30,22 @@ fun Routing.registerOppfolgingsplanApi(
         }
     }
 
-    route("/api/v1/followupplan/write") {
+    route("/api/v1/followupplan/") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
-            post {
+            post("write") { // client.post(requestUrl) {
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val lpsPlan = lpsOppfolgingsplanSendingService.sendLpsPlan(followUpPlanDTO)
                 call.respond(lpsPlan)
             }
-        }
-    }
-
-    get("/status/delt/fastlege") {
-        val bestillingsUuid = call.parameters["sentToFastlegeId"].toString()
-        val delingsstatus = isdialogmeldingClient.getDeltMedFastlegeStatus(bestillingsUuid)
-        if (delingsstatus != null) {
-            call.respond(delingsstatus)
-        } else {
-            call.respond(status = HttpStatusCode.NotFound, message = "Error while fetching sending to fastlege status")
+            get("read/status/delt/fastlege") {
+                val bestillingsUuid = call.parameters["sentToFastlegeId"].toString()
+                val delingsstatus = isdialogmeldingClient.getDeltMedFastlegeStatus(bestillingsUuid)
+                if (delingsstatus != null) {
+                    call.respond(delingsstatus)
+                } else {
+                    call.respond(status = HttpStatusCode.NotFound, message = "Error while fetching sending to fastlege status")
+                }
+            }
         }
     }
 }

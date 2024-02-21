@@ -73,7 +73,7 @@ class IsdialogmeldingClient(
             ?: throw RuntimeException("Failed to Send plan to fastlege: No token was found")
         val response = try {
             client.post(requestUrl) {
-                io.ktor.http.headers {
+                headers {
                     append(HttpHeaders.ContentType, ContentType.Application.Json)
                     append(HttpHeaders.Authorization, createBearerToken(token))
                     append(NAV_CALL_ID_HEADER, createCallId())
@@ -112,7 +112,7 @@ class IsdialogmeldingClient(
             ?: throw RuntimeException("Failed to Send plan to fastlege: No token was found")
         val response = try {
             client.get(requestUrl) {
-                io.ktor.http.headers {
+                headers {
                     append(HttpHeaders.ContentType, ContentType.Application.Json)
                     append(HttpHeaders.Authorization, createBearerToken(token))
                     append(NAV_CALL_ID_HEADER, createCallId())

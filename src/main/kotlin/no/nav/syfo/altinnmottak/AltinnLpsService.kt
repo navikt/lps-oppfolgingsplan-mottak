@@ -3,20 +3,20 @@ package no.nav.syfo.altinnmottak
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
 import no.nav.syfo.altinnmottak.database.*
-import no.nav.syfo.application.database.*
-import no.nav.syfo.client.dokarkiv.DokarkivClient
-import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
-import no.nav.syfo.client.oppdfgen.OpPdfGenClient
-import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
-import no.nav.syfo.application.environment.ToggleEnv
-import no.nav.syfo.altinnmottak.kafka.domain.KAltinnOppfolgingsplan
+import no.nav.syfo.altinnmottak.domain.isBehovForBistandFraNAV
 import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
+import no.nav.syfo.altinnmottak.kafka.domain.KAltinnOppfolgingsplan
+import no.nav.syfo.application.database.*
+import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.application.metric.COUNT_METRIKK_BISTAND_FRA_NAV_FALSE
 import no.nav.syfo.application.metric.COUNT_METRIKK_BISTAND_FRA_NAV_TRUE
 import no.nav.syfo.application.metric.COUNT_METRIKK_DELT_MED_FASTLEGE
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_VELLYKKET
-import no.nav.syfo.altinnmottak.domain.isBehovForBistandFraNAV
+import no.nav.syfo.client.dokarkiv.DokarkivClient
+import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
+import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.util.mapFormdataToFagmelding
 import no.nav.syfo.util.xmlMapper
 import org.slf4j.Logger
@@ -65,7 +65,7 @@ class AltinnLpsService(
             journalpostId = null,
             originallyCreated = now,
             created = now,
-            lastChanged = now
+            lastChanged = now,
         )
         database.storeAltinnLpsOppfolgingsplan(lpsPlanToSave)
         return lpsPlanToSave.uuid
@@ -77,8 +77,10 @@ class AltinnLpsService(
 
         val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
         if (mostRecentFnr == null) {
-            log.warn("[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS" +
-                    "with AR: ${altinnLps.archiveReference}")
+            log.warn(
+                "[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS" +
+                    "with AR: ${altinnLps.archiveReference}",
+            )
             return
         }
 
@@ -109,7 +111,7 @@ class AltinnLpsService(
 
         val shouldBeSentToGP = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
         if (shouldBeSentToGP && toggles.sendAltinnLpsPlanToFastlegeToggle) {
-            sendLpsPlanToFastlege(
+            sendAltinnLpsPlanToFastlege(
                 lpsUuid,
                 lpsFnr,
                 pdf,
@@ -179,7 +181,7 @@ class AltinnLpsService(
             mostRecentFnr,
             orgnummer,
             hasBehovForBistand,
-            todayInEpoch
+            todayInEpoch,
         )
         navLpsProducer.sendAltinnLpsToNav(planToSendToNav)
         database.setSentToNavTrue(uuid)
@@ -190,7 +192,7 @@ class AltinnLpsService(
         }
     }
 
-    suspend fun sendLpsPlanToFastlege(
+    suspend fun sendAltinnLpsPlanToFastlege(
         uuid: UUID,
         lpsFnr: String,
         pdf: ByteArray,

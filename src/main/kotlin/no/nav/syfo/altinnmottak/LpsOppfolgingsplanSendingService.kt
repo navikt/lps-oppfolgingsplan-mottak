@@ -13,7 +13,7 @@ class LpsOppfolgingsplanSendingService(
     private val dokarkivConsumer: DokarkivClient,
     private val toggles: ToggleEnv,
 ) {
-    suspend fun sendLpsPlan(oppfolgingsplanDTO: FollowUpPlanDTO): LpsOppfolgingsplan {
+    suspend fun sendLpsPlan(oppfolgingsplanDTO: FollowUpPlanDTO): LpsOppfolgingsplanResponse {
         val sykmeldtFnr = oppfolgingsplanDTO.employeeIdentificationNumber
         // TODO:       val pdf = opPdfGenConsumer.generatedPdfResponse("new model")
 
@@ -24,17 +24,17 @@ class LpsOppfolgingsplanSendingService(
             // TODO: send actual PDF when data model and pdfgen are updated
             sentToFastlegeId = isdialogmeldingConsumer.sendLpsPlanToFastlege(
                 sykmeldtFnr,
-                ByteArray(1),
+                "<MOCK PDF CONTENT>".toByteArray(),
             )
         } else if (toggles.sendLpsPlanToNavToggle && oppfolgingsplanDTO.sendPlanToNav) {
             // TODO
             sentToNavId = null
         }
-        return LpsOppfolgingsplan(sykmeldtFnr = sykmeldtFnr, sentToFastlegeId = sentToFastlegeId, sentToNavId = sentToNavId)
+        return LpsOppfolgingsplanResponse(sykmeldtFnr = sykmeldtFnr, sentToFastlegeId = sentToFastlegeId, sentToNavId = sentToNavId)
     }
 }
 
-data class LpsOppfolgingsplan(
+data class LpsOppfolgingsplanResponse(
     val sykmeldtFnr: String,
     val sentToFastlegeId: String?,
     val sentToNavId: String?,
