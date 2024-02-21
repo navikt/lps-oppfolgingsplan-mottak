@@ -7,7 +7,7 @@ import no.nav.syfo.veileder.domain.OppfolgingsplanLPS
 import java.sql.ResultSet
 import java.util.*
 
-fun DatabaseInterface.getOppfolgingsplanerForVeileder(ident: PersonIdent): List<OppfolgingsplanLPS> {
+fun DatabaseInterface.getOppfolgingsplanerMetadataForVeileder(ident: PersonIdent): List<OppfolgingsplanLPS> {
     val queryStatement = """
             SELECT uuid, lps_fnr as fnr, orgnummer as virksomhetsnummer, created as opprettet, last_changed as sistEndret
             FROM ALTINN_LPS

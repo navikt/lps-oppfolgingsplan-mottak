@@ -20,7 +20,7 @@ import no.nav.syfo.util.getBearerHeader
 import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getPersonIdent
 import no.nav.syfo.veileder.database.getOppfolgingsplanPdf
-import no.nav.syfo.veileder.database.getOppfolgingsplanerForVeileder
+import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
 import java.util.*
 
 const val VEILEDER_LPS_BASE_PATH = "/api/internad/v1/oppfolgingsplan/lps"
@@ -51,7 +51,7 @@ fun Routing.registerVeilederApi(
                 }
 
                 val plansSharedWithNAV = database
-                    .getOppfolgingsplanerForVeileder(personIdent)
+                    .getOppfolgingsplanerMetadataForVeileder(personIdent)
                 call.respond(plansSharedWithNAV)
             }
 
