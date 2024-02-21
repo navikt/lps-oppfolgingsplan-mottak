@@ -12,76 +12,6 @@ import java.util.*
 val gsonSerializer = gsonSerializer()
 
 @Suppress("MagicNumber")
-fun DatabaseInterface.storeLps(
-    uuid: UUID,
-    oppfolgingsplanDTO: FollowUpPlanDTO,
-    virksomhetsnummer: String,
-    pdf: ByteArray
-) {
-    val insertStatement = """
-    INSERT INTO FOLLOW_UP_PLAN_LPS_V1
-    (uuid,
-     organization_number,
-     employee_identification_number,
-     typical_workday,
-     tasks_that_can_still_be_done,
-     tasks_that_can_not_be_done,
-     previous_facilitation,
-     planned_facilitation,
-     other_facilitation_options,
-     follow_up,
-     evaluation_date,
-     needs_help_from_nav,
-     needs_help_from_nav_description,
-     message_to_general_practitioner,
-     additional_information,
-     contact_person_full_name,
-     contact_person_phone_number,
-     employee_has_contributed_to_plan,
-     employee_has_not_contributed_to_plan_description,
-     pdf,
-     send_plan_to_nav,
-     send_plan_to_general_practitioner,
-     created_at,
-     last_updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """.trimIndent()
-
-    val now = Timestamp.valueOf(LocalDateTime.now())
-
-    connection.use { connection ->
-        connection.prepareStatement(insertStatement).use {
-            it.setObject(1, uuid)
-            it.setString(2, virksomhetsnummer)
-            it.setString(3, oppfolgingsplanDTO.employeeIdentificationNumber)
-            it.setString(4, oppfolgingsplanDTO.typicalWorkday)
-            it.setString(5, oppfolgingsplanDTO.tasksThatCanStillBeDone)
-            it.setString(6, oppfolgingsplanDTO.tasksThatCanNotBeDone)
-            it.setString(7, oppfolgingsplanDTO.previousFacilitation)
-            it.setString(8, oppfolgingsplanDTO.plannedFacilitation)
-            it.setString(9, oppfolgingsplanDTO.otherFacilitationOptions)
-            it.setString(10, oppfolgingsplanDTO.followUp)
-            it.setDate(11, Date.valueOf(oppfolgingsplanDTO.evaluationDate))
-            it.setObject(12, oppfolgingsplanDTO.needsHelpFromNav)
-            it.setString(13, oppfolgingsplanDTO.needsHelpFromNavDescription)
-            it.setString(14, oppfolgingsplanDTO.messageToGeneralPractitioner)
-            it.setString(15, oppfolgingsplanDTO.additionalInformation)
-            it.setString(16, oppfolgingsplanDTO.contactPersonFullName)
-            it.setString(17, oppfolgingsplanDTO.contactPersonPhoneNumber)
-            it.setBoolean(18, oppfolgingsplanDTO.employeeHasContributedToPlan)
-            it.setString(19, oppfolgingsplanDTO.employeeHasNotContributedToPlanDescription)
-            it.setBytes(20, pdf)
-            it.setBoolean(21, oppfolgingsplanDTO.sendPlanToNav)
-            it.setBoolean(22, oppfolgingsplanDTO.sendPlanToGeneralPractitioner)
-            it.setTimestamp(23, now)
-            it.setTimestamp(24, now)
-            it.executeUpdate()
-        }
-        connection.commit()
-    }
-}
-
-@Suppress("MagicNumber")
 fun DatabaseInterface.storeLps(oppfolgingsplanDTO: OppfolgingsplanDTO, version: Short) {
     val insertStatement = """
         INSERT INTO OPPFOLGINGSPLAN_LPS (
@@ -120,5 +50,104 @@ fun DatabaseInterface.storeLps(oppfolgingsplanDTO: OppfolgingsplanDTO, version: 
             it.executeUpdate()
         }
         connection.commit()
+    }
+}
+
+@Suppress("MagicNumber", "LongMethod")
+fun DatabaseInterface.storeFollowUpPlan(
+    uuid: UUID,
+    followUpPlanDTO: FollowUpPlanDTO,
+    organizationNumber: String,
+    lpsOrgnumber: String
+) {
+    val insertStatement = """
+        INSERT INTO FOLLOW_UP_PLAN_LPS_V1 (
+        uuid,
+        organization_number,
+        employee_identification_number,
+        typical_workday,
+        tasks_that_can_still_be_done,
+        tasks_that_can_not_be_done,
+        previous_facilitation,
+        planned_facilitation,
+        other_facilitation_options,
+        follow_up,
+        evaluation_date,
+        needs_help_from_nav,
+        needs_help_from_nav_description,
+        message_to_general_practitioner,
+        additional_information,
+        contact_person_full_name,
+        contact_person_phone_number,
+        employee_has_contributed_to_plan,
+        employee_has_not_contributed_to_plan_description,
+        pdf,
+        send_plan_to_nav,
+        sent_to_nav_at,
+        send_plan_to_general_practitioner,
+        sent_to_general_practitioner_at,
+        send_to_general_practitioner_retry_count,
+        journalpost_id,
+        lps_name,
+        lps_orgnumber,
+        created_at,
+        last_updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """.trimIndent()
+
+    connection.use { connection ->
+        connection.prepareStatement(insertStatement).use {
+            it.setObject(1, uuid)
+            it.setString(2, organizationNumber)
+            it.setString(3, followUpPlanDTO.employeeIdentificationNumber)
+            it.setString(4, followUpPlanDTO.typicalWorkday)
+            it.setString(5, followUpPlanDTO.tasksThatCanStillBeDone)
+            it.setString(6, followUpPlanDTO.tasksThatCanNotBeDone)
+            it.setString(7, followUpPlanDTO.previousFacilitation)
+            it.setString(8, followUpPlanDTO.plannedFacilitation)
+            it.setString(9, followUpPlanDTO.otherFacilitationOptions)
+            it.setString(10, followUpPlanDTO.followUp)
+            it.setDate(11, Date.valueOf(followUpPlanDTO.evaluationDate))
+            it.setObject(12, followUpPlanDTO.needsHelpFromNav)
+            it.setString(13, followUpPlanDTO.needsHelpFromNavDescription)
+            it.setString(14, followUpPlanDTO.messageToGeneralPractitioner)
+            it.setString(15, followUpPlanDTO.additionalInformation)
+            it.setString(16, followUpPlanDTO.contactPersonFullName)
+            it.setString(17, followUpPlanDTO.contactPersonPhoneNumber)
+            it.setBoolean(18, followUpPlanDTO.employeeHasContributedToPlan)
+            it.setString(19, followUpPlanDTO.employeeHasNotContributedToPlanDescription)
+            it.setBytes(20, null)
+            it.setBoolean(21, followUpPlanDTO.sendPlanToNav)
+            it.setTimestamp(22, null)
+            it.setBoolean(23, followUpPlanDTO.sendPlanToGeneralPractitioner)
+            it.setTimestamp(24, null)
+            it.setInt(25, 0)
+            it.setString(26, null)
+            it.setString(27, followUpPlanDTO.lpsName)
+            it.setString(28, lpsOrgnumber)
+            it.setTimestamp(29, Timestamp.valueOf(LocalDateTime.now()))
+            it.setTimestamp(30, Timestamp.valueOf(LocalDateTime.now()))
+            it.executeUpdate()
+        }
+        connection.commit()
+    }
+}
+
+fun DatabaseInterface.storeLpsPdf(uuid: UUID, pdfBytes: ByteArray): Int {
+    val updateStatement = """
+        UPDATE FOLLOW_UP_PLAN_LPS_V1
+        SET pdf = ?, last_updated_at = ?
+        WHERE uuid = ?
+    """.trimIndent()
+
+    return connection.use { connection ->
+        val rowsUpdated = connection.prepareStatement(updateStatement).use {
+            it.setBytes(1, pdfBytes)
+            it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+            it.setObject(3, uuid)
+            it.executeUpdate()
+        }
+        connection.commit()
+        rowsUpdated
     }
 }

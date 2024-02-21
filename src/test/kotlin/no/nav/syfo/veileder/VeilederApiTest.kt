@@ -24,7 +24,8 @@ import no.nav.syfo.db.EmbeddedDatabase
 import no.nav.syfo.mockdata.ExternalMockEnvironment
 import no.nav.syfo.mockdata.UserConstants
 import no.nav.syfo.mockdata.testApiModule
-import no.nav.syfo.oppfolgingsplanmottak.database.storeLps
+import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
+import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.configure
@@ -82,8 +83,6 @@ val oppfolgingsplan = FollowUpPlanDTO(
 class VeilederApiTest : DescribeSpec({
     val embeddedDatabase = EmbeddedDatabase()
 
-    afterSpec { embeddedDatabase.stop() }
-
     beforeTest {
         clearAllMocks()
         embeddedDatabase.deleteData()
@@ -105,15 +104,15 @@ class VeilederApiTest : DescribeSpec({
 
         it("Happy path") {
             testConfiguredApplication {
-
                 embeddedDatabase.storeAltinnLpsOppfolgingsplan(altinnLpsPlan)
                 embeddedDatabase.storePdf(altinnLpsPlan.uuid, byteArrayOf(0x2E, 0x38))
-                embeddedDatabase.storeLps(
+                embeddedDatabase.storeFollowUpPlan(
                     oppfolgingsplanUUID,
                     oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    byteArrayOf(0x2E, 0x38)
+                    UserConstants.LPS_VIRKSOMHETSNUMMER
                 )
+                embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
                 val response = it.get(VEILEDER_LPS_BASE_PATH) {
                     bearerAuth(validVeilederToken())
@@ -157,15 +156,15 @@ class VeilederApiTest : DescribeSpec({
 
         it("Returns empty list if plan isn't shared with NAV") {
             testConfiguredApplication {
-
                 embeddedDatabase.storeAltinnLpsOppfolgingsplan(altinnLpsPlan.copy(shouldSendToNav = false))
                 embeddedDatabase.storePdf(altinnLpsPlan.uuid, byteArrayOf(0x2E, 0x38))
-                embeddedDatabase.storeLps(
+                embeddedDatabase.storeFollowUpPlan(
                     oppfolgingsplanUUID,
                     oppfolgingsplan.copy(sendPlanToNav = false),
                     UserConstants.VIRKSOMHETSNUMMER,
-                    byteArrayOf(0x2E, 0x38)
+                    UserConstants.LPS_VIRKSOMHETSNUMMER
                 )
+                embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
                 val response = it.get(VEILEDER_LPS_BASE_PATH) {
                     bearerAuth(validVeilederToken())
@@ -198,14 +197,14 @@ class VeilederApiTest : DescribeSpec({
 
         it("Returns OK when getting pdf") {
             testConfiguredApplication {
-
                 val pdfBytes = byteArrayOf(0x2E, 0x38)
-                embeddedDatabase.storeLps(
+                embeddedDatabase.storeFollowUpPlan(
                     oppfolgingsplanUUID,
                     oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    pdfBytes
+                    UserConstants.LPS_VIRKSOMHETSNUMMER
                 )
+                embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
                 val response = it.get("$VEILEDER_LPS_BASE_PATH/$oppfolgingsplanUUID") {
                     bearerAuth(validVeilederToken())
@@ -248,12 +247,11 @@ class VeilederApiTest : DescribeSpec({
 
         it("Returns status Bad Request when plan isn't shared with NAV") {
             testConfiguredApplication {
-
-                embeddedDatabase.storeLps(
+                embeddedDatabase.storeFollowUpPlan(
                     oppfolgingsplanUUID,
-                    oppfolgingsplan.copy(sendPlanToNav = false),
+                    oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    byteArrayOf(0x2E, 0x38)
+                    UserConstants.LPS_VIRKSOMHETSNUMMER
                 )
 
                 val response = it.get("$VEILEDER_LPS_BASE_PATH/$oppfolgingsplanUUID") {
