@@ -59,13 +59,12 @@ fun Routing.registerVeilederApi(
                 val planUUID = call.uuid()
                 val plan = database.getOppfolgingsplanPdf(planUUID)
 
-                val personIdent = plan?.first ?: throw IllegalArgumentException(
-                    "Failed to $API_ACTION: No valid $VEILEDER_LPS_UUID_PARAM supplied in request "
-                )
+                requireNotNull(plan) { "Failed to $API_ACTION: No valid $VEILEDER_LPS_UUID_PARAM supplied in request" }
+
                 val callId = call.getCallId()
                 val token = call.bearerHeader()
 
-                if (!veilederTilgangskontrollClient.hasAccess(callId, personIdent, token)) {
+                if (!veilederTilgangskontrollClient.hasAccess(callId, plan.first, token)) {
                     call.respond(HttpStatusCode.Forbidden)
                 } else {
                     call.respondBytes(plan.second, ContentType.Application.Pdf)
