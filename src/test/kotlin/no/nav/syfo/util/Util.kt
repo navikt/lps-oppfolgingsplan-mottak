@@ -39,10 +39,14 @@ class LpsHelper {
     }
 }
 
-fun DatabaseInterface.deleteRowsInAltinnLpsTable() {
-    return connection.use { connection ->
-        connection.prepareStatement("DELETE FROM ALTINN_LPS").use {
-            it.executeUpdate()
+fun DatabaseInterface.deleteData() {
+    val queryList = listOf(
+        "DELETE FROM ALTINN_LPS",
+        "DELETE FROM FOLLOW_UP_PLAN_LPS_V1"
+    )
+    this.connection.use { connection ->
+        queryList.forEach { query ->
+            connection.prepareStatement(query).execute()
         }
         connection.commit()
     }

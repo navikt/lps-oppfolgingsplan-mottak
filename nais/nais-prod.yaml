@@ -75,6 +75,10 @@ spec:
     enabled: true
     path: /prometheus
   accessPolicy:
+    inbound:
+      rules:
+        - application: syfomodiaperson
+          namespace: teamsykefravr
     outbound:
       external:
         - host: pdl-api.prod-fss-pub.nais.io
@@ -84,6 +88,8 @@ spec:
         - application: syfooppdfgen
         - application: isdialogmelding
           namespace: teamsykefravr
+        - application: istilgangskontroll
+          namespace: teamsykefravr
   ingresses:
     - "https://lps-oppfolgingsplan-mottak.nav.no"
     - "https://lps-oppfolgingsplan-mottak.intern.nav.no"
@@ -92,6 +98,7 @@ spec:
   azure:
     application:
       enabled: true
+      allowAllUsers: true
   kafka:
     pool: nav-prod
   leaderElection: true
@@ -117,7 +124,7 @@ spec:
     - name: DOKARKIV_SCOPE
       value: prod-fss.teamdokumenthandtering.dokarkiv
     - name: ISTILGANGSKONTROLL_URL
-      value: http://istilgangskontroll
+      value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: prod-gcp.teamsykefravr.istilgangskontroll
     - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
