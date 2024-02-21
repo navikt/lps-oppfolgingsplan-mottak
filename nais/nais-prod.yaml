@@ -75,6 +75,10 @@ spec:
     enabled: true
     path: /prometheus
   accessPolicy:
+    inbound:
+      rules:
+        - application: syfomodiaperson
+          namespace: teamsykefravr
     outbound:
       external:
         - host: pdl-api.prod-fss-pub.nais.io
