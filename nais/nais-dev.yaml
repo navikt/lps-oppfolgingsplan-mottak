@@ -23,8 +23,31 @@ spec:
               orgno: "889640782"
             - name: "CATALYSTONE"
               orgno: "915263836"
+        - name: "v2.followupplan.write"
+          enabled: true
+          product: "oppfolgingsplan"
+          allowedIntegrations:
+            - maskinporten
+          atMaxAge: 600
+          consumers:
+            - name: "NAV"
+              orgno: "889640782"
+            - name: "CATALYSTONE"
+              orgno: "915263836"
+        - name: "v2.followupplan.read"
+          enabled: true
+          product: "oppfolgingsplan"
+          allowedIntegrations:
+            - maskinporten
+          atMaxAge: 600
+          consumers:
+            - name: "NAV"
+              orgno: "889640782"
+            - name: "CATALYSTONE"
+              orgno: "915263836"
       consumes:
         - name: "nav:oppfolgingsplan:v1.lps.write"
+        - name: "nav:oppfolgingsplan:v2.lps.write"
   liveness:
     path: /internal/is_alive
     initialDelay: 10

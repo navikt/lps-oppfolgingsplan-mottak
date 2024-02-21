@@ -71,6 +71,7 @@ class IsdialogmeldingClient(
         val rsOppfoelgingsplan = RSOppfoelgingsplan(sykmeldtFnr, planAsPdf)
         val token = azureAdClient.getSystemToken(urls.isdialogmeldingClientId)?.accessToken
             ?: throw RuntimeException("Failed to Send plan to fastlege: No token was found")
+        log.warn("Sending plan to fastlege, fnr: $sykmeldtFnr")
         val response = try {
             client.post(requestUrl) {
                 headers {
@@ -88,7 +89,7 @@ class IsdialogmeldingClient(
         return when (response.status) {
             HttpStatusCode.OK -> {
                 log.info("Successfully sent LPS PDF to fastlege")
-                response.body<OppfolgingsplanResponse>().bestillingUuid
+                response.body<RSSendOppfolgingsplan>().bestillingUuid
             }
             HttpStatusCode.NotFound -> {
                 log.warn(
@@ -147,6 +148,7 @@ data class DelingMedFastlegeStatusResponse(
     val isSent: Boolean,
 ) : Serializable
 
-data class OppfolgingsplanResponse(
+data class RSSendOppfolgingsplan(
+    val sykmeldtFnr: String,
     val bestillingUuid: String?,
 ) : Serializable

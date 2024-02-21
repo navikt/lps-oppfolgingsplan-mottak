@@ -30,7 +30,7 @@ import no.nav.syfo.client.wellknown.getWellKnown
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import no.nav.syfo.service.LpsOppfolgingsplanSendingService
+import no.nav.syfo.altinnmottak.LpsOppfolgingsplanSendingService
 
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L

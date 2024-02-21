@@ -22,7 +22,7 @@ import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
 import no.nav.syfo.oppfolgingsplanmottak.registerOppfolgingsplanApi
-import no.nav.syfo.service.LpsOppfolgingsplanSendingService
+import no.nav.syfo.altinnmottak.LpsOppfolgingsplanSendingService
 import no.nav.syfo.veileder.registerVeilederApi
 
 @Suppress("LongParameterList")

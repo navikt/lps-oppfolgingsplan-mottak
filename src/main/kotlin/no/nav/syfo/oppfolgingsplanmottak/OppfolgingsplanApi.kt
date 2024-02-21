@@ -6,19 +6,22 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.syfo.altinnmottak.LpsOppfolgingsplanSendingService
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLps
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.OppfolgingsplanDTO
-import no.nav.syfo.service.LpsOppfolgingsplanSendingService
+import org.slf4j.LoggerFactory
 
 fun Routing.registerOppfolgingsplanApi(
     database: DatabaseInterface,
     isdialogmeldingClient: IsdialogmeldingClient,
     lpsOppfolgingsplanSendingService: LpsOppfolgingsplanSendingService,
 ) {
+    val log = LoggerFactory.getLogger("registerOppfolgingsplanApi")
+
     route("/api/v1/lps/write") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post {
@@ -32,7 +35,17 @@ fun Routing.registerOppfolgingsplanApi(
 
     route("/api/v1/followupplan/") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
-            post("write") { // client.post(requestUrl) {
+            post("write") {
+                val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
+                call.respondText(successText("Hello world"))
+            }
+        }
+    }
+
+    route("/api/v2/followupplan/") {
+        authenticate(JwtIssuerType.MASKINPORTEN.name) {
+            post("write") {
+                log.warn("About to send a plan")
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val lpsPlan = lpsOppfolgingsplanSendingService.sendLpsPlan(followUpPlanDTO)
                 call.respond(lpsPlan)

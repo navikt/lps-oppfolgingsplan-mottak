@@ -1,10 +1,11 @@
-package no.nav.syfo.service
+package no.nav.syfo.altinnmottak
 
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import org.slf4j.LoggerFactory
 import java.io.Serializable
 
 class LpsOppfolgingsplanSendingService(
@@ -13,9 +14,10 @@ class LpsOppfolgingsplanSendingService(
     private val dokarkivConsumer: DokarkivClient,
     private val toggles: ToggleEnv,
 ) {
-    suspend fun sendLpsPlan(oppfolgingsplanDTO: FollowUpPlanDTO): LpsOppfolgingsplanResponse {
+    private val log = LoggerFactory.getLogger(LpsOppfolgingsplanSendingService::class.qualifiedName)
+
+    suspend fun sendLpsPlan(oppfolgingsplanDTO: FollowUpPlanDTO): OppfolgingsplanResponse {
         val sykmeldtFnr = oppfolgingsplanDTO.employeeIdentificationNumber
-        // TODO:       val pdf = opPdfGenConsumer.generatedPdfResponse("new model")
 
         var sentToFastlegeId: String? = null
         var sentToNavId: String? = null
@@ -27,14 +29,15 @@ class LpsOppfolgingsplanSendingService(
                 "<MOCK PDF CONTENT>".toByteArray(),
             )
         } else if (toggles.sendLpsPlanToNavToggle && oppfolgingsplanDTO.sendPlanToNav) {
-            // TODO
+            // TODO: isPersonoppgaveClient.sendLpsPlanToNav()
             sentToNavId = null
         }
-        return LpsOppfolgingsplanResponse(sykmeldtFnr = sykmeldtFnr, sentToFastlegeId = sentToFastlegeId, sentToNavId = sentToNavId)
+        log.warn("Sending plan to fastlege, fnr: $sykmeldtFnr")
+        return OppfolgingsplanResponse(sykmeldtFnr = sykmeldtFnr, sentToFastlegeId = sentToFastlegeId, sentToNavId = sentToNavId)
     }
 }
 
-data class LpsOppfolgingsplanResponse(
+data class OppfolgingsplanResponse(
     val sykmeldtFnr: String,
     val sentToFastlegeId: String?,
     val sentToNavId: String?,

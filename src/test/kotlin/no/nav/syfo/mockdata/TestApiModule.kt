@@ -8,7 +8,7 @@ import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.service.LpsOppfolgingsplanSendingService
+import no.nav.syfo.altinnmottak.LpsOppfolgingsplanSendingService
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,

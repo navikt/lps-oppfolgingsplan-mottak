@@ -6,7 +6,7 @@ info:
 paths:
   /api/test/token:
     get:
-      description: "Henter maskinporten-token for testmiljø"
+      description: "Fetching maskinporten-token for test environment"
       tags:
         - Token for testmiljø
       security:
@@ -27,6 +27,29 @@ paths:
   /api/v1/followupplan/write:
     post:
       description: "Submit follow-up plan to NAV and/or general practitioner"
+      tags:
+        - Followup-plan API
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/FollowUpPlanDTO"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "TODO"
+  /api/v2/followupplan/write:
+    post:
+      description: "Submit follow-up plan to NAV and/or general practitioner V2"
       tags:
         - Followup-plan API
       security:
