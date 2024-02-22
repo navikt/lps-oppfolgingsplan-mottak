@@ -22,7 +22,8 @@ val mockkVersion = "1.13.9"
 val postgresVersion = "42.7.2"
 val postgresEmbeddedVersion = "0.13.3"
 val hikariVersion = "5.1.0"
-val flywayVersion = "7.5.2"
+val flywayVersion = "10.8.1"
+val h2Version = "2.2.224"
 val gsonVersion = "2.10.1"
 val kafkaVersion = "3.6.1"
 val altinnKanalSchemasVersion = "2.0.0"
@@ -107,6 +108,7 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
     // Logging
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
@@ -154,6 +156,7 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-assertions-ktor:$kotestExtensionsVersion")
     testImplementation("io.mockk:mockk:${mockkVersion}")
     testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
+    testImplementation("com.h2database:h2:$h2Version")
 }
 
 detekt {
