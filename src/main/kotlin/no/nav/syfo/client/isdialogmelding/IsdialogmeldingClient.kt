@@ -142,8 +142,8 @@ class IsdialogmeldingClient(
 
     companion object {
         private const val SEND_ALTINN_LPS_PDF_TO_FASTLEGE_PATH = "api/v2/send/oppfolgingsplan"
-        private const val SEND_LPS_PDF_TO_FASTLEGE_PATH = "api/v3/send/oppfolgingsplan/"
-        private const val GET_LPS_DELT_MED_FASTLEGE_STATUS_PATH = "/api/v2/sent/status/behandler/"
+        private const val SEND_LPS_PDF_TO_FASTLEGE_PATH = "api/v3/send/oppfolgingsplan"
+        private const val GET_LPS_DELT_MED_FASTLEGE_STATUS_PATH = "/api/v2/sent/status/behandler"
     }
 }
 
