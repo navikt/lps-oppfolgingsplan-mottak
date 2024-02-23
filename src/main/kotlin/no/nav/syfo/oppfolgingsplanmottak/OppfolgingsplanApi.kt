@@ -28,6 +28,7 @@ fun Routing.registerOppfolgingsplanApi(
                 val oppfolgingsplanDTO = call.receive<OppfolgingsplanDTO>()
                 val virksomhetsnavn = oppfolgingsplanDTO.oppfolgingsplanMeta.virksomhet.virksomhetsnavn
                 database.storeLps(oppfolgingsplanDTO, 1)
+                lpsOppfolgingsplanSendingService.sendLpsPlanDummy()
                 call.respondText(successText(virksomhetsnavn))
             }
         }

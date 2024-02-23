@@ -35,6 +35,13 @@ class LpsOppfolgingsplanSendingService(
         log.warn("Sending plan to fastlege, fnr: $sykmeldtFnr")
         return OppfolgingsplanResponse(sykmeldtFnr = sykmeldtFnr, sentToFastlegeId = sentToFastlegeId, sentToNavId = sentToNavId)
     }
+
+    suspend fun sendLpsPlanDummy() {
+        isdialogmeldingConsumer.sendAltinnLpsPlanToFastlege(
+            "12121212121",
+            "<MOCK PDF CONTENT>".toByteArray(),
+        )
+    }
 }
 
 data class OppfolgingsplanResponse(
