@@ -64,12 +64,9 @@ paths:
         "200":
           description: "OK"
           content:
-            text/plain:
+            'application/json':
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "TODO"
+                $ref: "#/components/schemas/OppfolgingsplanResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -161,3 +158,16 @@ components:
       - "contactPersonFullName"
       - "contactPersonPhoneNumber"
       - "employeeHasContributedToPlan"
+
+    OppfolgingsplanResponse:
+      type: "object"
+      properties:
+        sykmeldtFnr:
+          type: "string"
+          description: "A Norwegian national identity number or D number."
+        sentToFastlegeId:
+          type: "string"
+          description: "sentToFastlegeId"
+        sentToNavId:
+          type: "string"
+          description: "sentToNavId"
