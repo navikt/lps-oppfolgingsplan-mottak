@@ -92,8 +92,9 @@ class IsdialogmeldingClient(
 
         return when (response.status) {
             HttpStatusCode.OK -> {
-                log.info("Successfully sent LPS PDF to fastlege")
-                response.body<RSSendOppfolgingsplan>().bestillingUuid
+                log.info("Successfully sent LPS PDF to fastlege, response body: ${response.body<RSSendOppfolgingsplan>()}")
+                log.info("Successfully sent LPS PDF to fastlege, response: $response")
+                return response.body<RSSendOppfolgingsplan>().bestillingUuid
             }
             HttpStatusCode.NotFound -> {
                 log.warn(
