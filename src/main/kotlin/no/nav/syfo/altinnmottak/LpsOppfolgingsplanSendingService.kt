@@ -33,6 +33,8 @@ class LpsOppfolgingsplanSendingService(
             sentToNavId = null
         }
         log.warn("Sending plan to fastlege, fnr: $sykmeldtFnr")
+        log.warn("Sending plan to fastlege, sentToFastlegeId: $sentToFastlegeId")
+        log.warn("Sending plan to fastlege, sentToNavId: $sentToNavId")
         return OppfolgingsplanResponse(sykmeldtFnr = sykmeldtFnr, sentToFastlegeId = sentToFastlegeId, sentToNavId = sentToNavId)
     }
 
