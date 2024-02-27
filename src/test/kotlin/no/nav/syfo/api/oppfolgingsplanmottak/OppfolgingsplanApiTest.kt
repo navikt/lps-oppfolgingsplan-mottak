@@ -3,18 +3,14 @@ package no.nav.syfo.api.oppfolgingsplanmottak
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import no.nav.syfo.domain.PersonIdent
-import no.nav.syfo.mockdata.createDefaultOppfolgingsplanDTOMock
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
-import no.nav.syfo.oppfolgingsplanmottak.successText
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
@@ -26,22 +22,6 @@ class OppfolgingsplanApiTest : DescribeSpec({
     describe("Retrieval of oppfølgingsplaner") {
         val employeeIdentificationNumber = "12345678912"
         val employeeOrgnumber = "123456789"
-
-        it("Should get a dummy response for POST") {
-            testApplication {
-                val client = configureTestApplication().httpClient
-
-                val oppfolgingsplanDTO = createDefaultOppfolgingsplanDTOMock()
-                val response = client.post("/api/v1/lps/write") {
-                    bearerAuth(validMaskinportenToken())
-                    contentType(ContentType.Application.Json)
-                    setBody(oppfolgingsplanDTO)
-                }
-                val virksomhetsnavn = oppfolgingsplanDTO.oppfolgingsplanMeta.virksomhet.virksomhetsnavn
-                response shouldHaveStatus HttpStatusCode.OK
-                response.bodyAsText() shouldContain successText(virksomhetsnavn)
-            }
-        }
 
         it("Submits and stores a follow-up plan") {
             testApplication {
