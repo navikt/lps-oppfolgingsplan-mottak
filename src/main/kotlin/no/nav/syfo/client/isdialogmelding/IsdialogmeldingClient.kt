@@ -20,12 +20,11 @@ class IsdialogmeldingClient(
     private val log = LoggerFactory.getLogger(IsdialogmeldingClient::class.qualifiedName)
     private val client = httpClientDefault()
 
-    suspend fun sendAltinnLpsPlanToFastlege(
+    suspend fun sendLpsPlanToFastlege(
         sykmeldtFnr: String,
         planAsPdf: ByteArray,
     ): Boolean {
-        val requestUrl = "${urls.isdialogmeldingUrl}/$SEND_ALTINN_LPS_PDF_TO_FASTLEGE_PATH"
-        log.error("Sending plan to fastlege req OLD, fnr: $requestUrl")
+        val requestUrl = "${urls.isdialogmeldingUrl}/$SEND_LPS_PDF_TO_FASTLEGE_PATH"
 
         val rsOppfoelgingsplan = RSOppfoelgingsplan(sykmeldtFnr, planAsPdf)
         val token = azureAdClient.getSystemToken(urls.isdialogmeldingClientId)?.accessToken
@@ -65,86 +64,8 @@ class IsdialogmeldingClient(
         }
     }
 
-    suspend fun sendLpsPlanToFastlege(
-        sykmeldtFnr: String,
-        planAsPdf: ByteArray,
-    ): String? {
-        val requestUrl = "${urls.isdialogmeldingUrl}/$SEND_LPS_PDF_TO_FASTLEGE_PATH"
-        log.error("Sending plan to fastlege req2, fnr: $requestUrl")
-        log.error("Sending plan to fastlege req1 old, fnr:${urls.isdialogmeldingUrl}/$SEND_ALTINN_LPS_PDF_TO_FASTLEGE_PATH")
-        val rsOppfoelgingsplan = RSOppfoelgingsplan(sykmeldtFnr, planAsPdf)
-        val token = azureAdClient.getSystemToken(urls.isdialogmeldingClientId)?.accessToken
-            ?: throw RuntimeException("Failed to Send plan to fastlege: No token was found")
-        log.warn("Sending plan to fastlege, fnr: $sykmeldtFnr")
-        val response = try {
-            client.post(requestUrl) {
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(HttpHeaders.Authorization, createBearerToken(token))
-                    append(NAV_CALL_ID_HEADER, createCallId())
-                }
-                setBody(rsOppfoelgingsplan)
-            }
-        } catch (e: Exception) {
-            log.error("Exception while sending altinn-LPS to fastlege", e)
-            throw e
-        }
-
-        return when (response.status) {
-            HttpStatusCode.OK -> {
-                log.info("Successfully sent LPS PDF to fastlege, response body: ${response.body<RSSendOppfolgingsplan>()}")
-                log.info("Successfully sent LPS PDF to fastlege, response: $response")
-                return response.body<RSSendOppfolgingsplan>().bestillingUuid
-            }
-            HttpStatusCode.NotFound -> {
-                log.warn(
-                    "Unable to determine fastlege, or lacking appropiate" +
-                        "'partnerinformasjon'-data",
-                )
-                null
-            }
-            else -> {
-                log.error("Unable to send LPS-plan to fastlege (HTTP error code: ${response.status}")
-                null
-            }
-        }
-    }
-
-    suspend fun getDeltMedFastlegeStatus(
-        bestillingsUuid: String,
-    ): DelingMedFastlegeStatusResponse? {
-        val requestUrl = "${urls.isdialogmeldingUrl}/$GET_LPS_DELT_MED_FASTLEGE_STATUS_PATH/$bestillingsUuid"
-        val token = azureAdClient.getSystemToken(urls.isdialogmeldingClientId)?.accessToken
-            ?: throw RuntimeException("Failed to Send plan to fastlege: No token was found")
-        val response = try {
-            client.get(requestUrl) {
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(HttpHeaders.Authorization, createBearerToken(token))
-                    append(NAV_CALL_ID_HEADER, createCallId())
-                }
-            }
-        } catch (e: Exception) {
-            log.error("Exception while fetching sending to fastlege status", e)
-            throw e
-        }
-
-        return when (response.status) {
-            HttpStatusCode.OK -> {
-                log.info("Successfully fetched sending to fastlege status")
-                response.body<DelingMedFastlegeStatusResponse>()
-            }
-            else -> {
-                log.error("Unable to fetch sending to fastlege status (HTTP error code: ${response.status}")
-                null
-            }
-        }
-    }
-
     companion object {
-        private const val SEND_ALTINN_LPS_PDF_TO_FASTLEGE_PATH = "api/v2/send/oppfolgingsplan"
-        private const val SEND_LPS_PDF_TO_FASTLEGE_PATH = "api/v3/send/oppfolgingsplan"
-        private const val GET_LPS_DELT_MED_FASTLEGE_STATUS_PATH = "/api/v2/sent/status/behandler"
+        private const val SEND_LPS_PDF_TO_FASTLEGE_PATH = "api/v2/send/oppfolgingsplan"
     }
 }
 

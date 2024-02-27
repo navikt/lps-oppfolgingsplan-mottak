@@ -46,7 +46,7 @@ class AltinnLpsServiceTest : DescribeSpec({
         embeddedDatabase.deleteData()
         justRun { navLpsProducer.sendAltinnLpsToNav(any()) }
         coEvery { opPdfGenConsumer.generatedPdfResponse(any()) } returns pdfByteArray
-        coEvery { isdialogmeldingConsumer.sendAltinnLpsPlanToFastlege(any(), pdfByteArray) } returns true
+        coEvery { isdialogmeldingConsumer.sendLpsPlanToFastlege(any(), pdfByteArray) } returns true
         coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns arbeidstakerFnr
         coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr2) } returns arbeidstakerFnr2
     }
@@ -66,7 +66,7 @@ class AltinnLpsServiceTest : DescribeSpec({
             storedLps.sentToNav shouldBe true
 
             coVerify(exactly = 1) {
-                isdialogmeldingConsumer.sendAltinnLpsPlanToFastlege(arbeidstakerFnr, pdfByteArray)
+                isdialogmeldingConsumer.sendLpsPlanToFastlege(arbeidstakerFnr, pdfByteArray)
             }
             verify(exactly = 1) {
                 navLpsProducer.sendAltinnLpsToNav(any())
@@ -86,7 +86,7 @@ class AltinnLpsServiceTest : DescribeSpec({
             storedLps.sentToNav shouldBe false
 
             coVerify(exactly = 0) {
-                isdialogmeldingConsumer.sendAltinnLpsPlanToFastlege(arbeidstakerFnr2, pdfByteArray)
+                isdialogmeldingConsumer.sendLpsPlanToFastlege(arbeidstakerFnr2, pdfByteArray)
             }
             verify(exactly = 0) {
                 navLpsProducer.sendAltinnLpsToNav(any())

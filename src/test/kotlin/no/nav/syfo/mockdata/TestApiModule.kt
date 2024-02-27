@@ -8,7 +8,7 @@ import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
-import no.nav.syfo.altinnmottak.LpsOppfolgingsplanSendingService
+import no.nav.syfo.altinnmottak.FollowUpPlanSendingService
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,
@@ -26,7 +26,7 @@ fun Application.testApiModule(
     )
 
     val isdialogmeldingClient = IsdialogmeldingClient(urls = externalMockEnvironment.environment.urls, azureAdClient = externalMockEnvironment.azureAdClient)
-    val lpsOppfolgingsplanSendingService = LpsOppfolgingsplanSendingService(
+    val followUpPlanSendingService = FollowUpPlanSendingService(
         opPdfGenConsumer = opPdfGenConsumer,
         isdialogmeldingConsumer = isdialogmeldingConsumer,
         dokarkivConsumer = dokarkivConsumer,
@@ -39,7 +39,6 @@ fun Application.testApiModule(
         wellKnownMaskinporten = externalMockEnvironment.wellKnownMaskinporten,
         wellKnownInternalAzureAD = externalMockEnvironment.wellKnownInternalAzureAD,
         veilederTilgangskontrollClient = veilederTilgangskontrollClient,
-        isdialogmeldingClient = isdialogmeldingClient,
-        lpsOppfolgingsplanSendingService = lpsOppfolgingsplanSendingService,
+        followUpPlanSendingService = followUpPlanSendingService,
     )
 }

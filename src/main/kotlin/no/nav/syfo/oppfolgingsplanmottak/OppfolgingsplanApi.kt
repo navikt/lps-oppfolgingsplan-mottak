@@ -1,31 +1,28 @@
 package no.nav.syfo.oppfolgingsplanmottak
 
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import no.nav.syfo.altinnmottak.LpsOppfolgingsplanSendingService
+import no.nav.syfo.altinnmottak.FollowUpPlanSendingService
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
-import no.nav.syfo.oppfolgingsplanmottak.database.storeLps
+import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
+import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
-import java.util.*
-import no.nav.syfo.oppfolgingsplanmottak.domain.OppfolgingsplanDTO
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.*
 
-fun Routing.registerOppfolgingsplanApi(
+fun Routing.registeFollowUpPlanApi(
     database: DatabaseInterface,
-    isdialogmeldingClient: IsdialogmeldingClient,
-    lpsOppfolgingsplanSendingService: LpsOppfolgingsplanSendingService,
+    followUpPlanSendingService: FollowUpPlanSendingService,
 ) {
-    val log = LoggerFactory.getLogger("registerOppfolgingsplanApi")
+    val log = LoggerFactory.getLogger("registeFollowUpPlanApi")
 
     route("/api/v1/followupplan/") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
@@ -33,26 +30,24 @@ fun Routing.registerOppfolgingsplanApi(
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val uuid = UUID.randomUUID()
 
+                val followUpPlanResponse = followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, uuid)
+
                 database.storeFollowUpPlan(
                     uuid = uuid,
                     followUpPlanDTO = followUpPlanDTO,
                     organizationNumber = getOrgnumberFromClaims(),
-                    lpsOrgnumber = getLpsOrgnumberFromClaims()
+                    lpsOrgnumber = getLpsOrgnumberFromClaims(),
+                    sentToGeneralPractitionerAt = if ((followUpPlanResponse.sentToGeneralPractitionerStatus != null) && followUpPlanResponse.sentToGeneralPractitionerStatus) LocalDateTime.now() else null,
                 )
-//         TODO      val lpsPlan = lpsOppfolgingsplanSendingService.sendLpsPlan(followUpPlanDTO)
-//                call.respond(lpsPlan)
 
-                call.respond(FollowUpPlanResponse(uuid.toString()))
+                call.respond(followUpPlanResponse)
             }
 
             get("read/status/delt/fastlege") {
-                val bestillingsUuid = call.parameters["sentToFastlegeId"].toString()
-                val delingsstatus = isdialogmeldingClient.getDeltMedFastlegeStatus(bestillingsUuid)
-                if (delingsstatus != null) {
-                    call.respond(delingsstatus)
-                } else {
-                    call.respond(status = HttpStatusCode.NotFound, message = "Error while fetching sending to fastlege status")
-                }
+                val uuid = call.parameters["uuid"].toString()
+
+                val sendingStatus = database.findSendingStatus(UUID.fromString(uuid))
+                call.respond(sendingStatus)
             }
         }
     }

@@ -30,7 +30,7 @@ import no.nav.syfo.client.wellknown.getWellKnown
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import no.nav.syfo.altinnmottak.LpsOppfolgingsplanSendingService
+import no.nav.syfo.altinnmottak.FollowUpPlanSendingService
 
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
@@ -75,7 +75,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     val pdlClient = PdlClient(appEnv.urls, azureAdClient)
     val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
     val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient)
-    val lpsOppfolgingsplanSendingService = LpsOppfolgingsplanSendingService(pdfGenClient, isdialogmeldingClient, dokarkivClient, appEnv.toggles)
+    val followUpPlanSendingService = FollowUpPlanSendingService(pdfGenClient, isdialogmeldingClient, dokarkivClient, appEnv.toggles)
 
     val altinnLpsService = AltinnLpsService(
         pdlClient,
@@ -115,8 +115,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
                 wellKnownMaskinporten,
                 wellKnownInternalAzureAD,
                 veilederTilgangskontrollClient,
-                isdialogmeldingClient,
-                lpsOppfolgingsplanSendingService,
+                followUpPlanSendingService,
             )
             kafkaModule(
                 appState,

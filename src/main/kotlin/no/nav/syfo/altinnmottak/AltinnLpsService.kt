@@ -197,7 +197,7 @@ class AltinnLpsService(
         lpsFnr: String,
         pdf: ByteArray,
     ): Boolean {
-        val success = isdialogmeldingConsumer.sendAltinnLpsPlanToFastlege(lpsFnr, pdf)
+        val success = isdialogmeldingConsumer.sendLpsPlanToFastlege(lpsFnr, pdf)
         if (success) {
             database.setSentToFastlegeTrue(uuid)
             COUNT_METRIKK_DELT_MED_FASTLEGE.increment()
