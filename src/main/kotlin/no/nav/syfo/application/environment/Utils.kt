@@ -29,7 +29,7 @@ fun getEnv(): ApplicationEnvironment {
             maskinporten = AuthMaskinporten(
                 wellKnownUrl = getEnvVar("MASKINPORTEN_WELL_KNOWN_URL"),
                 issuer = getEnvVar("MASKINPORTEN_ISSUER"),
-                scope = getEnvVar("MASKINPORTEN_SCOPES"),
+                scope = getEnvVar("MASKINPORTEN_CUSTOM_SCOPE_NAME"),
                 tokenUrl = getEnvVar("MASKINPORTEN_TOKEN_ENDPOINT"),
                 clientId = getEnvVar("MASKINPORTEN_CLIENT_ID"),
                 clientJwk = getEnvVar("MASKINPORTEN_CLIENT_JWK"),

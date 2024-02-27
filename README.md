@@ -9,7 +9,6 @@ Maskinporten-API for submitting oppfølgingsplaner to NAV
 ## 🗺️ Documentation
 | Description          | Url                                                           |
 |----------------------|---------------------------------------------------------------|
-| Swagger prod         | https://lps-oppfolgingsplan-mottak.nav.no/swagger             |
 | Swagger test         | https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/swagger |
 | Testing library      | https://kotest.io/                                            |
 | Mocking library      | https://mockk.io/                                             |

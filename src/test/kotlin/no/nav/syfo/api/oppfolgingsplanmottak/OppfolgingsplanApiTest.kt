@@ -1,73 +1,78 @@
 package no.nav.syfo.api.oppfolgingsplanmottak
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.string.shouldContain
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.serialization.jackson.jackson
-import io.ktor.server.testing.testApplication
-import io.mockk.clearAllMocks
-import io.mockk.coEvery
-import io.mockk.mockk
-import no.nav.syfo.application.environment.getEnv
-import no.nav.syfo.client.isdialogmelding.DelingMedFastlegeStatusResponse
-import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
-import no.nav.syfo.db.EmbeddedDatabase
-import no.nav.syfo.mockdata.ExternalMockEnvironment
-import no.nav.syfo.mockdata.createDefaultOppfolgingsplanDTOMock
-import no.nav.syfo.mockdata.testApiModule
-import no.nav.syfo.oppfolgingsplanmottak.successText
+import io.kotest.matchers.shouldBe
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
+import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
+import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.validMaskinportenToken
+import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
+import java.time.LocalDate
+import java.util.*
 
 class OppfolgingsplanApiTest : DescribeSpec({
-    val env = getEnv()
-    val embeddedDatabase = EmbeddedDatabase()
-    val isdialogmeldingConsumer = mockk<IsdialogmeldingClient>(relaxed = true)
-
-    val sentToFastlegeId = "sentToFastlegeId"
-
-    beforeTest {
-        clearAllMocks()
-        coEvery { isdialogmeldingConsumer.sendLpsPlanToFastlege(any(), any()) } returns sentToFastlegeId
-        coEvery { isdialogmeldingConsumer.getDeltMedFastlegeStatus(any()) } returns DelingMedFastlegeStatusResponse(sentToFastlegeId, true)
-    }
-    afterSpec { embeddedDatabase.stop() }
 
     describe("Retrieval of oppfølgingsplaner") {
-        it("Should get a dummy response for POST") {
+        val employeeIdentificationNumber = "12345678912"
+        val employeeOrgnumber = "123456789"
+
+        it("Submits and stores a follow-up plan") {
             testApplication {
-                application {
-                    testApiModule(ExternalMockEnvironment.instance, embeddedDatabase)
-                }
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        jackson {
-                            registerKotlinModule()
-                            registerModule(JavaTimeModule())
-                            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        }
-                    }
-                }
-                val oppfolgingsplanDTO = createDefaultOppfolgingsplanDTOMock()
-                val response = client.post("/api/v1/lps/write") {
-                    bearerAuth(validMaskinportenToken())
+                val (embeddedDatabase, client) = configureTestApplication()
+
+                val followUpPlanDTO = createFollowUpPlan(employeeIdentificationNumber)
+
+                val response = client.post("/api/v1/followupplan/write") {
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
                     contentType(ContentType.Application.Json)
-                    setBody(oppfolgingsplanDTO)
+                    setBody(followUpPlanDTO)
                 }
-                val virksomhetsnavn = oppfolgingsplanDTO.oppfolgingsplanMeta.virksomhet.virksomhetsnavn
+
+                val responseBody = response.body<FollowUpPlanResponse>()
+                embeddedDatabase.storeLpsPdf(UUID.fromString(responseBody.uuid), byteArrayOf(0x2E, 0x38))
+
+                val storedMetaData =
+                    embeddedDatabase.getOppfolgingsplanerMetadataForVeileder(PersonIdent(employeeIdentificationNumber))
+
+                storedMetaData.size shouldBe 1
+                storedMetaData[0].fnr shouldBe employeeIdentificationNumber
+                storedMetaData[0].virksomhetsnummer shouldBe employeeOrgnumber
+
                 response shouldHaveStatus HttpStatusCode.OK
-                response.bodyAsText() shouldContain successText(virksomhetsnavn)
             }
         }
     }
 })
+
+private fun createFollowUpPlan(employeeIdentificationNumber: String): FollowUpPlanDTO {
+    val followUpPlanDTO = FollowUpPlanDTO(
+        employeeIdentificationNumber = employeeIdentificationNumber,
+        typicalWorkday = "Typical workday description",
+        tasksThatCanStillBeDone = "Tasks that can still be done",
+        tasksThatCanNotBeDone = "Tasks that cannot be done",
+        previousFacilitation = "Previous facilitation description",
+        plannedFacilitation = "Planned facilitation description",
+        otherFacilitationOptions = "Other facilitation options",
+        followUp = "Follow up description",
+        evaluationDate = LocalDate.now(),
+        sendPlanToNav = true,
+        needsHelpFromNav = false,
+        needsHelpFromNavDescription = null,
+        sendPlanToGeneralPractitioner = true,
+        messageToGeneralPractitioner = "Message to general practitioner",
+        additionalInformation = "Additional information",
+        contactPersonFullName = "Contact person full name",
+        contactPersonPhoneNumber = "12345678",
+        employeeHasContributedToPlan = true,
+        employeeHasNotContributedToPlanDescription = null,
+        lpsName = "LPS name"
+    )
+    return followUpPlanDTO
+}

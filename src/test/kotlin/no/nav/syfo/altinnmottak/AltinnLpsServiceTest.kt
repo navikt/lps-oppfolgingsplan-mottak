@@ -4,16 +4,16 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.*
+import no.nav.syfo.altinnmottak.database.getAltinnLpsOppfolgingsplanByUuid
+import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
+import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.db.EmbeddedDatabase
-import no.nav.syfo.altinnmottak.database.getAltinnLpsOppfolgingsplanByUuid
-import no.nav.syfo.application.environment.getEnv
-import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
 import no.nav.syfo.util.LpsHelper
-import no.nav.syfo.util.deleteRowsInAltinnLpsTable
+import no.nav.syfo.util.deleteData
 
 class AltinnLpsServiceTest : DescribeSpec({
     val env = getEnv()
@@ -43,7 +43,7 @@ class AltinnLpsServiceTest : DescribeSpec({
 
     beforeTest {
         clearAllMocks()
-        embeddedDatabase.deleteRowsInAltinnLpsTable()
+        embeddedDatabase.deleteData()
         justRun { navLpsProducer.sendAltinnLpsToNav(any()) }
         coEvery { opPdfGenConsumer.generatedPdfResponse(any()) } returns pdfByteArray
         coEvery { isdialogmeldingConsumer.sendAltinnLpsPlanToFastlege(any(), pdfByteArray) } returns true
@@ -51,11 +51,9 @@ class AltinnLpsServiceTest : DescribeSpec({
         coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr2) } returns arbeidstakerFnr2
     }
 
-    afterSpec { embeddedDatabase.stop() }
-
     describe("Receive Altinn-LPS from altinnkanal-2") {
 
-        it ("Receive LPS with BistandFraNAV and DelMedFastlege set to true") {
+        it("Receive LPS with BistandFraNAV and DelMedFastlege set to true") {
             val uuid = altinnLpsService.persistLpsPlan(archiveReference, lpsXml)
             altinnLpsService.processLpsPlan(uuid)
 

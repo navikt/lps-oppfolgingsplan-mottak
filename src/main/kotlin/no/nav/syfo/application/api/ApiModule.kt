@@ -72,6 +72,7 @@ fun Application.apiModule(
         registerOppfolgingsplanApi(database, isdialogmeldingClient, lpsOppfolgingsplanSendingService)
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
+            database = database,
         )
         registerSwaggerApi()
         if (environment.isDev()) {

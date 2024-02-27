@@ -9,9 +9,14 @@ import io.ktor.server.routing.*
 import no.nav.syfo.altinnmottak.LpsOppfolgingsplanSendingService
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLps
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
+import no.nav.syfo.util.getLpsOrgnumberFromClaims
+import no.nav.syfo.util.getOrgnumberFromClaims
+import java.util.*
 import no.nav.syfo.oppfolgingsplanmottak.domain.OppfolgingsplanDTO
 import org.slf4j.LoggerFactory
 
@@ -22,35 +27,24 @@ fun Routing.registerOppfolgingsplanApi(
 ) {
     val log = LoggerFactory.getLogger("registerOppfolgingsplanApi")
 
-    route("/api/v1/lps/write") {
-        authenticate(JwtIssuerType.MASKINPORTEN.name) {
-            post {
-                val oppfolgingsplanDTO = call.receive<OppfolgingsplanDTO>()
-                val virksomhetsnavn = oppfolgingsplanDTO.oppfolgingsplanMeta.virksomhet.virksomhetsnavn
-                database.storeLps(oppfolgingsplanDTO, 1)
-                lpsOppfolgingsplanSendingService.sendLpsPlanDummy()
-                call.respondText(successText(virksomhetsnavn))
-            }
-        }
-    }
-
     route("/api/v1/followupplan/") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post("write") {
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
-                call.respondText(successText("Hello world"))
-            }
-        }
-    }
+                val uuid = UUID.randomUUID()
 
-    route("/api/v2/followupplan/") {
-        authenticate(JwtIssuerType.MASKINPORTEN.name) {
-            post("write") {
-                log.warn("About to send a plan")
-                val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
-                val lpsPlan = lpsOppfolgingsplanSendingService.sendLpsPlan(followUpPlanDTO)
-                call.respond(lpsPlan)
+                database.storeFollowUpPlan(
+                    uuid = uuid,
+                    followUpPlanDTO = followUpPlanDTO,
+                    organizationNumber = getOrgnumberFromClaims(),
+                    lpsOrgnumber = getLpsOrgnumberFromClaims()
+                )
+//         TODO      val lpsPlan = lpsOppfolgingsplanSendingService.sendLpsPlan(followUpPlanDTO)
+//                call.respond(lpsPlan)
+
+                call.respond(FollowUpPlanResponse(uuid.toString()))
             }
+
             get("read/status/delt/fastlege") {
                 val bestillingsUuid = call.parameters["sentToFastlegeId"].toString()
                 val delingsstatus = isdialogmeldingClient.getDeltMedFastlegeStatus(bestillingsUuid)
@@ -63,6 +57,3 @@ fun Routing.registerOppfolgingsplanApi(
         }
     }
 }
-
-fun successText(virksomhetsnavn: String) =
-    "Successfully received oppfolgingsplan for virksomhet $virksomhetsnavn"
