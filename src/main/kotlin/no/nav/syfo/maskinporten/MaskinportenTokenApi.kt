@@ -46,13 +46,13 @@ fun Routing.registerMaskinportenTokenApi(
                 if (maskinportenResponse.access_token != null) {
                     call.respond(HttpStatusCode.OK, maskinportenResponse.access_token)
                 } else {
-                    log.error(
-                        "Token error: ${maskinportenResponse.error} " +
-                                "Description: ${maskinportenResponse.error_description}"
-                    )
+                    val maskinportenError = maskinportenResponse.error
+                    val maskinportenErrorDescription = maskinportenResponse.error_description
+
+                    log.error("Token error: $maskinportenError Description: $maskinportenErrorDescription")
                     call.respond(
                         HttpStatusCode.InternalServerError,
-                        errorMsg(maskinportenResponse.error, maskinportenResponse.error_description)
+                        errorMsg(maskinportenError, maskinportenErrorDescription)
                     )
                 }
             }
