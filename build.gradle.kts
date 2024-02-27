@@ -6,7 +6,7 @@ version = "1.0"
 val ktorVersion = "2.3.8"
 val prometheusVersion = "0.16.0"
 val micrometerVersion = "1.12.3"
-val slf4jVersion = "1.7.36"
+val slf4jVersion = "2.0.12"
 val logbackVersion = "1.5.0"
 val javaxVersion = "2.1.1"
 val logstashEncoderVersion = "7.4"
@@ -20,7 +20,6 @@ val kotestExtensionsVersion = "2.0.0"
 val kotlinVersion = "1.9.22"
 val mockkVersion = "1.13.9"
 val postgresVersion = "42.7.2"
-val postgresEmbeddedVersion = "0.13.3"
 val hikariVersion = "5.1.0"
 val flywayVersion = "10.8.1"
 val h2Version = "2.2.224"
@@ -40,7 +39,7 @@ plugins {
     kotlin("jvm") version "1.9.22"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.9.22"
     id("com.diffplug.spotless") version "6.25.0"
-    id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.5"
 }
 
@@ -63,18 +62,6 @@ repositories {
         credentials {
             username = githubUser
             password = githubPassword
-        }
-    }
-}
-
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.scala-lang"
-            && requested.name == "scala-library"
-            && (requested.version == "2.13.3")
-        ) {
-            useVersion("2.13.9")
-            because("fixes critical bug CVE-2022-36944 in 2.13.6")
         }
     }
 }
@@ -155,7 +142,6 @@ dependencies {
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-assertions-ktor:$kotestExtensionsVersion")
     testImplementation("io.mockk:mockk:${mockkVersion}")
-    testImplementation("com.opentable.components:otj-pg-embedded:$postgresEmbeddedVersion")
     testImplementation("com.h2database:h2:$h2Version")
 }
 
