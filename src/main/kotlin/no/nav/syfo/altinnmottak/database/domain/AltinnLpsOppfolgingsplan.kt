@@ -4,7 +4,6 @@ import java.time.LocalDateTime
 import java.util.*
 
 data class AltinnLpsOppfolgingsplan(
-    val archiveReference: String,
     val uuid: UUID,
     val lpsFnr: String,
     val fnr: String?,
@@ -17,6 +16,7 @@ data class AltinnLpsOppfolgingsplan(
     val sentToFastlege: Boolean,
     val sendToFastlegeRetryCount: Int,
     val journalpostId: String?,
+    val archiveReference: String?,
     val originallyCreated: LocalDateTime,
     val created: LocalDateTime,
     val lastChanged: LocalDateTime,

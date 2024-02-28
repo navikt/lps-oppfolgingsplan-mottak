@@ -13,13 +13,13 @@ import java.util.*
 fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppfolgingsplan) {
     val insertStatement = """
         INSERT INTO ALTINN_LPS (
-            archive_reference,
             uuid,
             lps_fnr,
             orgnummer,
             xml,
             should_send_to_nav,
             should_send_to_fastlege,
+            archive_reference,
             originally_created,
             created,
             last_changed
@@ -28,13 +28,13 @@ fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppf
 
     connection.use { connection ->
         connection.prepareStatement(insertStatement).use {
-            it.setString(1, altinnLpsPlan.archiveReference)
-            it.setObject(2, altinnLpsPlan.uuid)
-            it.setString(3, altinnLpsPlan.lpsFnr)
-            it.setString(4, altinnLpsPlan.orgnummer)
-            it.setString(5, altinnLpsPlan.xml)
-            it.setBoolean(6, altinnLpsPlan.shouldSendToNav)
-            it.setBoolean(7, altinnLpsPlan.shouldSendToFastlege)
+            it.setObject(1, altinnLpsPlan.uuid)
+            it.setString(2, altinnLpsPlan.lpsFnr)
+            it.setString(3, altinnLpsPlan.orgnummer)
+            it.setString(4, altinnLpsPlan.xml)
+            it.setBoolean(5, altinnLpsPlan.shouldSendToNav)
+            it.setBoolean(6, altinnLpsPlan.shouldSendToFastlege)
+            it.setString(7, altinnLpsPlan.archiveReference)
             it.setTimestamp(8, Timestamp.valueOf(altinnLpsPlan.originallyCreated))
             it.setTimestamp(9, Timestamp.valueOf(altinnLpsPlan.created))
             it.setTimestamp(10, Timestamp.valueOf(altinnLpsPlan.lastChanged))
