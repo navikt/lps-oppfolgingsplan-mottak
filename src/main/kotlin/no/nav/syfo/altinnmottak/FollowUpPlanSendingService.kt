@@ -10,9 +10,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class FollowUpPlanSendingService(
-    private val opPdfGenConsumer: OpPdfGenClient,
     private val isdialogmeldingConsumer: IsdialogmeldingClient,
-    private val dokarkivConsumer: DokarkivClient,
     private val toggles: ToggleEnv,
 ) {
     private val log = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
@@ -34,7 +32,6 @@ class FollowUpPlanSendingService(
                     "<MOCK PDF CONTENT>".toByteArray(),
                 )
         } else if (toggles.sendLpsPlanToNavToggle && oppfolgingsplanDTO.sendPlanToNav) {
-            // TODO: isPersonoppgaveClient.sendLpsPlanToNav()
             sentToNavStatus = false
         }
         return FollowUpPlanResponse(uuid = uuid.toString(), sentToGeneralPractitionerStatus = sentToFastlegeStatus, sentToNavStatus = sentToNavStatus)

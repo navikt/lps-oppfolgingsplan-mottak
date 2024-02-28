@@ -75,7 +75,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     val pdlClient = PdlClient(appEnv.urls, azureAdClient)
     val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
     val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient)
-    val followUpPlanSendingService = FollowUpPlanSendingService(pdfGenClient, isdialogmeldingClient, dokarkivClient, appEnv.toggles)
+    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient, appEnv.toggles)
 
     val altinnLpsService = AltinnLpsService(
         pdlClient,
