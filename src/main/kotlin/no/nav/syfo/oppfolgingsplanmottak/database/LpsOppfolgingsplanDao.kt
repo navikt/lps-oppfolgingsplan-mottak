@@ -1,14 +1,14 @@
 package no.nav.syfo.oppfolgingsplanmottak.database
 
+import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.application.database.toObject
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.application.database.toObject
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 
 @Suppress("MagicNumber", "LongMethod")
 fun DatabaseInterface.storeFollowUpPlan(
@@ -18,6 +18,14 @@ fun DatabaseInterface.storeFollowUpPlan(
     lpsOrgnumber: String,
     sentToGeneralPractitionerAt: LocalDateTime?,
 ) {
+    val sentToGeneralPractitionerAtValueToStore =
+        if (sentToGeneralPractitionerAt != null)
+            {
+                Timestamp.valueOf(sentToGeneralPractitionerAt)
+            } else {
+            sentToGeneralPractitionerAt
+        }
+
     val insertStatement =
         """
             INSERT INTO FOLLOW_UP_PLAN_LPS_V1 (
@@ -79,7 +87,7 @@ fun DatabaseInterface.storeFollowUpPlan(
             it.setBoolean(21, followUpPlanDTO.sendPlanToNav)
             it.setTimestamp(22, null)
             it.setBoolean(23, followUpPlanDTO.sendPlanToGeneralPractitioner)
-            it.setTimestamp(24, Timestamp.valueOf(sentToGeneralPractitionerAt))
+            it.setTimestamp(24, sentToGeneralPractitionerAtValueToStore)
             it.setInt(25, 0)
             it.setString(26, null)
             it.setString(27, followUpPlanDTO.lpsName)
@@ -131,9 +139,10 @@ fun DatabaseInterface.findSendingStatus(uuid: UUID): FollowUpPlanResponse {
         }
     }
 }
+
 fun ResultSet.toFollowUpPlanSendingStatus() =
     FollowUpPlanResponse(
         uuid = getString("uuid"),
         isSentToGeneralPractitionerStatus = getTimestamp("sent_to_general_practitioner_at") != null,
-        isSentToNavStatus =getTimestamp("sent_to_nav_at") != null,
+        isSentToNavStatus = getTimestamp("sent_to_nav_at") != null,
     )

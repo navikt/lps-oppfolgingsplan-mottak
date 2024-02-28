@@ -1,10 +1,10 @@
 package no.nav.syfo.altinnmottak
 
-import java.util.*
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
+import java.util.*
 
 class FollowUpPlanSendingService(
     private val isdialogmeldingConsumer: IsdialogmeldingClient,
@@ -21,11 +21,7 @@ class FollowUpPlanSendingService(
 
         if (toggles.sendLpsPlanToFastlegeToggle && oppfolgingsplanDTO.sendPlanToGeneralPractitioner) {
             // TODO: send actual PDF when data model and pdfgen are updated
-            sentToFastlegeStatus =
-                isdialogmeldingConsumer.sendLpsPlanToFastlege(
-                    sykmeldtFnr,
-                    "<MOCK PDF CONTENT>".toByteArray(),
-                )
+            sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToFastlege(sykmeldtFnr, "<MOCK PDF CONTENT>".toByteArray())
         } else if (toggles.sendLpsPlanToNavToggle && oppfolgingsplanDTO.sendPlanToNav) {
             sentToNavStatus = null
         }
