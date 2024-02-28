@@ -110,7 +110,8 @@ class VeilederApiTest : DescribeSpec({
                     oppfolgingsplanUUID,
                     oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    UserConstants.LPS_VIRKSOMHETSNUMMER
+                    UserConstants.LPS_VIRKSOMHETSNUMMER,
+                    LocalDateTime.now(),
                 )
                 embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
@@ -162,7 +163,8 @@ class VeilederApiTest : DescribeSpec({
                     oppfolgingsplanUUID,
                     oppfolgingsplan.copy(sendPlanToNav = false),
                     UserConstants.VIRKSOMHETSNUMMER,
-                    UserConstants.LPS_VIRKSOMHETSNUMMER
+                    UserConstants.LPS_VIRKSOMHETSNUMMER,
+                    LocalDateTime.now(),
                 )
                 embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
@@ -202,7 +204,8 @@ class VeilederApiTest : DescribeSpec({
                     oppfolgingsplanUUID,
                     oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    UserConstants.LPS_VIRKSOMHETSNUMMER
+                    UserConstants.LPS_VIRKSOMHETSNUMMER,
+                    LocalDateTime.now(),
                 )
                 embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
@@ -251,7 +254,8 @@ class VeilederApiTest : DescribeSpec({
                     oppfolgingsplanUUID,
                     oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    UserConstants.LPS_VIRKSOMHETSNUMMER
+                    UserConstants.LPS_VIRKSOMHETSNUMMER,
+                    LocalDateTime.now(),
                 )
 
                 val response = it.get("$VEILEDER_LPS_BASE_PATH/$oppfolgingsplanUUID") {
