@@ -8,6 +8,7 @@ import java.util.*
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toObject
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 
 @Suppress("MagicNumber", "LongMethod")
 fun DatabaseInterface.storeFollowUpPlan(
@@ -115,7 +116,7 @@ fun DatabaseInterface.storeLpsPdf(
     }
 }
 
-fun DatabaseInterface.findSendingStatus(uuid: UUID): FollowUpPlanSendingStatus {
+fun DatabaseInterface.findSendingStatus(uuid: UUID): FollowUpPlanResponse {
     val queryStatement =
         """
         SELECT *
@@ -130,16 +131,9 @@ fun DatabaseInterface.findSendingStatus(uuid: UUID): FollowUpPlanSendingStatus {
         }
     }
 }
-
-data class FollowUpPlanSendingStatus(
-    val uuid: UUID,
-    val sentToGeneralPractitioner: Boolean?,
-    val sentToNav: Boolean?,
-)
-
 fun ResultSet.toFollowUpPlanSendingStatus() =
-    FollowUpPlanSendingStatus(
-        uuid = UUID.fromString(getString("uuid")),
-        sentToNav = getTimestamp("sent_to_nav_at") != null,
-        sentToGeneralPractitioner = getTimestamp("sent_to_general_practitioner_at") != null,
+    FollowUpPlanResponse(
+        uuid = getString("uuid"),
+        isSentToGeneralPractitionerStatus = getTimestamp("sent_to_general_practitioner_at") != null,
+        isSentToNavStatus =getTimestamp("sent_to_nav_at") != null,
     )

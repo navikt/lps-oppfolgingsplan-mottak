@@ -1,20 +1,15 @@
 package no.nav.syfo.altinnmottak
 
+import java.util.*
 import no.nav.syfo.application.environment.ToggleEnv
-import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
-import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
-import org.slf4j.LoggerFactory
-import java.util.UUID
 
 class FollowUpPlanSendingService(
     private val isdialogmeldingConsumer: IsdialogmeldingClient,
     private val toggles: ToggleEnv,
 ) {
-    private val log = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
-
     suspend fun sendFollowUpPlan(
         oppfolgingsplanDTO: FollowUpPlanDTO,
         uuid: UUID,
@@ -32,15 +27,12 @@ class FollowUpPlanSendingService(
                     "<MOCK PDF CONTENT>".toByteArray(),
                 )
         } else if (toggles.sendLpsPlanToNavToggle && oppfolgingsplanDTO.sendPlanToNav) {
-            sentToNavStatus = false
+            sentToNavStatus = null
         }
-        return FollowUpPlanResponse(uuid = uuid.toString(), sentToGeneralPractitionerStatus = sentToFastlegeStatus, sentToNavStatus = sentToNavStatus)
-    }
-
-    suspend fun sendLpsPlanDummy() {
-        isdialogmeldingConsumer.sendLpsPlanToFastlege(
-            "12121212121",
-            "<MOCK PDF CONTENT>".toByteArray(),
+        return FollowUpPlanResponse(
+            uuid = uuid.toString(),
+            isSentToGeneralPractitionerStatus = sentToFastlegeStatus,
+            isSentToNavStatus = sentToNavStatus,
         )
     }
 }

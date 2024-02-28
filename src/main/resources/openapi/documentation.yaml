@@ -41,32 +41,26 @@ paths:
         "200":
           description: "OK"
           content:
-            text/plain:
+            'application/json':
               schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "TODO"
-  /api/v2/followupplan/write:
-    post:
-      description: "Submit follow-up plan to NAV and/or general practitioner V2"
+                $ref: "#/components/schemas/FollowUpPlanResponse"
+  /api/v1/followupplan/read/sendingStatus/{uuid}:
+    get:
+      description: "Get a sending status to NAV and general practitioner by follow up plan id"
       tags:
         - Followup-plan API
       security:
         - bearerAuth: [ ]
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              $ref: "#/components/schemas/FollowUpPlanDTO"
-        required: true
+      parameters:
+        - in: path
+          name: uuid
       responses:
         "200":
           description: "OK"
           content:
             'application/json':
               schema:
-                $ref: "#/components/schemas/OppfolgingsplanResponse"
+                $ref: "#/components/schemas/FollowUpPlanResponse"
 components:
   securitySchemes:
     bearerAuth:
@@ -159,15 +153,15 @@ components:
       - "contactPersonPhoneNumber"
       - "employeeHasContributedToPlan"
 
-    OppfolgingsplanResponse:
+    FollowUpPlanResponse:
       type: "object"
       properties:
-        sykmeldtFnr:
+        uuid:
           type: "string"
-          description: "A Norwegian national identity number or D number."
-        sentToFastlegeId:
+          description: "An id for a follow up plan"
+        isSentToGeneralPractitionerStatus:
           type: "string"
-          description: "sentToFastlegeId"
-        sentToNavId:
+          description: "Status for sending a plan to general practitioner, true or false"
+        isSentToNavStatus:
           type: "string"
-          description: "sentToNavId"
+          description: "Status for sending a plan to NAV, true or false"
