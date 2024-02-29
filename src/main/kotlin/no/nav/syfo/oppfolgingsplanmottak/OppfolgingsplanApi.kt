@@ -18,11 +18,13 @@ import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
+import org.slf4j.LoggerFactory
 
 fun Routing.registeFollowUpPlanApi(
     database: DatabaseInterface,
     followUpPlanSendingService: FollowUpPlanSendingService,
 ) {
+    val log = LoggerFactory.getLogger("FollowUpPlanApi")
 
     route("/api/v1/followupplan/") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
@@ -51,6 +53,7 @@ fun Routing.registeFollowUpPlanApi(
 
             get("read/sendingStatus/") {
                 val uuid = call.parameters["uuid"].toString()
+                log.warn("qwqw Skal sjekke sending status. uuid: $uuid")
 
                 val sendingStatus = database.findSendingStatus(UUID.fromString(uuid))
                 call.respond(sendingStatus)
