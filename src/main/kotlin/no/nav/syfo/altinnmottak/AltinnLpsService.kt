@@ -80,7 +80,7 @@ class AltinnLpsService(
         if (mostRecentFnr == null) {
             log.warn(
                 "[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS " +
-                        "with UUID ${altinnLps.uuid} and AR: ${altinnLps.archiveReference}"
+                        "with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
             )
             return
         }
@@ -94,7 +94,7 @@ class AltinnLpsService(
         )
         val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
         if (pdf == null) {
-            log.warn("[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with UUID ${altinnLps.uuid} and AR: ${altinnLps.archiveReference}")
+            log.warn("[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}")
             return
         }
 

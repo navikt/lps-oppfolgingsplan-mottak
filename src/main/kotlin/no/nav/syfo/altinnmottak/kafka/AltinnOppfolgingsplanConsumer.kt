@@ -46,7 +46,7 @@ class AltinnOppfolgingsplanConsumer(
     private fun receiveAndPersistLpsFromAltinn(record: ConsumerRecord<String, ReceivedMessage>): UUID {
         val receivedMessage = record.value()
         val archiveReference = receivedMessage.getArchiveReference()
-        log.info("Receiving Altinn-LPS-plan with AR: $archiveReference")
+        log.info("Receiving Altinn-LPS-plan with archive reference: $archiveReference")
         val payload = receivedMessage.getXmlMessage()
         return altinnLPSService.persistLpsPlan(archiveReference, payload)
     }
