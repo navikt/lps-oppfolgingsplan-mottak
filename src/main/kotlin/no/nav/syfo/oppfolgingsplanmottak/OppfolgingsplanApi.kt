@@ -49,7 +49,7 @@ fun Routing.registeFollowUpPlanApi(
                 call.respond(followUpPlanResponse)
             }
 
-            get("read/sendingStatus") {
+            get("read/sendingStatus/") {
                 val uuid = call.parameters["uuid"].toString()
 
                 val sendingStatus = database.findSendingStatus(UUID.fromString(uuid))
