@@ -48,7 +48,7 @@ class PdlClient(
     }
 
     private suspend fun getFnr(ident: String): HttpResponse? {
-        val token = azureAdClient.getSystemToken(urls.pdlScope)
+        val token = azureAdClient.getSystemToken(urls.pdlScope)?.accessToken
         val bearerTokenString = "Bearer $token"
         val graphQuery = this::class.java.getResource(IDENTER_QUERY)?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
