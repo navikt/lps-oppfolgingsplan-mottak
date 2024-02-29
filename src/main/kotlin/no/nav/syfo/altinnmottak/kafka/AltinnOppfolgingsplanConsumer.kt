@@ -33,8 +33,11 @@ class AltinnOppfolgingsplanConsumer(
             kafkaListener.poll(pollDurationInMillis).forEach { record ->
                 try {
                     val storedLpsUuid = receiveAndPersistLpsFromAltinn(record)
+                    log.info("Stored new plan")
                     kafkaListener.commitSync()
+                    log.info("Commit sync done")
                     altinnLPSService.processLpsPlan(storedLpsUuid)
+                    log.info("Process plan successful")
                     COUNT_METRIKK_PROSSESERING_VELLYKKET.increment()
                 } catch (e: Exception) {
                     log.error("Error encountered while processing LPS-plan from altinn-kanal-2: ${e.message}", e)

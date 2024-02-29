@@ -73,10 +73,13 @@ class AltinnLpsService(
     }
 
     suspend fun processLpsPlan(lpsUuid: UUID) {
+        log.info("Processing new plan")
         val altinnLps = database.getAltinnLpsOppfolgingsplanByUuid(lpsUuid)
         val lpsFnr = altinnLps.lpsFnr
 
+        log.info("Attempting to get most recent fnr")
         val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
+        log.info("Got reply from pdl")
         if (mostRecentFnr == null) {
             log.warn(
                 "[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS" +
@@ -86,6 +89,7 @@ class AltinnLpsService(
         }
 
         database.storeFnr(lpsUuid, mostRecentFnr)
+        log.info("Stored new fnr from pdl")
 
         val skjemainnhold = xmlToSkjemainnhold(altinnLps.xml)
         val lpsPdfModel = mapFormdataToFagmelding(
