@@ -1,6 +1,5 @@
 package no.nav.syfo.altinnmottak.kafka
 
-import kotlinx.coroutines.runBlocking
 import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.syfo.altinnmottak.AltinnLpsService
 import no.nav.syfo.application.ApplicationState
@@ -29,15 +28,13 @@ class AltinnOppfolgingsplanConsumer(
         kafkaListener.subscribe(listOf(ALTINNKANAL_TOPIC))
     }
 
-    fun listen(appState: ApplicationState) {
+    suspend fun listen(appState: ApplicationState) {
         while (appState.ready) {
             kafkaListener.poll(pollDurationInMillis).forEach { record ->
                 try {
                     val storedLpsUuid = receiveAndPersistLpsFromAltinn(record)
                     kafkaListener.commitSync()
-                    runBlocking {
-                        altinnLPSService.processLpsPlan(storedLpsUuid)
-                    }
+                    altinnLPSService.processLpsPlan(storedLpsUuid)
                     COUNT_METRIKK_PROSSESERING_VELLYKKET.increment()
                 } catch (e: Exception) {
                     log.error("Error encountered while processing LPS-plan from altinn-kanal-2: ${e.message}", e)
@@ -49,7 +46,7 @@ class AltinnOppfolgingsplanConsumer(
     private fun receiveAndPersistLpsFromAltinn(record: ConsumerRecord<String, ReceivedMessage>): UUID {
         val receivedMessage = record.value()
         val archiveReference = receivedMessage.getArchiveReference()
-        log.info("Receiving Altinn-LPS-plan with AR: $archiveReference")
+        log.info("Receiving Altinn-LPS-plan with archive reference: $archiveReference")
         val payload = receivedMessage.getXmlMessage()
         return altinnLPSService.persistLpsPlan(archiveReference, payload)
     }

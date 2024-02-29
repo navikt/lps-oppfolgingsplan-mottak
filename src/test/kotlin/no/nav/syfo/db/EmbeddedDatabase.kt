@@ -25,8 +25,10 @@ class EmbeddedDatabase : DatabaseInterface {
 
         Flyway.configure().dataSource(dataSource).load().apply {
             migrate()
+            validate()
         }
     }
+
     override val connection: Connection
         get() = dataSource.connection.apply { autoCommit = false }
 }
