@@ -51,11 +51,6 @@ paths:
         - Followup-plan API
       security:
         - bearerAuth: [ ]
-      requestBody:
-        content:
-          'text/plain':
-            schema:
-              type: string
       parameters:
         - in: path
           name: uuid
