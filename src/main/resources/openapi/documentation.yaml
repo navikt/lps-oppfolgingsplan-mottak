@@ -54,6 +54,9 @@ paths:
       parameters:
         - in: path
           name: uuid
+          schema:
+            type: string
+          required: true
       responses:
         "200":
           description: "OK"
