@@ -17,6 +17,7 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.mockk.clearAllMocks
+import java.sql.Timestamp
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.altinnmottak.database.storeAltinnLpsOppfolgingsplan
 import no.nav.syfo.altinnmottak.database.storePdf
@@ -110,7 +111,9 @@ class VeilederApiTest : DescribeSpec({
                     oppfolgingsplanUUID,
                     oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    UserConstants.LPS_VIRKSOMHETSNUMMER
+                    UserConstants.LPS_VIRKSOMHETSNUMMER,
+                    Timestamp.valueOf(LocalDateTime.now()),
+                    Timestamp.valueOf(LocalDateTime.now()),
                 )
                 embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
@@ -162,7 +165,9 @@ class VeilederApiTest : DescribeSpec({
                     oppfolgingsplanUUID,
                     oppfolgingsplan.copy(sendPlanToNav = false),
                     UserConstants.VIRKSOMHETSNUMMER,
-                    UserConstants.LPS_VIRKSOMHETSNUMMER
+                    UserConstants.LPS_VIRKSOMHETSNUMMER,
+                    Timestamp.valueOf(LocalDateTime.now()),
+                    Timestamp.valueOf(LocalDateTime.now()),
                 )
                 embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
@@ -202,7 +207,9 @@ class VeilederApiTest : DescribeSpec({
                     oppfolgingsplanUUID,
                     oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    UserConstants.LPS_VIRKSOMHETSNUMMER
+                    UserConstants.LPS_VIRKSOMHETSNUMMER,
+                    Timestamp.valueOf(LocalDateTime.now()),
+                    Timestamp.valueOf(LocalDateTime.now()),
                 )
                 embeddedDatabase.storeLpsPdf(oppfolgingsplanUUID, byteArrayOf(0x2E, 0x38))
 
@@ -251,7 +258,9 @@ class VeilederApiTest : DescribeSpec({
                     oppfolgingsplanUUID,
                     oppfolgingsplan,
                     UserConstants.VIRKSOMHETSNUMMER,
-                    UserConstants.LPS_VIRKSOMHETSNUMMER
+                    UserConstants.LPS_VIRKSOMHETSNUMMER,
+                    Timestamp.valueOf(LocalDateTime.now()),
+                    Timestamp.valueOf(LocalDateTime.now()),
                 )
 
                 val response = it.get("$VEILEDER_LPS_BASE_PATH/$oppfolgingsplanUUID") {

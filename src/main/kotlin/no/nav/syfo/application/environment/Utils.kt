@@ -6,7 +6,6 @@ import no.nav.syfo.application.ApplicationEnvironment
 import no.nav.syfo.application.exception.MissingRequiredVariableException
 import java.io.File
 
-
 const val LOCAL_PROPERTIES_PATH = "./src/main/resources/localEnv.json"
 const val SERVICE_USER_MOUNT_PATH = "/var/run/secrets"
 const val DEV_CLUSTER = "dev-gcp"
@@ -24,7 +23,7 @@ fun getEnv(): ApplicationEnvironment {
             port = getEnvVar("APPLICATION_PORT").toInt(),
             cluster = getEnvVar("NAIS_CLUSTER_NAME"),
             coroutineThreadPoolSize = getEnvVar("COROUTINE_THREAD_POOL_SIZE").toInt(),
-            electorPath = getEnvVar("ELECTOR_PATH")
+            electorPath = getEnvVar("ELECTOR_PATH"),
         ),
         auth = AuthEnv(
             maskinporten = AuthMaskinporten(
@@ -44,7 +43,7 @@ fun getEnv(): ApplicationEnvironment {
                 clientSecret = getEnvVar("AZURE_APP_CLIENT_SECRET"),
                 accessTokenUrl = getEnvVar("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
                 wellKnownUrl = getEnvVar("AZURE_APP_WELL_KNOWN_URL"),
-            )
+            ),
         ),
         database = DbEnv(
             dbHost = getEnvVar("GCP_DB_HOST", "127.0.0.1"),
@@ -81,10 +80,13 @@ fun getEnv(): ApplicationEnvironment {
             sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt(),
         ),
         toggles = ToggleEnv(
-            sendToNavToggle = getEnvVar("TOGGLE_SEND_TO_NAV").toBoolean(),
-            sendToFastlegeToggle = getEnvVar("TOGGLE_SEND_TO_FASTLEGE").toBoolean(),
-            journalforToggle = getEnvVar("TOGGLE_JOURNALFOR").toBoolean(),
-        )
+            sendAltinnLpsPlanToNavToggle = getEnvVar("TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV").toBoolean(),
+            sendAltinnLpsPlanToFastlegeToggle = getEnvVar("TOGGLE_SEND_ALTINN_LPS_PLAN_TO_FASTLEGE").toBoolean(),
+            journalforAltinnLpsPlanToggle = getEnvVar("TOGGLE_JOURNALFOR__ALTINN_LPS_PLAN").toBoolean(),
+            sendLpsPlanToNavToggle = getEnvVar("TOGGLE_SEND_LPS_PLAN_TO_NAV").toBoolean(),
+            sendLpsPlanToFastlegeToggle = getEnvVar("TOGGLE_SEND_LPS_PLAN_TO_FASTLEGE").toBoolean(),
+            journalforLpsPlanToggle = getEnvVar("TOGGLE_JOURNALFOR_LPS_PLAN").toBoolean(),
+        ),
     )
 }
 

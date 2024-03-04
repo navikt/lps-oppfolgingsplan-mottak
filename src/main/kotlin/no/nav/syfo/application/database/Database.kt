@@ -2,9 +2,9 @@ package no.nav.syfo.application.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import java.sql.Connection
 import no.nav.syfo.application.environment.DbEnv
 import org.flywaydb.core.Flyway
+import java.sql.Connection
 
 const val POSTGRES_JDBC_PREFIX = "jdbc:postgresql"
 
@@ -13,7 +13,8 @@ interface DatabaseInterface {
 }
 
 class Database(private val env: DbEnv) : DatabaseInterface {
-    private val hikariDataSource = HikariDataSource(
+    private val hikariDataSource =
+        HikariDataSource(
             HikariConfig().apply {
                 jdbcUrl = generateJdbcUrlFromEnv(env)
                 username = env.dbUsername
@@ -23,8 +24,8 @@ class Database(private val env: DbEnv) : DatabaseInterface {
                 isAutoCommit = false
                 transactionIsolation = "TRANSACTION_REPEATABLE_READ"
                 validate()
-            }
-    )
+            },
+        )
 
     init {
         runFlywayMigrations(hikariDataSource)
@@ -34,10 +35,10 @@ class Database(private val env: DbEnv) : DatabaseInterface {
         get() = hikariDataSource.connection
 
     private fun runFlywayMigrations(hikariDataSource: HikariDataSource) =
-            Flyway.configure().run {
-                dataSource(hikariDataSource)
-                load().migrate().migrationsExecuted
-            }
+        Flyway.configure().run {
+            dataSource(hikariDataSource)
+            load().migrate().migrationsExecuted
+        }
 }
 
 fun generateJdbcUrlFromEnv(env: DbEnv): String {
@@ -45,9 +46,10 @@ fun generateJdbcUrlFromEnv(env: DbEnv): String {
 }
 
 fun DatabaseInterface.grantAccessToIAMUsers() {
-    val statement = """
+    val statement =
+        """
         GRANT ALL ON ALL TABLES IN SCHEMA PUBLIC TO CLOUDSQLIAMUSER
-    """.trimIndent()
+        """.trimIndent()
 
     connection.use { conn ->
         conn.prepareStatement(statement).use {

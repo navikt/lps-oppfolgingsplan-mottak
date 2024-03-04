@@ -114,11 +114,17 @@ spec:
       value: dev-gcp.teamsykefravr.istilgangskontroll
     - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
       value: "6"
-    - name: TOGGLE_SEND_TO_NAV
+    - name: TOGGLE_SEND_LPS_PLAN_TO_NAV
+      value: "true"
+    - name: TOGGLE_SEND_LPS_PLAN_TO_FASTLEGE
+      value: "true"
+    - name: TOGGLE_JOURNALFOR_LPS_PLAN
       value: "false"
-    - name: TOGGLE_SEND_TO_FASTLEGE
+    - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV
       value: "false"
-    - name: TOGGLE_JOURNALFOR
+    - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_FASTLEGE
+      value: "false"
+    - name: TOGGLE_JOURNALFOR__ALTINN_LPS_PLAN
       value: "false"
     - name: MASKINPORTEN_CUSTOM_SCOPE_NAME
       value: "nav:oppfolgingsplan/lps.write"
