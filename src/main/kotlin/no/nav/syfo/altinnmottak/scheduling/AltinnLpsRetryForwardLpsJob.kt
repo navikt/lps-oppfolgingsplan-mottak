@@ -90,7 +90,7 @@ class AltinnLpsRetryForwardLpsJob : Job {
             database.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThreshold)
         altinnLpsOppfolgingsplanNotYetSentToFastlege.forEach { lps ->
             val success = try {
-                altinnLpsService.sendLpsPlanToFastlege(
+                altinnLpsService.sendLpsPlanToGeneralPractitioner(
                     lps.uuid,
                     lps.lpsFnr,
                     lps.pdf!!

@@ -8,22 +8,30 @@ import java.util.*
 
 class FollowUpPlanSendingService(
     private val isdialogmeldingConsumer: IsdialogmeldingClient,
+    private val altinnLpsService: AltinnLpsService,
     private val toggles: ToggleEnv,
 ) {
     suspend fun sendFollowUpPlan(
-        oppfolgingsplanDTO: FollowUpPlanDTO,
+        followUpPlanDTO: FollowUpPlanDTO,
         uuid: UUID,
+        employerOrgnr: String,
     ): FollowUpPlanResponse {
-        val sykmeldtFnr = oppfolgingsplanDTO.employeeIdentificationNumber
+        val sykmeldtFnr = followUpPlanDTO.employeeIdentificationNumber
 
         var sentToFastlegeStatus: Boolean? = null
         var sentToNavStatus: Boolean? = null
 
-        if (toggles.sendLpsPlanToFastlegeToggle && oppfolgingsplanDTO.sendPlanToGeneralPractitioner) {
+        if (toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) {
             // TODO: send actual PDF when data model and pdfgen are updated
-            sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToFastlege(sykmeldtFnr, "<MOCK PDF CONTENT>".toByteArray())
-        } else if (toggles.sendLpsPlanToNavToggle && oppfolgingsplanDTO.sendPlanToNav) {
-            sentToNavStatus = null
+            sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(sykmeldtFnr, "<MOCK PDF CONTENT>".toByteArray())
+        } else if (toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav) {
+            altinnLpsService.sendLpsPlanToNav(
+                uuid,
+                followUpPlanDTO.employeeIdentificationNumber,
+                employerOrgnr,
+                followUpPlanDTO.needsHelpFromNav ?: false,
+            )
+            sentToNavStatus = true
         }
         return FollowUpPlanResponse(
             uuid = uuid.toString(),

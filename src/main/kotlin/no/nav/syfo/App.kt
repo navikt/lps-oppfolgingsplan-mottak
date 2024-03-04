@@ -75,7 +75,6 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     val pdlClient = PdlClient(appEnv.urls, azureAdClient)
     val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
     val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient)
-    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient, appEnv.toggles)
 
     val altinnLpsService = AltinnLpsService(
         pdlClient,
@@ -87,6 +86,9 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
         appEnv.altinnLps.sendToFastlegeRetryThreshold,
         appEnv.toggles,
     )
+
+    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient,  altinnLpsService, appEnv.toggles)
+
     val wellKnownInternalAzureAD = getWellKnown(
         wellKnownUrl = appEnv.auth.azuread.wellKnownUrl,
     )

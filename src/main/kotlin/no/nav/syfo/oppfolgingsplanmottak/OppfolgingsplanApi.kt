@@ -8,8 +8,6 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import java.time.LocalDateTime
-import java.util.*
 import no.nav.syfo.altinnmottak.FollowUpPlanSendingService
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
@@ -19,6 +17,8 @@ import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import org.slf4j.LoggerFactory
+import java.util.*
+import no.nav.syfo.util.getSendingTimestamp
 
 fun Routing.registeFollowUpPlanApi(
     database: DatabaseInterface,
@@ -31,24 +31,23 @@ fun Routing.registeFollowUpPlanApi(
             post("write") {
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val uuid = UUID.randomUUID()
+                val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims()
 
                 log.info("Received follow up plan from ${followUpPlanDTO.lpsName}, LPS orgnr: $lpsOrgnumber")
 
-                val followUpPlanResponse = followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, uuid)
-                val sentToGeneralPractitionerAt =
-                    if ((followUpPlanResponse.isSentToGeneralPractitionerStatus != null) && followUpPlanResponse.isSentToGeneralPractitionerStatus != false) {
-                        LocalDateTime.now()
-                    } else {
-                        null
-                    }
+                val followUpPlanResponse = followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
+
+                val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
+                val sentToNavAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
 
                 database.storeFollowUpPlan(
                     uuid = uuid,
                     followUpPlanDTO = followUpPlanDTO,
-                    organizationNumber = getOrgnumberFromClaims(),
+                    organizationNumber = employerOrgnr,
                     lpsOrgnumber = lpsOrgnumber,
                     sentToGeneralPractitionerAt = sentToGeneralPractitionerAt,
+                    sentToNavAt = sentToNavAt,
                 )
 
                 call.respond(followUpPlanResponse)

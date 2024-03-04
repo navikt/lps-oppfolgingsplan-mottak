@@ -16,15 +16,9 @@ fun DatabaseInterface.storeFollowUpPlan(
     followUpPlanDTO: FollowUpPlanDTO,
     organizationNumber: String,
     lpsOrgnumber: String,
-    sentToGeneralPractitionerAt: LocalDateTime?,
+    sentToGeneralPractitionerAt: Timestamp?,
+    sentToNavAt: Timestamp?,
 ) {
-    val sentToGeneralPractitionerAtValueToStore =
-        if (sentToGeneralPractitionerAt != null)
-            {
-                Timestamp.valueOf(sentToGeneralPractitionerAt)
-            } else {
-            null
-        }
 
     val insertStatement =
         """
@@ -85,9 +79,9 @@ fun DatabaseInterface.storeFollowUpPlan(
             it.setString(19, followUpPlanDTO.employeeHasNotContributedToPlanDescription)
             it.setBytes(20, null)
             it.setBoolean(21, followUpPlanDTO.sendPlanToNav)
-            it.setTimestamp(22, null)
+            it.setTimestamp(22, sentToNavAt)
             it.setBoolean(23, followUpPlanDTO.sendPlanToGeneralPractitioner)
-            it.setTimestamp(24, sentToGeneralPractitionerAtValueToStore)
+            it.setTimestamp(24, sentToGeneralPractitionerAt)
             it.setInt(25, 0)
             it.setString(26, null)
             it.setString(27, followUpPlanDTO.lpsName)

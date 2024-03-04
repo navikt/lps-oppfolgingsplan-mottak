@@ -23,7 +23,7 @@ class IsdialogmeldingClient(
     private val log = LoggerFactory.getLogger(IsdialogmeldingClient::class.qualifiedName)
     private val client = httpClientDefault()
 
-    suspend fun sendLpsPlanToFastlege(
+    suspend fun sendLpsPlanToGeneralPractitioner(
         sykmeldtFnr: String,
         planAsPdf: ByteArray,
     ): Boolean {

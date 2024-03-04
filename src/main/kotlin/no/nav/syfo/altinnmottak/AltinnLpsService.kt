@@ -111,7 +111,7 @@ class AltinnLpsService(
 
         val shouldBeSentToGP = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
         if (shouldBeSentToGP && toggles.sendAltinnLpsPlanToFastlegeToggle) {
-            sendLpsPlanToFastlege(
+            sendLpsPlanToGeneralPractitioner(
                 lpsUuid,
                 lpsFnr,
                 pdf,
@@ -192,12 +192,12 @@ class AltinnLpsService(
         }
     }
 
-    suspend fun sendLpsPlanToFastlege(
+    suspend fun sendLpsPlanToGeneralPractitioner(
         uuid: UUID,
         lpsFnr: String,
         pdf: ByteArray,
     ): Boolean {
-        val success = isdialogmeldingConsumer.sendLpsPlanToFastlege(lpsFnr, pdf)
+        val success = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(lpsFnr, pdf)
         if (success) {
             database.setSentToFastlegeTrue(uuid)
             COUNT_METRIKK_DELT_MED_FASTLEGE.increment()
