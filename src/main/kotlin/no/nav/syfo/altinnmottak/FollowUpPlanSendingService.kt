@@ -1,12 +1,12 @@
 package no.nav.syfo.altinnmottak
 
-import java.util.*
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class FollowUpPlanSendingService(
     private val isdialogmeldingConsumer: IsdialogmeldingClient,
@@ -14,6 +14,7 @@ class FollowUpPlanSendingService(
     private val toggles: ToggleEnv,
 ) {
     private val log: Logger = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
+
     suspend fun sendFollowUpPlan(
         followUpPlanDTO: FollowUpPlanDTO,
         uuid: UUID,
@@ -29,7 +30,9 @@ class FollowUpPlanSendingService(
         if (toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) {
             // TODO: send actual PDF when data model and pdfgen are updated
             sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(sykmeldtFnr, "<MOCK PDF CONTENT>".toByteArray())
-        } else if (toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav) {
+        }
+
+        if (toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav) {
             log.warn("qwqw sending ${followUpPlanDTO.sendPlanToNav}")
             altinnLpsService.sendLpsPlanToNav(
                 uuid,
@@ -40,6 +43,7 @@ class FollowUpPlanSendingService(
             sentToNavStatus = true
             log.warn("qwqw sent: $sentToNavStatus")
         }
+
         return FollowUpPlanResponse(
             uuid = uuid.toString(),
             isSentToGeneralPractitionerStatus = sentToFastlegeStatus,
