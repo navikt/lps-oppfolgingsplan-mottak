@@ -3,11 +3,11 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0"
 
-val ktorVersion = "2.3.8"
+val ktorVersion = "2.3.9"
 val prometheusVersion = "0.16.0"
 val micrometerVersion = "1.12.3"
 val slf4jVersion = "2.0.12"
-val logbackVersion = "1.5.1"
+val logbackVersion = "1.5.3"
 val javaxVersion = "2.1.1"
 val logstashEncoderVersion = "7.4"
 val jacksonVersion = "2.16.1"
