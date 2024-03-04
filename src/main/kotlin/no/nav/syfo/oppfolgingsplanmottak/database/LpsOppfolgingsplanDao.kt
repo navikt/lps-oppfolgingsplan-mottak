@@ -23,7 +23,7 @@ fun DatabaseInterface.storeFollowUpPlan(
             {
                 Timestamp.valueOf(sentToGeneralPractitionerAt)
             } else {
-            sentToGeneralPractitionerAt
+            null
         }
 
     val insertStatement =

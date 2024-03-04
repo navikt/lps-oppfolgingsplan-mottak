@@ -111,7 +111,7 @@ class AltinnLpsService(
 
         val shouldBeSentToGP = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
         if (shouldBeSentToGP && toggles.sendAltinnLpsPlanToFastlegeToggle) {
-            sendAltinnLpsPlanToFastlege(
+            sendLpsPlanToFastlege(
                 lpsUuid,
                 lpsFnr,
                 pdf,
@@ -192,7 +192,7 @@ class AltinnLpsService(
         }
     }
 
-    suspend fun sendAltinnLpsPlanToFastlege(
+    suspend fun sendLpsPlanToFastlege(
         uuid: UUID,
         lpsFnr: String,
         pdf: ByteArray,

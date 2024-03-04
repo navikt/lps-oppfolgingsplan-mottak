@@ -1,8 +1,12 @@
 package no.nav.syfo.client.isdialogmelding
 
-import io.ktor.client.call.body
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.request.headers
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.append
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
@@ -11,7 +15,6 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.createBearerToken
 import no.nav.syfo.util.createCallId
 import org.slf4j.LoggerFactory
-import java.io.Serializable
 
 class IsdialogmeldingClient(
     private val urls: UrlEnv,
@@ -68,13 +71,3 @@ class IsdialogmeldingClient(
         private const val SEND_LPS_PDF_TO_FASTLEGE_PATH = "api/v2/send/oppfolgingsplan"
     }
 }
-
-data class DelingMedFastlegeStatusResponse(
-    val sendingToFastlegeId: String,
-    val isSent: Boolean,
-) : Serializable
-
-data class RSSendOppfolgingsplan(
-    val sykmeldtFnr: String,
-    val bestillingUuid: String?,
-) : Serializable

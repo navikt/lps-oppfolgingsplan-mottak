@@ -31,6 +31,9 @@ fun Routing.registeFollowUpPlanApi(
             post("write") {
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val uuid = UUID.randomUUID()
+                val lpsOrgnumber = getLpsOrgnumberFromClaims()
+
+                log.info("Received follow up plan from ${followUpPlanDTO.lpsName}, LPS orgnr: $lpsOrgnumber")
 
                 val followUpPlanResponse = followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, uuid)
                 val sentToGeneralPractitionerAt =
@@ -44,7 +47,7 @@ fun Routing.registeFollowUpPlanApi(
                     uuid = uuid,
                     followUpPlanDTO = followUpPlanDTO,
                     organizationNumber = getOrgnumberFromClaims(),
-                    lpsOrgnumber = getLpsOrgnumberFromClaims(),
+                    lpsOrgnumber = lpsOrgnumber,
                     sentToGeneralPractitionerAt = sentToGeneralPractitionerAt,
                 )
 
@@ -53,8 +56,6 @@ fun Routing.registeFollowUpPlanApi(
 
             get("read/sendingStatus/") {
                 val uuid = call.parameters["uuid"].toString()
-                log.warn("qwqw Skal sjekke sending status. uuid: $uuid")
-
                 val sendingStatus = database.findSendingStatus(UUID.fromString(uuid))
                 call.respond(sendingStatus)
             }
