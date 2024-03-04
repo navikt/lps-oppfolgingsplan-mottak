@@ -115,7 +115,7 @@ spec:
     - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
       value: "6"
     - name: TOGGLE_SEND_LPS_PLAN_TO_NAV
-      value: "false"
+      value: "true"
     - name: TOGGLE_SEND_LPS_PLAN_TO_FASTLEGE
       value: "true"
     - name: TOGGLE_JOURNALFOR_LPS_PLAN
