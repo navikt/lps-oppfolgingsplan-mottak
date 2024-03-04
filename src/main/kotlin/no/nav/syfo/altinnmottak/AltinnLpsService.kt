@@ -7,7 +7,7 @@ import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.altinnmottak.domain.isBehovForBistandFraNAV
 import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
 import no.nav.syfo.altinnmottak.kafka.domain.KAltinnOppfolgingsplan
-import no.nav.syfo.application.database.*
+import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.application.metric.COUNT_METRIKK_BISTAND_FRA_NAV_FALSE
 import no.nav.syfo.application.metric.COUNT_METRIKK_BISTAND_FRA_NAV_TRUE
@@ -39,18 +39,18 @@ class AltinnLpsService(
     private val log: Logger = LoggerFactory.getLogger(AltinnLpsService::class.qualifiedName)
 
     fun persistLpsPlan(
-        archiveReference: String,
+        archiveReference: String?,
         payload: String,
     ): UUID {
         val oppfolgingsplan = xmlToOppfolgingsplan(payload)
         val arbeidstakerFnr = oppfolgingsplan.skjemainnhold.sykmeldtArbeidstaker.fnr
         val orgnummer = oppfolgingsplan.skjemainnhold.arbeidsgiver.orgnr
-        val shouldSendToNav = oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTiNav
-        val shouldSendToFastlege = oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
+        val shouldSendToNav = oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTiNav ?: false
+        val shouldSendToFastlege =
+            oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege ?: false
         val now = LocalDateTime.now()
 
         val lpsPlanToSave = AltinnLpsOppfolgingsplan(
-            archiveReference = archiveReference,
             uuid = UUID.randomUUID(),
             lpsFnr = arbeidstakerFnr,
             fnr = null,
@@ -63,6 +63,7 @@ class AltinnLpsService(
             sentToFastlege = false,
             sendToFastlegeRetryCount = 0,
             journalpostId = null,
+            archiveReference = archiveReference,
             originallyCreated = now,
             created = now,
             lastChanged = now,
@@ -78,8 +79,8 @@ class AltinnLpsService(
         val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
         if (mostRecentFnr == null) {
             log.warn(
-                "[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS" +
-                    "with AR: ${altinnLps.archiveReference}",
+                "[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS " +
+                        "with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
             )
             return
         }
@@ -93,7 +94,7 @@ class AltinnLpsService(
         )
         val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
         if (pdf == null) {
-            log.warn("[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with AR: ${altinnLps.archiveReference}")
+            log.warn("[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}")
             return
         }
 

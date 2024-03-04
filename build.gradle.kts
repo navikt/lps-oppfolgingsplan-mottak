@@ -7,7 +7,7 @@ val ktorVersion = "2.3.8"
 val prometheusVersion = "0.16.0"
 val micrometerVersion = "1.12.3"
 val slf4jVersion = "2.0.12"
-val logbackVersion = "1.5.0"
+val logbackVersion = "1.5.1"
 val javaxVersion = "2.1.1"
 val logstashEncoderVersion = "7.4"
 val jacksonVersion = "2.16.1"
@@ -18,10 +18,10 @@ val detektVersion = "1.23.0"
 val kotestVersion = "5.8.0"
 val kotestExtensionsVersion = "2.0.0"
 val kotlinVersion = "1.9.22"
-val mockkVersion = "1.13.9"
+val mockkVersion = "1.13.10"
 val postgresVersion = "42.7.2"
 val hikariVersion = "5.1.0"
-val flywayVersion = "10.8.1"
+val flywayVersion = "9.22.3"
 val h2Version = "2.2.224"
 val gsonVersion = "2.10.1"
 val kafkaVersion = "3.6.1"
@@ -95,7 +95,6 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
-    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
     // Logging
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
