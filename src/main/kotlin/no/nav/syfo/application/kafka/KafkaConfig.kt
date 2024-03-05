@@ -49,7 +49,7 @@ fun consumerProperties(env: KafkaEnv): Properties {
     return consumerProperties.apply {
         put(CommonClientConfigs.GROUP_ID_CONFIG, "lps-oppfolgingsplan-mottak-1")
         put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
-        put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1000")
+        put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "1")
         put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
 
         put(BASIC_AUTH_CREDENTIALS_SOURCE, USER_INFO)
