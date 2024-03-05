@@ -17,7 +17,6 @@ data class AltinnLpsOppfolgingsplan(
     val sendToFastlegeRetryCount: Int,
     val journalpostId: String?,
     val archiveReference: String?,
-    val originallyCreated: LocalDateTime,
     val created: LocalDateTime,
     val lastChanged: LocalDateTime,
 )

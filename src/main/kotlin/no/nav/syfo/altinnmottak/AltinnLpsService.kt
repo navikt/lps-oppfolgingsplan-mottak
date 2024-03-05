@@ -64,7 +64,6 @@ class AltinnLpsService(
             sendToFastlegeRetryCount = 0,
             journalpostId = null,
             archiveReference = archiveReference,
-            originallyCreated = now,
             created = now,
             lastChanged = now
         )
