@@ -2,19 +2,19 @@ package no.nav.syfo.mockdata
 
 import io.ktor.server.application.Application
 import io.mockk.mockk
-import no.nav.syfo.altinnmottak.AltinnLpsService
-import no.nav.syfo.altinnmottak.FollowUpPlanSendingService
+import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
+import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,
     database: DatabaseInterface,
 ) {
     val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)
-    val altinnLpsService = mockk<AltinnLpsService>(relaxed = true)
+    val followupPlanProducer = mockk<FollowUpPlanProducer>(relaxed = true)
 
     val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = externalMockEnvironment.azureAdClient,
@@ -25,7 +25,7 @@ fun Application.testApiModule(
 
     val followUpPlanSendingService = FollowUpPlanSendingService(
         isdialogmeldingConsumer = isdialogmeldingClient,
-        altinnLpsService =  altinnLpsService,
+        followupPlanProducer =  followupPlanProducer,
         toggles = externalMockEnvironment.environment.toggles,
     )
     this.apiModule(

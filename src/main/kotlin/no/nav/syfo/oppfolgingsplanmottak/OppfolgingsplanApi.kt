@@ -8,7 +8,6 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.syfo.altinnmottak.FollowUpPlanSendingService
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
@@ -18,6 +17,7 @@ import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import org.slf4j.LoggerFactory
 import java.util.*
+import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.util.getSendingTimestamp
 
 fun Routing.registeFollowUpPlanApi(

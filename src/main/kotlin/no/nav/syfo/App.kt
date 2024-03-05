@@ -30,7 +30,8 @@ import no.nav.syfo.client.wellknown.getWellKnown
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import no.nav.syfo.altinnmottak.FollowUpPlanSendingService
+import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
+import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
@@ -87,7 +88,9 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
         appEnv.toggles,
     )
 
-    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient,  altinnLpsService, appEnv.toggles)
+    val followupPlanProducer = FollowUpPlanProducer(appEnv.kafka)
+
+    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, appEnv.toggles)
 
     val wellKnownInternalAzureAD = getWellKnown(
         wellKnownUrl = appEnv.auth.azuread.wellKnownUrl,
