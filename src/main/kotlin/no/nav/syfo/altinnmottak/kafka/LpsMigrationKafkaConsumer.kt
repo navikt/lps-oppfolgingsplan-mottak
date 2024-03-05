@@ -12,7 +12,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-const val LPS_MIGRATION_TOPIC = "team-esyfo.syfo-migrering-altinn-lps"
+const val LPS_MIGRATION_TOPIC = "team-esyfo.syfo-migrering-altinn-planer"
 
 class LpsMigrationKafkaConsumer(
     val env: KafkaEnv,
