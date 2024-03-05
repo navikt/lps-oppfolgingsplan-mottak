@@ -56,6 +56,7 @@ class DokarkivClient(
         val responseBody = when (response.status) {
             HttpStatusCode.Created -> {
                 runBlocking {
+                    log.info("Successfully created journalpost for Altinn-plan")
                     response.body<JournalpostResponse>()
                 }
             }
