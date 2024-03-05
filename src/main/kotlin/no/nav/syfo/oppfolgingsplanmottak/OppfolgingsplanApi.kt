@@ -8,19 +8,18 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import java.sql.Timestamp
-import java.time.LocalDateTime
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
 import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
+import no.nav.syfo.oppfolgingsplanmottak.database.updateSentAt
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
+import no.nav.syfo.util.getSendingTimestamp
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
-import no.nav.syfo.util.getSendingTimestamp
 
 fun Routing.registerFollowUpPlanApi(
     database: DatabaseInterface,
@@ -39,18 +38,21 @@ fun Routing.registerFollowUpPlanApi(
 
                 log.info("Received follow up plan from ${followUpPlanDTO.lpsName}, LPS orgnr: $lpsOrgnumber")
 
-                val followUpPlanResponse = followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
-
-                val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
-
                 database.storeFollowUpPlan(
                     uuid = planUuid,
                     followUpPlanDTO = followUpPlanDTO,
                     organizationNumber = employerOrgnr,
                     lpsOrgnumber = lpsOrgnumber,
-                    sentToGeneralPractitionerAt = sentToGeneralPractitionerAt,
-                    sentToNavAt = Timestamp.valueOf(LocalDateTime.now()),
+                    sentToGeneralPractitionerAt = null,
+                    sentToNavAt = null,
                 )
+                val followUpPlanResponse =
+                    followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
+
+                val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
+                val sentToNavAt = getSendingTimestamp(followUpPlanResponse.isSentToNavStatus)
+
+                database.updateSentAt(planUuid, sentToGeneralPractitionerAt = sentToGeneralPractitionerAt, sentToNavAt = sentToNavAt)
 
                 call.respond(followUpPlanResponse)
             }
