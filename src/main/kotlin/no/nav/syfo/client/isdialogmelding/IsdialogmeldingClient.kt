@@ -48,20 +48,19 @@ class IsdialogmeldingClient(
 
         return when (response.status) {
             HttpStatusCode.OK -> {
-                log.info("Successfully sent PDF to fastlege")
+                log.info("Successfully sent LPS PDF to fastlege")
                 true
             }
 
             HttpStatusCode.NotFound -> {
                 log.warn(
-                    "Unable to determine fastlege, or lacking appropiate" +
-                        "'partnerinformasjon'-data",
+                    "Unable to determine fastlege, or lacking appropiate 'partnerinformasjon'-data",
                 )
                 false
             }
 
             else -> {
-                log.error("Unable to send altinn-LPS to fastlege (HTTP error code: ${response.status}")
+                log.error("Unable to send LPS plan to fastlege (HTTP error code: ${response.status}")
                 false
             }
         }

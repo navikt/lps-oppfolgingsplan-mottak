@@ -8,6 +8,8 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
@@ -40,7 +42,6 @@ fun Routing.registerFollowUpPlanApi(
                 val followUpPlanResponse = followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
 
                 val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
-                val sentToNavAt = getSendingTimestamp(followUpPlanResponse.isSentToNavStatus)
 
                 database.storeFollowUpPlan(
                     uuid = planUuid,
@@ -48,7 +49,7 @@ fun Routing.registerFollowUpPlanApi(
                     organizationNumber = employerOrgnr,
                     lpsOrgnumber = lpsOrgnumber,
                     sentToGeneralPractitionerAt = sentToGeneralPractitionerAt,
-                    sentToNavAt = sentToNavAt,
+                    sentToNavAt = Timestamp.valueOf(LocalDateTime.now()),
                 )
 
                 call.respond(followUpPlanResponse)
