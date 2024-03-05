@@ -20,7 +20,7 @@ import java.util.*
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.util.getSendingTimestamp
 
-fun Routing.registeFollowUpPlanApi(
+fun Routing.registerFollowUpPlanApi(
     database: DatabaseInterface,
     followUpPlanSendingService: FollowUpPlanSendingService,
 ) {

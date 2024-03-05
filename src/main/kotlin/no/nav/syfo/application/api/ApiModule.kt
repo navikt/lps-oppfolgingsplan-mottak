@@ -20,7 +20,7 @@ import no.nav.syfo.application.metric.registerPrometheusApi
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
-import no.nav.syfo.oppfolgingsplanmottak.registeFollowUpPlanApi
+import no.nav.syfo.oppfolgingsplanmottak.registerFollowUpPlanApi
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.veileder.registerVeilederApi
 
@@ -67,7 +67,7 @@ fun Application.apiModule(
             database = database,
         )
         registerPrometheusApi()
-        registeFollowUpPlanApi(database, followUpPlanSendingService)
+        registerFollowUpPlanApi(database, followUpPlanSendingService)
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
             database = database,
