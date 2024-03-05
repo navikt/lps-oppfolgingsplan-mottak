@@ -40,7 +40,7 @@ fun Routing.registerFollowUpPlanApi(
                 val followUpPlanResponse = followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
 
                 val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
-                val sentToNavAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
+                val sentToNavAt = getSendingTimestamp(followUpPlanResponse.isSentToNavStatus)
 
                 database.storeFollowUpPlan(
                     uuid = planUuid,
