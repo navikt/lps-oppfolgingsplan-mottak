@@ -1,7 +1,10 @@
 package no.nav.syfo.application.environment
 
 data class ToggleEnv(
-    val sendToFastlegeToggle: Boolean,
-    val sendToNavToggle: Boolean,
-    val journalforToggle: Boolean,
+    val sendAltinnLpsPlanToFastlegeToggle: Boolean,
+    val sendAltinnLpsPlanToNavToggle: Boolean,
+    val journalforAltinnLpsPlanToggle: Boolean,
+    val sendLpsPlanToFastlegeToggle: Boolean,
+    val sendLpsPlanToNavToggle: Boolean,
+    val journalforLpsPlanToggle: Boolean,
 )

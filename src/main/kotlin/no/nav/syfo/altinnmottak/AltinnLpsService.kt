@@ -65,7 +65,7 @@ class AltinnLpsService(
             journalpostId = null,
             archiveReference = archiveReference,
             created = now,
-            lastChanged = now
+            lastChanged = now,
         )
         database.storeAltinnLpsOppfolgingsplan(lpsPlanToSave)
         return lpsPlanToSave.uuid
@@ -100,7 +100,7 @@ class AltinnLpsService(
         database.storePdf(lpsUuid, pdf)
 
         val shouldSendToNav = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTiNav
-        if (shouldSendToNav && toggles.sendToNavToggle) {
+        if (shouldSendToNav && toggles.sendAltinnLpsPlanToNavToggle) {
             sendLpsPlanToNav(
                 lpsUuid,
                 mostRecentFnr,
@@ -110,8 +110,8 @@ class AltinnLpsService(
         }
 
         val shouldBeSentToGP = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
-        if (shouldBeSentToGP && toggles.sendToFastlegeToggle) {
-            sendLpsPlanToFastlege(
+        if (shouldBeSentToGP && toggles.sendAltinnLpsPlanToFastlegeToggle) {
+            sendLpsPlanToGeneralPractitioner(
                 lpsUuid,
                 lpsFnr,
                 pdf,
@@ -181,7 +181,7 @@ class AltinnLpsService(
             mostRecentFnr,
             orgnummer,
             hasBehovForBistand,
-            todayInEpoch
+            todayInEpoch,
         )
         navLpsProducer.sendAltinnLpsToNav(planToSendToNav)
         database.setSentToNavTrue(uuid)
@@ -192,12 +192,12 @@ class AltinnLpsService(
         }
     }
 
-    suspend fun sendLpsPlanToFastlege(
+    suspend fun sendLpsPlanToGeneralPractitioner(
         uuid: UUID,
         lpsFnr: String,
         pdf: ByteArray,
     ): Boolean {
-        val success = isdialogmeldingConsumer.sendPlanToFastlege(lpsFnr, pdf)
+        val success = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(lpsFnr, pdf)
         if (success) {
             database.setSentToFastlegeTrue(uuid)
             COUNT_METRIKK_DELT_MED_FASTLEGE.increment()

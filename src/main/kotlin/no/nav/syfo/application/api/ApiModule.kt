@@ -20,7 +20,8 @@ import no.nav.syfo.application.metric.registerPrometheusApi
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
-import no.nav.syfo.oppfolgingsplanmottak.registerOppfolgingsplanApi
+import no.nav.syfo.oppfolgingsplanmottak.registerFollowUpPlanApi
+import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.veileder.registerVeilederApi
 
 @Suppress("LongParameterList")
@@ -31,6 +32,7 @@ fun Application.apiModule(
     wellKnownMaskinporten: WellKnown,
     wellKnownInternalAzureAD: WellKnown,
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
+    followUpPlanSendingService: FollowUpPlanSendingService,
 ) {
     installMetrics()
     installCallId()
@@ -65,7 +67,7 @@ fun Application.apiModule(
             database = database,
         )
         registerPrometheusApi()
-        registerOppfolgingsplanApi(database)
+        registerFollowUpPlanApi(database, followUpPlanSendingService)
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
             database = database,

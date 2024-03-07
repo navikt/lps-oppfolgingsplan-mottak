@@ -61,8 +61,11 @@
     "sendToFastlegeRetryThreshold": 6
   },
   "toggles": {
-    "sendToFastlegeToggle": true,
-    "sendToNavToggle": true,
-    "journalforToggle": true
+     "sendAltinnLpsPlanToFastlegeToggle": true,
+     "sendAltinnLpsPlanToNavToggle": true,
+     "journalforAltinnLpsPlanToggle": true,
+     "sendLpsPlanToFastlegeToggle": true,
+     "sendLpsPlanToNavToggle": true,
+     "journalforLpsPlanToggle": true
   }
 }

@@ -19,11 +19,11 @@ class AltinnLpsServiceTest : DescribeSpec({
     val env = getEnv()
     val embeddedDatabase = EmbeddedDatabase()
     val lpsHelper = LpsHelper()
-    val opPdfGenConsumer = mockk<OpPdfGenClient>()
-    val pdlConsumer = mockk<PdlClient>()
+    val opPdfGenClient = mockk<OpPdfGenClient>()
+    val pdlClient = mockk<PdlClient>()
     val navLpsProducer = mockk<AltinnOppfolgingsplanProducer>()
-    val isdialogmeldingConsumer = mockk<IsdialogmeldingClient>()
-    val dokarkivConsumer = mockk<DokarkivClient>()
+    val isdialogmeldingClient = mockk<IsdialogmeldingClient>()
+    val dokarkivClient = mockk<DokarkivClient>()
 
     val (archiveReference, arbeidstakerFnr, lpsXml) = lpsHelper.receiveLps()
     val (archiveReference2, arbeidstakerFnr2, lpsXml2) = lpsHelper.receiveLpsWithoutDelingSet()
@@ -31,12 +31,12 @@ class AltinnLpsServiceTest : DescribeSpec({
 
 
     val altinnLpsService = AltinnLpsService(
-        pdlConsumer,
-        opPdfGenConsumer,
+        pdlClient,
+        opPdfGenClient,
         embeddedDatabase,
         navLpsProducer,
-        isdialogmeldingConsumer,
-        dokarkivConsumer,
+        isdialogmeldingClient,
+        dokarkivClient,
         env.altinnLps.sendToFastlegeRetryThreshold,
         env.toggles,
     )
@@ -45,10 +45,10 @@ class AltinnLpsServiceTest : DescribeSpec({
         clearAllMocks()
         embeddedDatabase.deleteData()
         justRun { navLpsProducer.sendAltinnLpsToNav(any()) }
-        coEvery { opPdfGenConsumer.generatedPdfResponse(any()) } returns pdfByteArray
-        coEvery { isdialogmeldingConsumer.sendPlanToFastlege(any(), pdfByteArray) } returns true
-        coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns arbeidstakerFnr
-        coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr2) } returns arbeidstakerFnr2
+        coEvery { opPdfGenClient.generatedPdfResponse(any()) } returns pdfByteArray
+        coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), pdfByteArray) } returns true
+        coEvery { pdlClient.mostRecentFnr(arbeidstakerFnr) } returns arbeidstakerFnr
+        coEvery { pdlClient.mostRecentFnr(arbeidstakerFnr2) } returns arbeidstakerFnr2
     }
 
     describe("Receive Altinn-LPS from altinnkanal-2") {
@@ -66,7 +66,7 @@ class AltinnLpsServiceTest : DescribeSpec({
             storedLps.sentToNav shouldBe true
 
             coVerify(exactly = 1) {
-                isdialogmeldingConsumer.sendPlanToFastlege(arbeidstakerFnr, pdfByteArray)
+                isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(arbeidstakerFnr, pdfByteArray)
             }
             verify(exactly = 1) {
                 navLpsProducer.sendAltinnLpsToNav(any())
@@ -86,7 +86,7 @@ class AltinnLpsServiceTest : DescribeSpec({
             storedLps.sentToNav shouldBe false
 
             coVerify(exactly = 0) {
-                isdialogmeldingConsumer.sendPlanToFastlege(arbeidstakerFnr2, pdfByteArray)
+                isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(arbeidstakerFnr2, pdfByteArray)
             }
             verify(exactly = 0) {
                 navLpsProducer.sendAltinnLpsToNav(any())
@@ -95,7 +95,7 @@ class AltinnLpsServiceTest : DescribeSpec({
 
         it("Arbeidstaker has FNR different from LPS-form") {
             val currentFnr = arbeidstakerFnr.reversed()
-            coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns currentFnr
+            coEvery { pdlClient.mostRecentFnr(arbeidstakerFnr) } returns currentFnr
 
             val uuid = altinnLpsService.persistLpsPlan(archiveReference, lpsXml)
             altinnLpsService.processLpsPlan(uuid)
@@ -106,8 +106,8 @@ class AltinnLpsServiceTest : DescribeSpec({
         }
 
         it("LPS plan is scheduled for retry when either FNR-fetching or PDF-generation fails") {
-            coEvery { pdlConsumer.mostRecentFnr(arbeidstakerFnr) } returns null
-            coEvery { opPdfGenConsumer.generatedPdfResponse(any()) } returns null
+            coEvery { pdlClient.mostRecentFnr(arbeidstakerFnr) } returns null
+            coEvery { opPdfGenClient.generatedPdfResponse(any()) } returns null
 
             val uuid = altinnLpsService.persistLpsPlan(archiveReference, lpsXml)
             altinnLpsService.processLpsPlan(uuid)

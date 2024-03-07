@@ -3,10 +3,19 @@ package no.nav.syfo.api.oppfolgingsplanmottak
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.server.testing.*
+import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.server.testing.testApplication
+import io.mockk.coEvery
+import io.mockk.mockk
+import java.time.LocalDate
+import java.util.*
+import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
@@ -14,10 +23,9 @@ import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
-import java.time.LocalDate
-import java.util.*
 
 class OppfolgingsplanApiTest : DescribeSpec({
+    val isdialogmeldingConsumer = mockk<IsdialogmeldingClient>(relaxed = true)
 
     describe("Retrieval of oppfølgingsplaner") {
         val employeeIdentificationNumber = "12345678912"
@@ -28,7 +36,8 @@ class OppfolgingsplanApiTest : DescribeSpec({
                 val (embeddedDatabase, client) = configureTestApplication()
 
                 val followUpPlanDTO = createFollowUpPlan(employeeIdentificationNumber)
-
+//                coJustRun { isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(any(), any())}
+                coEvery { isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(any(), any()) } returns true
                 val response = client.post("/api/v1/followupplan/write") {
                     bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
                     contentType(ContentType.Application.Json)
