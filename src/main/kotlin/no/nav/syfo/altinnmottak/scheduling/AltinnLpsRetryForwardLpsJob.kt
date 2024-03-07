@@ -46,12 +46,15 @@ class AltinnLpsRetryForwardLpsJob : Job {
         toggles: ToggleEnv,
     ) {
         if (toggles.sendAltinnLpsPlanToNavToggle) {
+            log.info("Forwarding LPS plans to NAV")
             forwardUnsentLpsToNav(database, altinnLpsService)
         }
         if (toggles.sendAltinnLpsPlanToFastlegeToggle) {
+            log.info("Forwarding LPS plans to Fastlege")
             forwardUnsentLpsToFastlege(database, altinnLpsService)
         }
         if (toggles.journalforAltinnLpsPlanToggle) {
+            log.info("Forwarding LPS plans to Jorak/Gosys")
             forwardUnsentLpsToDokarkiv(database, altinnLpsService)
         }
     }
@@ -113,6 +116,7 @@ class AltinnLpsRetryForwardLpsJob : Job {
         altinnLpsService: AltinnLpsService
     ) {
         val altinnLpsOppfolgingsplanNotYetSentToDokarkiv = database.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv()
+        log.info("Forwarding ${altinnLpsOppfolgingsplanNotYetSentToDokarkiv.size} LPS plans to dokarkiv")
         altinnLpsOppfolgingsplanNotYetSentToDokarkiv.forEach { lps ->
             val journalpostId = try {
                 altinnLpsService.sendLpsPlanToGosys(lps)
