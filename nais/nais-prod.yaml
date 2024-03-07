@@ -121,10 +121,10 @@ spec:
     - name: TOGGLE_JOURNALFOR_LPS_PLAN
       value: "false"
     - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV
-      value: "false"
+      value: "true"
     - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_FASTLEGE
-      value: "false"
+      value: "true"
     - name: TOGGLE_JOURNALFOR__ALTINN_LPS_PLAN
-      value: "false"
+      value: "true"
     - name: MASKINPORTEN_CUSTOM_SCOPE_NAME
       value: "nav:oppfolgingsplan/lps.write"

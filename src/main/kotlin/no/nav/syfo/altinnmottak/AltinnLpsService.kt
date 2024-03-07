@@ -206,6 +206,7 @@ class AltinnLpsService(
     }
 
     suspend fun sendLpsPlanToGosys(lps: AltinnLpsOppfolgingsplan): String {
+        log.info("Sending plan to dokarkiv with uuid ${lps.uuid}")
         val skjemainnhold = xmlToSkjemainnhold(lps.xml)
         val virksomhetsnavn = skjemainnhold.arbeidsgiver.orgnavn
 
