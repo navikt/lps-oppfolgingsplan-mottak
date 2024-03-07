@@ -3,12 +3,11 @@ package no.nav.syfo.client.dokarkiv
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
-import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.dokarkiv.domain.*
+import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.util.createBearerToken
 import org.slf4j.LoggerFactory
 
@@ -37,7 +36,7 @@ class DokarkivClient(
 
     @Suppress("ThrowsCount")
     private suspend fun sendRequestToDokarkiv(journalpostRequest: JournalpostRequest): String {
-        val token = azureAdClient.getSystemToken(scope) ?.accessToken
+        val token = azureAdClient.getSystemToken(scope)?.accessToken
             ?: throw RuntimeException("Failed to Journalfor: No token was found")
         val requestUrl = baseUrl + JOURNALPOST_API_PATH
         val response = try {
@@ -55,16 +54,13 @@ class DokarkivClient(
 
         val responseBody = when (response.status) {
             HttpStatusCode.Created -> {
-                runBlocking {
-                    response.body<JournalpostResponse>()
-                }
+                log.info("Successfully created journalpost for Altinn-plan")
+                response.body<JournalpostResponse>()
             }
 
             HttpStatusCode.Conflict -> {
                 log.warn("Journalpost for Altinn-LPS already created!")
-                runBlocking {
-                    response.body<JournalpostResponse>()
-                }
+                response.body<JournalpostResponse>()
             }
 
             else -> {

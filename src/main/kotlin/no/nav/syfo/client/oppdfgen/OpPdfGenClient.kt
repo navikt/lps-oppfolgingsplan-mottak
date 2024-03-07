@@ -7,11 +7,10 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
-import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
-import no.nav.syfo.altinnmottak.domain.Fagmelding
+import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.createCallId
@@ -42,9 +41,7 @@ class OpPdfGenClient(
 
         return when (response.status) {
             HttpStatusCode.OK -> {
-                runBlocking {
-                    response.body<ByteArray>()
-                }
+                response.body<ByteArray>()
             }
 
             else -> {
