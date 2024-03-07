@@ -72,11 +72,9 @@ class AltinnLpsService(
     }
 
     suspend fun processLpsPlan(lpsUuid: UUID) {
-        log.info("Processing LPS Plan with UUID $lpsUuid")
         val altinnLps = database.getAltinnLpsOppfolgingsplanByUuid(lpsUuid)
         val lpsFnr = altinnLps.lpsFnr
 
-        log.info("Attempting to get most recent FNR for UUID $lpsUuid")
         val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
         if (mostRecentFnr == null) {
             log.warn(
@@ -87,7 +85,6 @@ class AltinnLpsService(
         }
 
         database.storeFnr(lpsUuid, mostRecentFnr)
-        log.info("Stored PDL fnr for uuid $lpsUuid")
 
         val skjemainnhold = xmlToSkjemainnhold(altinnLps.xml)
         val lpsPdfModel = mapFormdataToFagmelding(
@@ -101,29 +98,24 @@ class AltinnLpsService(
         }
 
         database.storePdf(lpsUuid, pdf)
-        log.info("Stored PDF for UUID $lpsUuid")
 
         val shouldSendToNav = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTiNav
         if (shouldSendToNav && toggles.sendAltinnLpsPlanToNavToggle) {
-            log.info("Attempting to get send plan to NAV for $lpsUuid")
             sendLpsPlanToNav(
                 lpsUuid,
                 mostRecentFnr,
                 skjemainnhold.arbeidsgiver.orgnr,
                 lpsPdfModel.oppfolgingsplan.isBehovForBistandFraNAV(),
             )
-            log.info("Sent plan to NAV for UUID $lpsUuid")
         }
 
         val shouldBeSentToGP = skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
         if (shouldBeSentToGP && toggles.sendAltinnLpsPlanToFastlegeToggle) {
-            log.info("Attempting to send plan to fastlege for UUID $lpsUuid")
             sendLpsPlanToGeneralPractitioner(
                 lpsUuid,
                 lpsFnr,
                 pdf,
             )
-            log.info("Sent plan to fastlege for UUID $lpsUuid")
         }
     }
 
@@ -209,8 +201,6 @@ class AltinnLpsService(
         if (success) {
             database.setSentToFastlegeTrue(uuid)
             COUNT_METRIKK_DELT_MED_FASTLEGE.increment()
-        } else {
-            log.info("Failed sending to fastlege for UUID $uuid")
         }
         return success
     }
