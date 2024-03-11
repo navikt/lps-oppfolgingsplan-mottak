@@ -5,6 +5,7 @@ import java.util.*
 import no.nav.syfo.altinnmottak.kafka.domain.KFollowUpPlan
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
+import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
@@ -12,6 +13,7 @@ import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 class FollowUpPlanSendingService(
     private val isdialogmeldingConsumer: IsdialogmeldingClient,
     private val followupPlanProducer: FollowUpPlanProducer,
+    private val opPdfGenClient: OpPdfGenClient,
     private val toggles: ToggleEnv,
 ) {
     suspend fun sendFollowUpPlan(
@@ -24,12 +26,18 @@ class FollowUpPlanSendingService(
         var sentToFastlegeStatus: Boolean? = null
         var sentToNavStatus: Boolean? = null
 
+
+        // TODO: does isdialogmelding journalorer lps plans?
+        // TODO: if it does, then journalfor  unsent
         if (toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) {
-            // TODO: send actual PDF when data model and pdfgen are updated
-            sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(
-                sykmeldtFnr,
-                "<MOCK PDF CONTENT>".toByteArray()
-            )
+            val pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
+            if (pdf != null){
+                sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(
+                    sykmeldtFnr,
+                    pdf
+                )
+                // todo: Journalfor
+            }
         }
 
         if (toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav) {
@@ -40,7 +48,7 @@ class FollowUpPlanSendingService(
                     uuid.toString(),
                     followUpPlanDTO.employeeIdentificationNumber,
                     employerOrgnr,
-                    needsHelpFromNav,
+                    true,
                     LocalDate.now().toEpochDay().toInt(),
                 )
                 followupPlanProducer.sendFollowUpPlanToNav(planToSendToNav)

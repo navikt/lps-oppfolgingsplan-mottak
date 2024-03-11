@@ -1,6 +1,9 @@
 package no.nav.syfo.oppfolgingsplanmottak.domain
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import no.nav.syfo.client.isdialogmelding.domain.LpsPlanPdfData
+import no.nav.syfo.client.isdialogmelding.domain.OppfolgingsplanOpPdfGenRequest
 
 data class FollowUpPlanDTO(
     val employeeIdentificationNumber: String,
@@ -22,7 +25,7 @@ data class FollowUpPlanDTO(
     val contactPersonPhoneNumber: String,
     val employeeHasContributedToPlan: Boolean,
     val employeeHasNotContributedToPlanDescription: String?,
-    val lpsName: String
+    val lpsName: String,
 ) {
     init {
         fun contributionDescriptionUsedCorrectly(): Boolean {
@@ -41,5 +44,55 @@ data class FollowUpPlanDTO(
         require(contributionDescriptionUsedCorrectly()) {
             "employeeHasNotContributedToPlanDescription is mandatory and can only be used if employeeHasContributedToPlan = false"
         }
+    }
+
+    fun toOppfolgingsplanOpPdfGenRequest(employeeName: String?, employeePhoneNumber: String?, employeeEmail:String?, employeeAddress:String?): OppfolgingsplanOpPdfGenRequest {
+        val sendPlanTo = getSendToString(this.sendPlanToNav, this.sendPlanToGeneralPractitioner)
+        val evaluationDateFormatted = getevaluationDateFormatted(this.evaluationDate)
+
+        return OppfolgingsplanOpPdfGenRequest(
+            LpsPlanPdfData(
+                employeeFnr = this.employeeIdentificationNumber,
+                employeeName = employeeName,
+                employeePhoneNumber = employeePhoneNumber,
+                employeeAddress = employeeAddress,
+                employeeEmail = employeeEmail,
+                typicalWorkday = this.typicalWorkday,
+                tasksThatCanStillBeDone = this.tasksThatCanStillBeDone,
+                tasksThatCanNotBeDone = this.tasksThatCanNotBeDone,
+                previousFacilitation = this.previousFacilitation,
+                plannedFacilitation = this.plannedFacilitation,
+                otherFacilitationOptions = this.otherFacilitationOptions,
+                followUp = this.followUp,
+                evaluationDate = evaluationDateFormatted,
+                sendPlanToString = sendPlanTo,
+                needsHelpFromNav = this.needsHelpFromNav,
+                needsHelpFromNavDescription = this.needsHelpFromNavDescription,
+                messageToGeneralPractitioner = this.messageToGeneralPractitioner,
+                additionalInformation = this.additionalInformation,
+                employerContactPersonFullName = this.contactPersonFullName,
+                employerContactPersonPhoneNumber = this.contactPersonPhoneNumber,
+                employeeHasContributedToPlan = this.employeeHasContributedToPlan,
+                employeeHasNotContributedToPlanDescription = this.employeeHasNotContributedToPlanDescription,
+            )
+        )
+    }
+
+    fun getevaluationDateFormatted(date: LocalDate): String {
+        return date.format(DateTimeFormatter.ofPattern("dd. MMMM yyyy"))
+    }
+
+    fun getSendToString(nav: Boolean, lege: Boolean): String {
+        var sendToStr = ""
+        if (nav) {
+            sendToStr += "NAV"
+        }
+        if (nav && lege) {
+            sendToStr += ", "
+        }
+        if (lege) {
+            sendToStr += "LEGE"
+        }
+        return sendToStr
     }
 }

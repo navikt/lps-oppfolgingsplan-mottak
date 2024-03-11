@@ -11,6 +11,7 @@ import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.createCallId
@@ -23,7 +24,7 @@ class OpPdfGenClient(
     private val client = httpClientDefault()
 
     suspend fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
-        val requestUrl = "${urls.opPdfGenUrl}/$pathUrl"
+        val requestUrl = "${urls.opPdfGenUrl}/$ALTINN_PLAN_URL"
         val requestBody = mapper.writeValueAsString(fagmelding)
         val response = try {
             client.post(requestUrl) {
@@ -35,12 +36,45 @@ class OpPdfGenClient(
                 setBody(requestBody)
             }
         } catch (e: Exception) {
-            log.error("Call to get generate PDF for LPS-plan failed due to exception: ${e.message}", e)
+            log.error("Call to get generate PDF for Altinn LPS-plan failed due to exception: ${e.message}", e)
             throw e
         }
 
         return when (response.status) {
             HttpStatusCode.OK -> {
+                response.body<ByteArray>()
+            }
+
+            else -> {
+                log.error("Could not generate Altinn PDF. Call failed with status: ${response.status}")
+                null
+            }
+        }
+    }
+
+    suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
+        val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_URL"
+        // TODO: get name from PDL
+        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest("First Last", "12121212", "qwqw@qw.no", "Suksess gate 1")
+        val requestBody = mapper.writeValueAsString(request)
+
+        val response = try {
+            client.post(requestUrl) {
+                headers {
+                    append(HttpHeaders.ContentType, ContentType.Application.Json)
+                    append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
+                    append(NAV_CALL_ID_HEADER, createCallId())
+                }
+                setBody(requestBody)
+            }
+        } catch (e: Exception) {
+            log.error("Call to get PDF for LPS-plan failed due to exception: ${e.message}", e)
+            throw e
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                log.warn("QWQW: ok response body ${response.body<ByteArray>()}")
                 response.body<ByteArray>()
             }
 
@@ -53,7 +87,8 @@ class OpPdfGenClient(
 
     companion object {
         private val log = LoggerFactory.getLogger(OpPdfGenClient::class.qualifiedName)
-        private const val pathUrl = "api/v1/genpdf/opservice/oppfolgingsplanlps"
+        private const val ALTINN_PLAN_URL = "api/v1/genpdf/opservice/oppfolgingsplanlps"
+        private const val FOLLOWUP_PLAN_URL = "api/v1/genpdf/oppfolging/oppfolgingsplan-lps"
 
         private val mapper = ObjectMapper()
             .registerKotlinModule()
