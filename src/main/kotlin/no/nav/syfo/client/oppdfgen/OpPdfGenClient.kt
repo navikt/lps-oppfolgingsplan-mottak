@@ -74,7 +74,7 @@ class OpPdfGenClient(
 
         return when (response.status) {
             HttpStatusCode.OK -> {
-                log.warn("QWQW: ok response body ${response.body<ByteArray>().toString()}")
+                log.warn("QWQW: ok response body ${response.body<ByteArray>().toList()}")
                 response.body<ByteArray>()
             }
 
