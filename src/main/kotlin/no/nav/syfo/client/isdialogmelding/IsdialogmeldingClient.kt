@@ -49,6 +49,7 @@ class IsdialogmeldingClient(
         return when (response.status) {
             HttpStatusCode.OK -> {
                 log.info("Successfully sent LPS PDF to fastlege")
+                log.info("QWQW Successfully sent LPS PDF to fastlege, ${planAsPdf.toList()}")
                 true
             }
 
