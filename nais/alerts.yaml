@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: syfooppfolgingsplanservice-alerts
+  namespace: team-esyfo
+  labels:
+    team: team-esyfo
+spec:
+  groups:
+    - name: syfooppfolgingsplanservice-alerts
+      rules:
+        - alert: ALTINN KAFKA OPPFOLGINGSPLAN CONSUMER LAG
+          expr: kafka_consumergroup_group_topic_sum_lag{topic="alf.aapen-altinn-oppfolgingsplan-mottatt-v2", group="lps-oppfolgingsplan-mottak-1"} > 0
+          for: 15m
+          annotations:
+            summary: "lps-oppfolgingsplan-mottak har ukonsumerte Kafkameldinger på Altinn-topic aapen-altinn-oppfolgingsplan-mottatt-v2"
+            action: "Finn ut hvorfor lps-oppfolgingsplan-mottak har stoppet å konsumere fra topic"
+          labels:
+            namespace: team-esyfo
+            severity: warning
