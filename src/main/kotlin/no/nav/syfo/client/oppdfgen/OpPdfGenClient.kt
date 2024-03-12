@@ -88,7 +88,7 @@ class OpPdfGenClient(
     companion object {
         private val log = LoggerFactory.getLogger(OpPdfGenClient::class.qualifiedName)
         private const val ALTINN_PLAN_URL = "api/v1/genpdf/opservice/oppfolgingsplanlps"
-        private const val FOLLOWUP_PLAN_URL = "api/v1/genpdf/oppfolging/oppfolgingsplan-lps"
+        private const val FOLLOWUP_PLAN_URL = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
 
         private val mapper = ObjectMapper()
             .registerKotlinModule()
