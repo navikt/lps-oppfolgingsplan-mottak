@@ -158,4 +158,5 @@ fun ResultSet.toFollowUpPlanSendingStatus() =
         uuid = getString("uuid"),
         isSentToGeneralPractitionerStatus = getTimestamp("sent_to_general_practitioner_at") != null,
         isSentToNavStatus = getTimestamp("sent_to_nav_at") != null,
+        pdf = null,
     )
