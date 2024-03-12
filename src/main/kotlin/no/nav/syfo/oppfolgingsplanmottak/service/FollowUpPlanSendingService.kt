@@ -9,6 +9,7 @@ import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
+import org.slf4j.LoggerFactory
 
 class FollowUpPlanSendingService(
     private val isdialogmeldingConsumer: IsdialogmeldingClient,
@@ -16,6 +17,7 @@ class FollowUpPlanSendingService(
     private val opPdfGenClient: OpPdfGenClient,
     private val toggles: ToggleEnv,
 ) {
+    val log = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
     suspend fun sendFollowUpPlan(
         followUpPlanDTO: FollowUpPlanDTO,
         uuid: UUID,
@@ -32,6 +34,7 @@ class FollowUpPlanSendingService(
         if (toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) {
             val pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
             if (pdf != null){
+                log.warn("QWQW: ${pdf.toList()}")
                 sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(
                     sykmeldtFnr,
                     pdf
