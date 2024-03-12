@@ -33,7 +33,7 @@ class FollowUpPlanSendingService(
         // TODO: if it does, then journalfor  unsent
         if (toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) {
             val pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
-            log.warn("QWQW: pdf ${pdf}")
+            log.warn("QWQW: pdf ${pdf?.toList()}")
             if (pdf != null){
                 sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(
                     sykmeldtFnr,
