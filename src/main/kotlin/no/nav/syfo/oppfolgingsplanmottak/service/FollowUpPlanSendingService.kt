@@ -27,13 +27,12 @@ class FollowUpPlanSendingService(
 
         var sentToFastlegeStatus: Boolean? = null
         var sentToNavStatus: Boolean? = null
-
+        var pdf:ByteArray? = null
 
         // TODO: does isdialogmelding journalorer lps plans?
         // TODO: if it does, then journalfor  unsent
         if (toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) {
-            val pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
-            log.warn("QWQW: pdf ${pdf?.toList()}")
+             pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
             if (pdf != null){
                 sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(
                     sykmeldtFnr,
@@ -62,6 +61,7 @@ class FollowUpPlanSendingService(
             uuid = uuid.toString(),
             isSentToGeneralPractitionerStatus = sentToFastlegeStatus,
             isSentToNavStatus = sentToNavStatus,
+            pdf = pdf
         )
     }
 }
