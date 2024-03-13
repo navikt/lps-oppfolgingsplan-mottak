@@ -11,6 +11,10 @@ import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.client.pdl.domain.toPersonAdresse
+import no.nav.syfo.client.pdl.domain.toPersonName
+import no.nav.syfo.client.pdl.domain.toPersonPhoneNumber
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
@@ -19,7 +23,8 @@ import org.slf4j.LoggerFactory
 
 class OpPdfGenClient(
     private val urls: UrlEnv,
-    private val appEnv: ApplicationEnv
+    private val appEnv: ApplicationEnv,
+    private val pdlClient: PdlClient,
 ) {
     private val client = httpClientDefault()
 
@@ -54,8 +59,12 @@ class OpPdfGenClient(
 
     suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
         val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_URL"
-        // TODO: get name from PDL
-        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest("First Last", "12121212", "qwqw@qw.no", "Suksess gate 1")
+        val personInfo = pdlClient.getPersonInfo(followUpPlanDTO.employeeIdentificationNumber)
+        val employeeName = personInfo?.toPersonName()
+        val employeePhoneNumber = personInfo?.toPersonPhoneNumber()
+        val employeeAdresse = personInfo?.toPersonAdresse()
+
+        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(employeeName, employeePhoneNumber, employeeEmail = null, employeeAdresse)
         val requestBody = mapper.writeValueAsString(request)
 
         val response = try {
@@ -74,7 +83,6 @@ class OpPdfGenClient(
 
         return when (response.status) {
             HttpStatusCode.OK -> {
-                log.warn("QWQW: ok response body ${response.body<ByteArray>()}")
                 response.body<ByteArray>()
             }
 

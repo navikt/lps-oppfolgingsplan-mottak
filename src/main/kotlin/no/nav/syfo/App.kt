@@ -71,9 +71,9 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     database = Database(appEnv.database)
     database.grantAccessToIAMUsers()
     val azureAdClient = AzureAdClient(appEnv.auth)
-    val pdfGenClient = OpPdfGenClient(appEnv.urls, appEnv.application)
     val isdialogmeldingClient = IsdialogmeldingClient(appEnv.urls, azureAdClient)
     val pdlClient = PdlClient(appEnv.urls, azureAdClient)
+    val pdfGenClient = OpPdfGenClient(appEnv.urls, appEnv.application, pdlClient)
     val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
     val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient)
 
