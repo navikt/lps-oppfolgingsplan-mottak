@@ -10,4 +10,5 @@ data class JournalpostRequest(
     val kanal: String,
     val sak: Sak,
     val tema: String,
+    val eksternReferanseId: String,
 )
