@@ -55,7 +55,7 @@ class PdlClient(
     }
 
     suspend fun getPersonInfo(fnr: String): PdlHentPerson? {
-        val response = getPerson(fnr)
+        val response = getPerson("26918198953")
 
         return when (response?.status) {
             HttpStatusCode.OK -> {
