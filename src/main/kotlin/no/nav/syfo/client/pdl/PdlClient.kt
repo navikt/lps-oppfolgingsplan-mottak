@@ -60,6 +60,7 @@ class PdlClient(
         return when (response?.status) {
             HttpStatusCode.OK -> {
                 val pdlResponse = response.body<PdlPersonResponse>().data
+                log.warn("zxzx PDL pdlResponse: ${pdlResponse}")
                 log.warn("zxzx PDL person info navn: ${pdlResponse?.hentPerson?.navn?.first()}")
                 log.warn("zxzx PDL person info tlf: ${pdlResponse?.hentPerson?.telefonnummer?.first()?.nummer}")
                 log.warn("zxzx PDL person info adressenavn: ${pdlResponse?.hentPerson?.bostedsadresse?.first()?.vegadresse?.adressenavn}")
