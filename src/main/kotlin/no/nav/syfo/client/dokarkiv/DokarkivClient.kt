@@ -4,11 +4,11 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.dokarkiv.domain.*
+import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.util.createBearerToken
 import org.slf4j.LoggerFactory
 
@@ -107,7 +107,8 @@ class DokarkivClient(
                 id = lps.fnr!!,
                 idType = FNR_TYPE,
             ),
-            dokumenter = makeDokumenter(dokumentnavn, lps.pdf!!)
+            dokumenter = makeDokumenter(dokumentnavn, lps.pdf!!),
+            eksternReferanseId = lps.uuid.toString()
         )
     }
 
