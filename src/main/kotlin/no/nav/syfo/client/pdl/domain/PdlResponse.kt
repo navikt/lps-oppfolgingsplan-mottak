@@ -103,7 +103,7 @@ fun PdlHentPerson.toPersonAdresse(): String? {
         if (vegadresse != null) {
             log.warn("zxzx: adresse str ${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav}, ${vegadresse.postnummer}")
 
-            return "${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav}, ${vegadresse.postnummer}"
+            return "${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav?.toString()}, ${vegadresse.postnummer}"
         }
     }
     log.info("Can not get person's address due to adressebeskyttelse")
