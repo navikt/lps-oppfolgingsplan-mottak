@@ -14,7 +14,6 @@ import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.pdl.domain.toPersonAdresse
 import no.nav.syfo.client.pdl.domain.toPersonName
-import no.nav.syfo.client.pdl.domain.toPersonPhoneNumber
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
@@ -61,10 +60,9 @@ class OpPdfGenClient(
         val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_URL"
         val personInfo = pdlClient.getPersonInfo(followUpPlanDTO.employeeIdentificationNumber)
         val employeeName = personInfo?.toPersonName()
-        val employeePhoneNumber = personInfo?.toPersonPhoneNumber()
         val employeeAdresse = personInfo?.toPersonAdresse()
 
-        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(employeeName, employeePhoneNumber, employeeEmail = null, employeeAdresse)
+        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(employeeName, employeePhoneNumber= null, employeeEmail = null, employeeAdresse)
         val requestBody = mapper.writeValueAsString(request)
 
         val response = try {

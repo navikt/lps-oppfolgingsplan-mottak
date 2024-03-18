@@ -33,14 +33,7 @@ data class PdlPerson(
     val adressebeskyttelse: List<Adressebeskyttelse>?,
     val navn: List<PersonNavn>?,
     val bostedsadresse: List<Bostedsadresse>,
-    val telefonnummer: List<Telefonnummer>?,
 ) : Serializable
-
-data class Telefonnummer(
-    val landskode: String?,
-    val nummer: String?,
-    val prioritet: String?,
-)
 
 data class Bostedsadresse(
     val vegadresse: Vegadresse?,
@@ -100,18 +93,6 @@ fun PdlHentPerson.toPersonName(): String? {
 
 private fun getMellomnavn(mellomnavn: String?): String {
     return if (mellomnavn !== null) " $mellomnavn" else ""
-}
-
-fun PdlHentPerson.toPersonPhoneNumber(): String? {
-    if (!this.isGradert())
-        {
-            val preferredPhoneNumber = this.hentPerson?.telefonnummer?.filter { it.prioritet == "1" }?.first()
-            if (preferredPhoneNumber?.nummer != null) {
-                return "${preferredPhoneNumber.landskode} ${preferredPhoneNumber.nummer}"
-            }
-        }
-    log.info("Can not get person's phone number due to adressebeskyttelse")
-    return null
 }
 
 fun PdlHentPerson.toPersonAdresse(): String? {
