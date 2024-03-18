@@ -8,15 +8,13 @@ query($ident: ID!) {
             mellomnavn
             etternavn
         }
-        adresser{
-            bostedsadresse(historikk: false){
-                vegadresse{
-                    adressenavn
-                    husnummer
-                    husbokstav
-                    bruksenhetsnummer
-                    postnummer
-                }
+        bostedsadresse(historikk: false){
+            vegadresse{
+                adressenavn
+                husnummer
+                husbokstav
+                bruksenhetsnummer
+                postnummer
             }
         }
         telefonnummer{

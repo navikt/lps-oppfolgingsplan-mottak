@@ -1,5 +1,6 @@
 package no.nav.syfo.client.pdl.domain
 
+import org.slf4j.LoggerFactory
 import java.io.Serializable
 
 data class PdlIdenterResponse(
@@ -66,7 +67,8 @@ data class Adressebeskyttelse(
 enum class Gradering : Serializable {
     STRENGT_FORTROLIG_UTLAND,
     STRENGT_FORTROLIG,
-    FORTROLIG
+    FORTROLIG,
+    UGRADERT, // Ugraderte personer kan ha tom felt
 }
 
 data class PdlError(
@@ -86,14 +88,6 @@ data class PdlErrorExtension(
     val classification: String,
 )
 
-fun PdlHentPerson.toPersonPhoneNumber(): String?{
-    val  preferredPhoneNumber = this.hentPerson?.telefonnummer?.filter { it.prioritet == "1" }?.first()
-    if (preferredPhoneNumber?.nummer != null){
-        return "${preferredPhoneNumber.landskode} ${preferredPhoneNumber.nummer}"
-    }
-    return null
-}
-
 fun PdlHentPerson.toPersonName(): String? {
     val navn = this.hentPerson?.navn?.first()
 
@@ -108,14 +102,33 @@ private fun getMellomnavn(mellomnavn: String?): String {
     return if (mellomnavn !== null) " $mellomnavn" else ""
 }
 
-fun PdlHentPerson.toPersonAdresse(): String?{
-//    val graderingValues = Gradering.entries.map { it.name } // TODO
-//    val adressebeskyttelse = graderingValues.contains(this.hentPerson?.adressebeskyttelse?.first()?.gradering?.name)
-    val  vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
-
-    if (vegadresse != null){
-//    if (!adressebeskyttelse && vegadresse != null){
-        return "${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav}, ${vegadresse.postnummer}"
-    }
+fun PdlHentPerson.toPersonPhoneNumber(): String? {
+    if (!this.isGradert())
+        {
+            val preferredPhoneNumber = this.hentPerson?.telefonnummer?.filter { it.prioritet == "1" }?.first()
+            if (preferredPhoneNumber?.nummer != null) {
+                return "${preferredPhoneNumber.landskode} ${preferredPhoneNumber.nummer}"
+            }
+        }
+    log.info("Can not get person's phone number due to adressebeskyttelse")
     return null
 }
+
+fun PdlHentPerson.toPersonAdresse(): String? {
+    if (!this.isGradert()) {
+        val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
+        if (vegadresse != null) {
+            return "${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav}, ${vegadresse.postnummer}"
+        }
+    }
+    log.info("Can not get person's address due to adressebeskyttelse")
+    return null
+}
+
+fun PdlHentPerson.isGradert(): Boolean {
+    val adressebeskyttelse = this.hentPerson?.adressebeskyttelse
+
+    return adressebeskyttelse.isNullOrEmpty() || (adressebeskyttelse.first().gradering.name.isNotEmpty() && adressebeskyttelse.first().gradering.name != Gradering.UGRADERT.name)
+}
+
+private val log = LoggerFactory.getLogger(PdlHentPerson::class.qualifiedName)
