@@ -47,11 +47,11 @@ data class Bostedsadresse(
 )
 
 data class Vegadresse(
-    val adressenavn: String,
-    val husnummer: String,
-    val husbokstav: String,
-    val bruksenhetsnummer: String,
-    val postnummer: String,
+    val adressenavn: String?,
+    val husnummer: String?,
+    val husbokstav: String?,
+    val bruksenhetsnummer: String?,
+    val postnummer: String?,
 )
 
 data class PersonNavn(
@@ -68,7 +68,7 @@ enum class Gradering : Serializable {
     STRENGT_FORTROLIG_UTLAND,
     STRENGT_FORTROLIG,
     FORTROLIG,
-    UGRADERT, // Ugraderte personer kan ha tom felt
+    UGRADERT, // Ugraderte personer kan også ha tomt felt
 }
 
 data class PdlError(
