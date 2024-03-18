@@ -96,9 +96,13 @@ private fun getMellomnavn(mellomnavn: String?): String {
 }
 
 fun PdlHentPerson.toPersonAdresse(): String? {
+    log.warn("zxzx: is gradert ${this.isGradert()}")
     if (!this.isGradert()) {
         val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
+        log.warn("zxzx: vegadresse ${vegadresse}")
         if (vegadresse != null) {
+            log.warn("zxzx: adresse str ${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav}, ${vegadresse.postnummer}")
+
             return "${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav}, ${vegadresse.postnummer}"
         }
     }
