@@ -96,8 +96,8 @@ private fun getMellomnavn(mellomnavn: String?): String {
 }
 
 fun PdlHentPerson.toPersonAdresse(): String? {
-    log.warn("zxzx: is gradert ${this.isGradert()}")
-    if (!this.isGradert()) {
+    log.warn("zxzx: is gradert ${this.isNotGradert()}")
+    if (this.isNotGradert()) {
         val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
         log.warn("zxzx: vegadresse ${vegadresse}")
         if (vegadresse != null) {
@@ -110,11 +110,12 @@ fun PdlHentPerson.toPersonAdresse(): String? {
     return null
 }
 
-fun PdlHentPerson.isGradert(): Boolean {
+fun PdlHentPerson.isNotGradert(): Boolean {
     val adressebeskyttelse = this.hentPerson?.adressebeskyttelse
     log.warn("zxzx: adressebeskyttelse ${adressebeskyttelse}")
 
-    return adressebeskyttelse.isNullOrEmpty() || (adressebeskyttelse.first().gradering.name.isNotEmpty() && adressebeskyttelse.first().gradering.name != Gradering.UGRADERT.name)
+    return adressebeskyttelse.isNullOrEmpty()
+            || (adressebeskyttelse.first().gradering.name.isNotEmpty() && adressebeskyttelse.first().gradering.name == Gradering.UGRADERT.name)
 }
 
 private val log = LoggerFactory.getLogger(PdlHentPerson::class.qualifiedName)
