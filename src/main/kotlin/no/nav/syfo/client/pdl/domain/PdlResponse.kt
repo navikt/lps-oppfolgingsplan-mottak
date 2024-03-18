@@ -112,6 +112,7 @@ fun PdlHentPerson.toPersonAdresse(): String? {
 
 fun PdlHentPerson.isGradert(): Boolean {
     val adressebeskyttelse = this.hentPerson?.adressebeskyttelse
+    log.warn("zxzx: adressebeskyttelse ${adressebeskyttelse}")
 
     return adressebeskyttelse.isNullOrEmpty() || (adressebeskyttelse.first().gradering.name.isNotEmpty() && adressebeskyttelse.first().gradering.name != Gradering.UGRADERT.name)
 }
