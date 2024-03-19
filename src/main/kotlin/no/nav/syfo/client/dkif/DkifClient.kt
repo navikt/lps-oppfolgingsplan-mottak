@@ -37,6 +37,7 @@ class DkifClient(
         when (response?.status) {
             HttpStatusCode.OK -> {
                 val rawJson: String = response.body()
+                log.warn("zxzx ok response ok${rawJson}")
                 return KontaktinfoMapper.mapPerson(rawJson)
             }
 
