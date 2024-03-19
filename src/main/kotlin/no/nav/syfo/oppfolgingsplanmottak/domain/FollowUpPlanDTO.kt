@@ -96,4 +96,3 @@ data class FollowUpPlanDTO(
         return sendToStr
     }
 }
-
