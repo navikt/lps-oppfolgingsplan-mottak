@@ -70,7 +70,7 @@ class OpPdfGenClient(
         val employeeName = personInfo?.toPersonName() ?: fnr
         val employeeAdress = personInfo?.toPersonAdress()
 
-        val personDigitalContactInfo = dkifClient.person(fnr)
+        val personDigitalContactInfo = dkifClient.person("26918198953")
 log.warn("zxzx: fnr: email ${fnr}")
 log.warn("zxzx: dkif: email ${personDigitalContactInfo?.epostadresse}")
 log.warn("zxzx: dkif:mobile  ${personDigitalContactInfo?.mobiltelefonnummer}")
