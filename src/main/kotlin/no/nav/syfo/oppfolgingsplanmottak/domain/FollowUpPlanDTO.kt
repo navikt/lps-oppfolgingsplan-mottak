@@ -72,7 +72,7 @@ data class FollowUpPlanDTO(
                 additionalInformation = this.additionalInformation,
                 employerContactPersonFullName = this.contactPersonFullName,
                 employerContactPersonPhoneNumber = this.contactPersonPhoneNumber,
-                employeeHasContributedToPlan = this.employeeHasContributedToPlan,
+                employeeHasContributedToPlan = if (this.employeeHasContributedToPlan) "Ja" else "Nei",
                 employeeHasNotContributedToPlanDescription = this.employeeHasNotContributedToPlanDescription,
             )
         )

@@ -75,6 +75,8 @@ fun getEnv(): ApplicationEnvironment {
             dokarkivScope = getEnvVar("DOKARKIV_SCOPE"),
             istilgangskontrollUrl = getEnvVar("ISTILGANGSKONTROLL_URL"),
             istilgangskontrollClientId = getEnvVar("ISTILGANGSKONTROLL_CLIENT_ID"),
+            dkifUrl = getEnvVar("DKIF_URL"),
+            dkifScope = getEnvVar("DKIF_SCOPE"),
         ),
         altinnLps = AltinnLpsEnv(
             sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt(),

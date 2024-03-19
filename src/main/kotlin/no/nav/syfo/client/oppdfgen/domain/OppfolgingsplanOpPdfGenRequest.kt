@@ -25,6 +25,6 @@ class LpsPlanPdfData(
     val additionalInformation: String?,
     val employerContactPersonFullName: String,
     val employerContactPersonPhoneNumber: String,
-    val employeeHasContributedToPlan: Boolean,
+    val employeeHasContributedToPlan: String,
     val employeeHasNotContributedToPlanDescription: String?,
 )

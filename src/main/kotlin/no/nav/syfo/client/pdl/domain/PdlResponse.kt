@@ -95,7 +95,7 @@ private fun getMellomnavn(mellomnavn: String?): String {
     return if (mellomnavn !== null) " $mellomnavn" else ""
 }
 
-fun PdlHentPerson.toPersonAdresse(): String? {
+fun PdlHentPerson.toPersonAdress(): String? {
     log.warn("zxzx: is gradert ${this.isNotGradert()}")
     if (this.isNotGradert()) {
         val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
@@ -105,7 +105,7 @@ fun PdlHentPerson.toPersonAdresse(): String? {
             val adressenavn = vegadresse.adressenavn
             val husnummer = vegadresse.husnummer ?: ""
             val husbokstav = vegadresse.husbokstav ?: ""
-            val postnummer = if (vegadresse.postnummer != null) ", ${vegadresse.postnummer}" else ""
+            val postnummer = vegadresse.postnummer ?: ""
 
             log.warn("$adressenavn ${husnummer}${husbokstav}, $postnummer")
             return "$adressenavn ${husnummer}${husbokstav}, $postnummer"

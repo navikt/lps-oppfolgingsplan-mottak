@@ -10,4 +10,7 @@ data class UrlEnv(
     val dokarkivScope: String,
     val istilgangskontrollUrl: String,
     val istilgangskontrollClientId: String,
-)
+    val dkifUrl: String,
+    val dkifScope: String,
+
+    )

@@ -4,15 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.request.headers
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.append
 import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
+import no.nav.syfo.client.dkif.DkifClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.client.pdl.PdlClient
-import no.nav.syfo.client.pdl.domain.toPersonAdresse
+import no.nav.syfo.client.pdl.domain.toPersonAdress
 import no.nav.syfo.client.pdl.domain.toPersonName
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
@@ -24,6 +30,7 @@ class OpPdfGenClient(
     private val urls: UrlEnv,
     private val appEnv: ApplicationEnv,
     private val pdlClient: PdlClient,
+    private val dkifClient: DkifClient,
 ) {
     private val client = httpClientDefault()
 
@@ -57,12 +64,24 @@ class OpPdfGenClient(
     }
 
     suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
+        val fnr = followUpPlanDTO.employeeIdentificationNumber
         val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_URL"
-        val personInfo = pdlClient.getPersonInfo(followUpPlanDTO.employeeIdentificationNumber)
-        val employeeName = personInfo?.toPersonName() ?: followUpPlanDTO.employeeIdentificationNumber
-        val employeeAdresse = personInfo?.toPersonAdresse()
+        val personInfo = pdlClient.getPersonInfo(fnr)
+        val employeeName = personInfo?.toPersonName() ?: fnr
+        val employeeAdress = personInfo?.toPersonAdress()
 
-        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(employeeName, employeePhoneNumber= null, employeeEmail = null, employeeAdresse)
+        val personDigitalContactInfo = dkifClient.person(fnr)
+log.warn("zxzx: fnr: email ${fnr}")
+log.warn("zxzx: dkif: email ${personDigitalContactInfo?.epostadresse}")
+log.warn("zxzx: dkif:mobile  ${personDigitalContactInfo?.mobiltelefonnummer}")
+log.warn("zxzx: dkif: reservert ${personDigitalContactInfo?.reservert}")
+log.warn("zxzx: dkif kan varsles: ${personDigitalContactInfo?.kanVarsles}")
+        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
+            employeeName,
+            employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
+            employeeEmail = personDigitalContactInfo?.epostadresse,
+            employeeAdress
+        )
         val requestBody = mapper.writeValueAsString(request)
 
         val response = try {
