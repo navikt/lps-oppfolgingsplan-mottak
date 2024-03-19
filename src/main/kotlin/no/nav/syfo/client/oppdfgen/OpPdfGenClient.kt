@@ -59,7 +59,7 @@ class OpPdfGenClient(
     suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
         val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_URL"
         val personInfo = pdlClient.getPersonInfo(followUpPlanDTO.employeeIdentificationNumber)
-        val employeeName = personInfo?.toPersonName()
+        val employeeName = personInfo?.toPersonName() ?: followUpPlanDTO.employeeIdentificationNumber
         val employeeAdresse = personInfo?.toPersonAdresse()
 
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(employeeName, employeePhoneNumber= null, employeeEmail = null, employeeAdresse)

@@ -101,9 +101,14 @@ fun PdlHentPerson.toPersonAdresse(): String? {
         val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
         log.warn("zxzx: vegadresse ${vegadresse}")
         if (vegadresse != null) {
-            log.warn("zxzx: adresse str ${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav}, ${vegadresse.postnummer}")
 
-            return "${vegadresse.adressenavn} ${vegadresse.husnummer}${vegadresse.husbokstav?.toString()}, ${vegadresse.postnummer}"
+            val adressenavn = vegadresse.adressenavn
+            val husnummer = vegadresse.husnummer ?: ""
+            val husbokstav = vegadresse.husbokstav ?: ""
+            val postnummer = if (vegadresse.postnummer != null) ", ${vegadresse.postnummer}" else ""
+
+            log.warn("$adressenavn ${husnummer}${husbokstav}, $postnummer")
+            return "$adressenavn ${husnummer}${husbokstav}, $postnummer"
         }
     }
     log.info("Can not get person's address due to adressebeskyttelse")
