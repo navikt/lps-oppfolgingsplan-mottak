@@ -71,6 +71,8 @@ spec:
         - host: syfooppdfgen.intern.dev.nav.no
         - host: dokarkiv.dev-fss-pub.nais.io
       rules:
+        - application: digdir-krr-proxy
+          namespace: team-rocket
         - application: syfooppdfgen
         - application: isdialogmelding
           namespace: teamsykefravr
