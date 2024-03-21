@@ -133,4 +133,4 @@ spec:
     - name: DKIF_URL
       value: http://digdir-krr-proxy.team-rocket/rest/v1/person
     - name: DKIF_SCOPE
-      value: prod-gcp.team-rocket.digdir-krr-proxy/.default
+      value: prod-gcp.team-rocket.digdir-krr-proxy
