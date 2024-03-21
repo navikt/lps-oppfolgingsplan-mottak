@@ -72,7 +72,8 @@ class DokarkivClient(
 
         val responseBody = when (response.status) {
             HttpStatusCode.Created -> {
-                log.info("zxzx: Successfully created journalpost for LPS plan")
+                log.info("zxzx: Successfully created journalpost for LPS plan for fnr: ${journalpostRequest.bruker.id}")
+
                 response.body<JournalpostResponse>()
             }
 
