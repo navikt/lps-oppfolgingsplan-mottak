@@ -66,23 +66,23 @@ class DokarkivClient(
                 setBody(journalpostRequest)
             }
         } catch (e: Exception) {
-            log.error("Could not send Altinn-LPS to dokarkiv", e)
+            log.error("zxzx: Could not send Altinn-LPS to dokarkiv", e)
             throw e
         }
 
         val responseBody = when (response.status) {
             HttpStatusCode.Created -> {
-                log.info("Successfully created journalpost for Altinn-plan")
+                log.info("zxzx: Successfully created journalpost for LPS plan")
                 response.body<JournalpostResponse>()
             }
 
             HttpStatusCode.Conflict -> {
-                log.warn("Journalpost for Altinn-LPS already created!")
+                log.warn("zxzx: Journalpost for LPS plan already created!")
                 response.body<JournalpostResponse>()
             }
 
             else -> {
-                log.error("Call to dokarkiv failed with status: ${response.status}")
+                log.error("zxzx: Call to dokarkiv failed with status: ${response.status}")
                 throw RuntimeException("Failed to call dokarkiv")
             }
         }
