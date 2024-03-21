@@ -8,6 +8,7 @@ import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.dokarkiv.domain.*
 import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.createBearerToken
 import org.slf4j.LoggerFactory
 
@@ -20,16 +21,33 @@ class DokarkivClient(
     private val client = httpClientDefault()
     private val log = LoggerFactory.getLogger(DokarkivClient::class.qualifiedName)
 
+    suspend fun journalforLps(
+        followUpPlan: FollowUpPlanDTO,
+        employerOrgnr: String,
+        pdf: ByteArray,
+    ): String {
+        val avsenderMottaker = createAvsenderMottaker(employerOrgnr, followUpPlan.lpsName) //TODO: employer, not LPS
+        val journalpostRequest = createJournalpostRequest(
+            followUpPlan.employeeIdentificationNumber,
+            pdf,
+            followUpPlan.lpsName, //TODO: employer, not LPS
+            avsenderMottaker,
+            "NAV_NO",
+        )
+        return sendRequestToDokarkiv(journalpostRequest)
+    }
+
     suspend fun journalforAltinnLps(
         lps: AltinnLpsOppfolgingsplan,
         virksomhetsnavn: String,
     ): String {
-        val avsenderMottaker = createAvsenderMottaker(lps, virksomhetsnavn)
+        val avsenderMottaker = createAvsenderMottaker(lps.orgnummer, virksomhetsnavn)
         val journalpostRequest = createJournalpostRequest(
-            lps,
+            lps.fnr!!,
+            lps.pdf!!,
             virksomhetsnavn,
             avsenderMottaker,
-            KANAL_TYPE_ALTINN,
+            "ALTINN",
         )
         return sendRequestToDokarkiv(journalpostRequest)
     }
@@ -76,21 +94,22 @@ class DokarkivClient(
     }
 
     private fun createAvsenderMottaker(
-        lps: AltinnLpsOppfolgingsplan,
+        orgnummer: String,
         virksomhetsnavn: String
     ) = AvsenderMottaker(
-        id = lps.orgnummer,
+        id = orgnummer,
         idType = ID_TYPE_ORGNR,
-        navn = virksomhetsnavn,
+        navn = virksomhetsnavn, // TODO: IS it needed?
     )
 
     private fun createJournalpostRequest(
-        lps: AltinnLpsOppfolgingsplan,
-        virksomhetsnavn: String,
+        fnr: String,
+        pdf: ByteArray,
+        navn: String,
         avsenderMottaker: AvsenderMottaker,
         kanal: String,
     ): JournalpostRequest {
-        val dokumentnavn = "Oppfølgingsplan $virksomhetsnavn"
+        val dokumentnavn = "Oppfølgingsplan $navn"
         return JournalpostRequest(
             tema = TEMA_OPP,
             tittel = dokumentnavn,
@@ -100,10 +119,10 @@ class DokarkivClient(
             sak = Sak(sakstype = SAKSTYPE_GENERELL_SAK),
             avsenderMottaker = avsenderMottaker,
             bruker = Bruker(
-                id = lps.fnr!!,
+                id = fnr,
                 idType = FNR_TYPE,
             ),
-            dokumenter = makeDokumenter(dokumentnavn, lps.pdf!!)
+            dokumenter = makeDokumenter(dokumentnavn, pdf)
         )
     }
 
@@ -127,7 +146,6 @@ class DokarkivClient(
     )
 
     companion object {
-        const val KANAL_TYPE_ALTINN = "ALTINN"
         const val ID_TYPE_ORGNR = "ORGNR"
         const val TEMA_OPP = "OPP"
         const val SAKSTYPE_GENERELL_SAK = "GENERELL_SAK"

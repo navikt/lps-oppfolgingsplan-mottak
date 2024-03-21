@@ -92,7 +92,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
 
     val followupPlanProducer = FollowUpPlanProducer(appEnv.kafka)
 
-    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, pdfGenClient, appEnv.toggles)
+    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, pdfGenClient, dokarkivClient, appEnv.toggles)
 
     val wellKnownInternalAzureAD = getWellKnown(
         wellKnownUrl = appEnv.auth.azuread.wellKnownUrl,
