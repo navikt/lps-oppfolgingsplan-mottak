@@ -120,7 +120,7 @@ class DokarkivClient(
             sak = Sak(sakstype = SAKSTYPE_GENERELL_SAK),
             avsenderMottaker = avsenderMottaker,
             bruker = Bruker(
-                id = fnr,
+                id = "26918198953", // TODO
                 idType = FNR_TYPE,
             ),
             dokumenter = makeDokumenter(dokumentnavn, pdf)

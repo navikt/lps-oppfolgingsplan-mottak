@@ -41,8 +41,9 @@ class FollowUpPlanSendingService(
                     sykmeldtFnr,
                     pdf
                 )
+            } else {
+                log.warn("Could not send LPS-plan to general practitioner because PDF is null")
             }
-            log.warn("Could not send LPS-plan to general practitioner because PDF is null")
         }
 
         if (toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav) {
