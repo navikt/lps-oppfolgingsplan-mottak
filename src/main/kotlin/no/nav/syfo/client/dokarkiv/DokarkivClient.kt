@@ -1,12 +1,23 @@
 package no.nav.syfo.client.dokarkiv
 
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.request.headers
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.append
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
-import no.nav.syfo.client.dokarkiv.domain.*
+import no.nav.syfo.client.dokarkiv.domain.AvsenderMottaker
+import no.nav.syfo.client.dokarkiv.domain.Bruker
+import no.nav.syfo.client.dokarkiv.domain.Dokument
+import no.nav.syfo.client.dokarkiv.domain.Dokumentvariant
+import no.nav.syfo.client.dokarkiv.domain.JournalpostRequest
+import no.nav.syfo.client.dokarkiv.domain.JournalpostResponse
+import no.nav.syfo.client.dokarkiv.domain.Sak
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.createBearerToken
@@ -96,7 +107,7 @@ class DokarkivClient(
 
     private fun createAvsenderMottaker(
         orgnummer: String,
-        virksomhetsnavn: String
+        virksomhetsnavn: String,
     ) = AvsenderMottaker(
         id = orgnummer,
         idType = ID_TYPE_ORGNR,
@@ -123,7 +134,7 @@ class DokarkivClient(
                 id = "26918198953", // TODO
                 idType = FNR_TYPE,
             ),
-            dokumenter = makeDokumenter(dokumentnavn, pdf)
+            dokumenter = makeDokumenter(dokumentnavn, pdf),
         )
     }
 
