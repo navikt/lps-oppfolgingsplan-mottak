@@ -59,7 +59,7 @@ class FollowUpPlanSendingService(
                 )
                 followupPlanProducer.sendFollowUpPlanToNav(planToSendToNav)
                 if (pdf != null) {
-                    dokarkivClient.journalforLps(followUpPlanDTO, employerOrgnr, pdf)
+                    dokarkivClient.journalforLps(followUpPlanDTO, employerOrgnr, pdf, uuid)
                 } else {
                     log.warn("Could not send LPS-plan to NAV because PDF is null")
                 }

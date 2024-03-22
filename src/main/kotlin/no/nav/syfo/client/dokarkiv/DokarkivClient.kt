@@ -8,6 +8,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
@@ -37,14 +38,16 @@ class DokarkivClient(
         followUpPlan: FollowUpPlanDTO,
         employerOrgnr: String,
         pdf: ByteArray,
+        uuid: UUID,
     ): String {
-        val avsenderMottaker = createAvsenderMottaker(employerOrgnr, followUpPlan.lpsName) //TODO: employer, not LPS
+        val avsenderMottaker = createAvsenderMottaker(employerOrgnr, employerOrgnr)
         val journalpostRequest = createJournalpostRequest(
             followUpPlan.employeeIdentificationNumber,
             pdf,
-            followUpPlan.lpsName, //TODO: employer, not LPS
+            navn = employerOrgnr, //TODO: employer company name, fetch from ereg
             avsenderMottaker,
             "NAV_NO",
+            uuid.toString(),
         )
         return sendRequestToDokarkiv(journalpostRequest)
     }
@@ -60,6 +63,7 @@ class DokarkivClient(
             virksomhetsnavn,
             avsenderMottaker,
             "ALTINN",
+            lps.uuid!!.toString(),
         )
         return sendRequestToDokarkiv(journalpostRequest)
     }

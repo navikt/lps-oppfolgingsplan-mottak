@@ -12,5 +12,4 @@ data class UrlEnv(
     val istilgangskontrollClientId: String,
     val dkifUrl: String,
     val dkifScope: String,
-
-    )
+)
