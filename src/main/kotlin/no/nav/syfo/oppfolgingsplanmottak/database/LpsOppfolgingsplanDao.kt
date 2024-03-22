@@ -134,10 +134,10 @@ fun DatabaseInterface.findSendingStatus(uuid: UUID): FollowUpPlanResponse {
     }
 }
 
-fun DatabaseInterface.updateSentAt(uuid: UUID, sentToGeneralPractitionerAt: Timestamp?, sentToNavAt: Timestamp?): Int {
+fun DatabaseInterface.updateSentAt(uuid: UUID, sentToGeneralPractitionerAt: Timestamp?, sentToNavAt: Timestamp?, pdf: ByteArray?): Int {
     val updateStatement = """
         UPDATE FOLLOW_UP_PLAN_LPS_V1
-        SET sent_to_general_practitioner_at = ?, sent_to_nav_at = ?
+        SET sent_to_general_practitioner_at = ?, sent_to_nav_at = ?, pdf = ?
         WHERE uuid = ?
     """.trimIndent()
 
@@ -145,7 +145,8 @@ fun DatabaseInterface.updateSentAt(uuid: UUID, sentToGeneralPractitionerAt: Time
         val rowsUpdated = connection.prepareStatement(updateStatement).use {
             it.setTimestamp(1, sentToGeneralPractitionerAt)
             it.setTimestamp(2, sentToNavAt)
-            it.setObject(3, uuid)
+            it.setBytes(3, pdf)
+            it.setObject(4, uuid)
             it.executeUpdate()
         }
         connection.commit()
@@ -158,5 +159,4 @@ fun ResultSet.toFollowUpPlanSendingStatus() =
         uuid = getString("uuid"),
         isSentToGeneralPractitionerStatus = getTimestamp("sent_to_general_practitioner_at") != null,
         isSentToNavStatus = getTimestamp("sent_to_nav_at") != null,
-        pdf = null, // TODO delete, it was for testing
     )

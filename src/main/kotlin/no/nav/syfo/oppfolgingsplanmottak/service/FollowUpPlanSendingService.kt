@@ -7,8 +7,8 @@ import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import org.slf4j.LoggerFactory
 
@@ -24,7 +24,7 @@ class FollowUpPlanSendingService(
         followUpPlanDTO: FollowUpPlanDTO,
         uuid: UUID,
         employerOrgnr: String,
-    ): FollowUpPlanResponse {
+    ): FollowUpPlan {
         val sykmeldtFnr = followUpPlanDTO.employeeIdentificationNumber
 
         var sentToFastlegeStatus: Boolean? = null
@@ -66,7 +66,7 @@ class FollowUpPlanSendingService(
             }
         }
 
-        return FollowUpPlanResponse(
+        return FollowUpPlan(
             uuid = uuid.toString(),
             isSentToGeneralPractitionerStatus = sentToFastlegeStatus,
             isSentToNavStatus = sentToNavStatus,

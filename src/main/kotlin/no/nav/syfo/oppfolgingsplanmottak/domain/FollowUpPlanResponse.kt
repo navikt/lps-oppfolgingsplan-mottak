@@ -6,5 +6,4 @@ data class FollowUpPlanResponse(
     val uuid: String,
     val isSentToGeneralPractitionerStatus: Boolean?,
     val isSentToNavStatus: Boolean?,
-    val pdf: ByteArray?,
 ) : Serializable
