@@ -12,6 +12,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
@@ -71,11 +72,11 @@ class OpPdfGenClient(
         val employeeAdress = personInfo?.toPersonAdress()
 
         val personDigitalContactInfo = dkifClient.person("26918198953")
-log.warn("zxzx: fnr: email ${fnr}")
-log.warn("zxzx: dkif: email ${personDigitalContactInfo?.epostadresse}")
-log.warn("zxzx: dkif:mobile  ${personDigitalContactInfo?.mobiltelefonnummer}")
-log.warn("zxzx: dkif: reservert ${personDigitalContactInfo?.reservert}")
-log.warn("zxzx: dkif kan varsles: ${personDigitalContactInfo?.kanVarsles}")
+        log.warn("zxzx: fnr: email ${fnr}")
+        log.warn("zxzx: dkif: email ${personDigitalContactInfo?.epostadresse}")
+        log.warn("zxzx: dkif:mobile  ${personDigitalContactInfo?.mobiltelefonnummer}")
+        log.warn("zxzx: dkif: reservert ${personDigitalContactInfo?.reservert}")
+        log.warn("zxzx: dkif kan varsles: ${personDigitalContactInfo?.kanVarsles}")
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
             employeeName,
             employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
@@ -100,7 +101,9 @@ log.warn("zxzx: dkif kan varsles: ${personDigitalContactInfo?.kanVarsles}")
 
         return when (response.status) {
             HttpStatusCode.OK -> {
-                response.body<ByteArray>()
+                runBlocking {
+                    response.body<ByteArray>()
+                }
             }
 
             else -> {

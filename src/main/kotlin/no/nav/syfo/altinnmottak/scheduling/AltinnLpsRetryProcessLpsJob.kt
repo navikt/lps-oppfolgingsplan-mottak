@@ -17,6 +17,7 @@ class AltinnLpsRetryProcessLpsJob: Job {
     private val jobName = "PROCESS_LPS_JOB"
     private val jobLogPrefix = "[$jobName]:"
     override fun execute(context: JobExecutionContext) {
+
         val jobDataMap = context.jobDetail.jobDataMap
         val database = jobDataMap[DB_SHORTNAME] as DatabaseInterface
         val altinnLpsService = jobDataMap[LPS_SERVICE_SHORTNAME] as AltinnLpsService

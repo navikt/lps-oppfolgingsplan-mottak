@@ -8,6 +8,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
+import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
@@ -77,20 +78,22 @@ class DokarkivClient(
                 setBody(journalpostRequest)
             }
         } catch (e: Exception) {
-            log.error("zxzx: Could not send Altinn-LPS to dokarkiv", e)
+            log.error("zxzx: Could not send LPS plan to dokarkiv", e)
             throw e
         }
 
         val responseBody = when (response.status) {
             HttpStatusCode.Created -> {
-                log.info("zxzx: Successfully created journalpost for LPS plan for fnr: ${journalpostRequest.bruker.id}")
-
-                response.body<JournalpostResponse>()
+                runBlocking {
+                    response.body<JournalpostResponse>()
+                }
             }
 
             HttpStatusCode.Conflict -> {
-                log.warn("zxzx: Journalpost for LPS plan already created!")
-                response.body<JournalpostResponse>()
+                log.warn("Journalpost for LPS plan already created!")
+                runBlocking {
+                    response.body<JournalpostResponse>()
+                }
             }
 
             else -> {
@@ -120,6 +123,7 @@ class DokarkivClient(
         navn: String,
         avsenderMottaker: AvsenderMottaker,
         kanal: String,
+        uuid: String,
     ): JournalpostRequest {
         val dokumentnavn = "Oppfølgingsplan $navn"
         return JournalpostRequest(
@@ -135,6 +139,7 @@ class DokarkivClient(
                 idType = FNR_TYPE,
             ),
             dokumenter = makeDokumenter(dokumentnavn, pdf),
+            eksternReferanseId = uuid,
         )
     }
 
