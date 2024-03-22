@@ -2,8 +2,8 @@ package no.nav.syfo.oppfolgingsplanmottak.domain
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import no.nav.syfo.client.isdialogmelding.domain.LpsPlanPdfData
-import no.nav.syfo.client.isdialogmelding.domain.OppfolgingsplanOpPdfGenRequest
+import no.nav.syfo.client.oppdfgen.domain.LpsPlanPdfData
+import no.nav.syfo.client.oppdfgen.domain.OppfolgingsplanOpPdfGenRequest
 
 data class FollowUpPlanDTO(
     val employeeIdentificationNumber: String,

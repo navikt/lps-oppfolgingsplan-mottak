@@ -1,4 +1,4 @@
-package no.nav.syfo.client.isdialogmelding.domain
+package no.nav.syfo.client.oppdfgen.domain
 
 data class OppfolgingsplanOpPdfGenRequest(
     val lpsPlanData: LpsPlanPdfData,
