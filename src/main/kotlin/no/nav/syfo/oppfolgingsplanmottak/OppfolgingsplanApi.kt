@@ -28,9 +28,9 @@ fun Routing.registerFollowUpPlanApi(
     val log = LoggerFactory.getLogger("FollowUpPlanApi")
     val uuid = "uuid"
 
-    route("/api/v1/followupplan/") {
+    route("/api/v1/followupplan") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
-            post("write") {
+            post {
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val planUuid = UUID.randomUUID()
                 val employerOrgnr = getOrgnumberFromClaims()
@@ -57,7 +57,7 @@ fun Routing.registerFollowUpPlanApi(
                 call.respond(followUpPlanResponse)
             }
 
-            get("read/sendingStatus/{$uuid}") {
+            get("/{$uuid}/sendingstatus") {
                 val uuidString = call.parameters["uuid"].toString()
                 val sendingStatus = database.findSendingStatus(UUID.fromString(uuidString))
                 call.respond(sendingStatus)

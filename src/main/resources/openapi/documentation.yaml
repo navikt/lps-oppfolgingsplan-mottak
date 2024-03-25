@@ -24,7 +24,7 @@ paths:
             '*/*':
               schema:
                 type: "string"
-  /api/v1/followupplan/write:
+  /api/v1/followupplan:
     post:
       description: "Submit follow-up plan to NAV and/or general practitioner"
       tags:
@@ -44,9 +44,9 @@ paths:
             'application/json':
               schema:
                 $ref: "#/components/schemas/FollowUpPlanResponse"
-  /api/v1/followupplan/read/sendingStatus/{uuid}:
+  /api/v1/followupplan/{uuid}/sendingstatus:
     get:
-      description: "Get a sending status to NAV and general practitioner by follow up plan id"
+      description: "Gets the sending status to NAV and general practitioner by follow up plan id"
       tags:
         - Followup-plan API
       security:
