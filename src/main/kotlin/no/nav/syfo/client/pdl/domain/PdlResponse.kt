@@ -1,7 +1,7 @@
 package no.nav.syfo.client.pdl.domain
 
-import org.slf4j.LoggerFactory
 import java.io.Serializable
+import org.slf4j.LoggerFactory
 
 data class PdlIdenterResponse(
     val errors: List<PdlError>?,
@@ -30,7 +30,7 @@ data class PdlHentPerson(
 ) : Serializable
 
 data class PdlPerson(
-    val adressebeskyttelse: List<Adressebeskyttelse>?,
+    var adressebeskyttelse: List<Adressebeskyttelse>?,
     val navn: List<PersonNavn>?,
     val bostedsadresse: List<Bostedsadresse>,
 ) : Serializable
@@ -43,7 +43,6 @@ data class Vegadresse(
     val adressenavn: String?,
     val husnummer: String?,
     val husbokstav: String?,
-    val bruksenhetsnummer: String?,
     val postnummer: String?,
 )
 
@@ -84,10 +83,10 @@ data class PdlErrorExtension(
 fun PdlHentPerson.toPersonName(): String? {
     val navn = this.hentPerson?.navn?.first()
 
-    return if (navn == null) {
+    return if (navn?.fornavn.isNullOrEmpty() || navn?.etternavn.isNullOrEmpty()) {
         null
     } else {
-        "${navn.fornavn}${getMellomnavn(navn.mellomnavn)} ${navn.etternavn}"
+        "${navn?.fornavn} ${getMellomnavn(navn?.mellomnavn)} ${navn?.etternavn}"
     }
 }
 
@@ -105,10 +104,14 @@ fun PdlHentPerson.toPersonAdress(): String? {
             val adressenavn = vegadresse.adressenavn
             val husnummer = vegadresse.husnummer ?: ""
             val husbokstav = vegadresse.husbokstav ?: ""
-            val postnummer = vegadresse.postnummer ?: ""
+            val postnummer = if (!vegadresse.postnummer.isNullOrEmpty()) {
+                ", ${vegadresse.postnummer}"
+            } else {
+                ""
+            }
 
             log.warn("$adressenavn ${husnummer}${husbokstav}, $postnummer")
-            return "$adressenavn ${husnummer}${husbokstav}, $postnummer"
+            return "$adressenavn ${husnummer}${husbokstav}$postnummer"
         }
     }
     log.info("Can not get person's address due to adressebeskyttelse")
