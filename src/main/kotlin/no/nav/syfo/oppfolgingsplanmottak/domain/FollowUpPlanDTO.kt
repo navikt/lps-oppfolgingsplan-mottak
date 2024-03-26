@@ -20,6 +20,7 @@ data class FollowUpPlanDTO(
     val additionalInformation: String?,
     val contactPersonFullName: String,
     val contactPersonPhoneNumber: String,
+    val contactPersonEmail: String,
     val employeeHasContributedToPlan: Boolean,
     val employeeHasNotContributedToPlanDescription: String?,
     val lpsName: String

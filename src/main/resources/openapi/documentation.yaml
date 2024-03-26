@@ -132,6 +132,9 @@ components:
         contactPersonPhoneNumber:
           type: "string"
           description: "Phone number of the person responsible for following up the employee."
+        contactPersonEmail:
+          type: "string"
+          description: "E-mail of the person responsible for following up the employee."
         employeeHasContributedToPlan:
           type: "boolean"
           description: "Has the employee been involved in the process of creating this plan?"
@@ -154,6 +157,7 @@ components:
       - "sendPlanToGeneralPractitioner"
       - "contactPersonFullName"
       - "contactPersonPhoneNumber"
+      - "contactPersonEmail"
       - "employeeHasContributedToPlan"
 
     FollowUpPlanResponse:

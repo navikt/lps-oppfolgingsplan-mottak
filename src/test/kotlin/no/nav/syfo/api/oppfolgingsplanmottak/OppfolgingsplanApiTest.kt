@@ -79,6 +79,7 @@ private fun createFollowUpPlan(employeeIdentificationNumber: String): FollowUpPl
         additionalInformation = "Additional information",
         contactPersonFullName = "Contact person full name",
         contactPersonPhoneNumber = "12345678",
+        contactPersonEmail = "some@email.com",
         employeeHasContributedToPlan = true,
         employeeHasNotContributedToPlanDescription = null,
         lpsName = "LPS name"
