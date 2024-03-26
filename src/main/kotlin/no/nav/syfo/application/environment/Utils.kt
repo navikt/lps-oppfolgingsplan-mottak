@@ -83,7 +83,6 @@ fun getEnv(): ApplicationEnvironment {
             sendAltinnLpsPlanToNavToggle = getEnvVar("TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV").toBoolean(),
             sendAltinnLpsPlanToFastlegeToggle = getEnvVar("TOGGLE_SEND_ALTINN_LPS_PLAN_TO_FASTLEGE").toBoolean(),
             journalforAltinnLpsPlanToggle = getEnvVar("TOGGLE_JOURNALFOR__ALTINN_LPS_PLAN").toBoolean(),
-            sendLpsPlanToNavToggle = getEnvVar("TOGGLE_SEND_LPS_PLAN_TO_NAV").toBoolean(),
             sendLpsPlanToFastlegeToggle = getEnvVar("TOGGLE_SEND_LPS_PLAN_TO_FASTLEGE").toBoolean(),
             journalforLpsPlanToggle = getEnvVar("TOGGLE_JOURNALFOR_LPS_PLAN").toBoolean(),
         ),

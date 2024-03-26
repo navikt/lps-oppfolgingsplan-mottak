@@ -1,28 +1,23 @@
-package no.nav.syfo.api.oppfolgingsplanmottak
+package no.nav.syfo.oppfolgingsplanmottak
 
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.body
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.time.LocalDate
-import java.util.*
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.mockdata.createFollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
+import java.util.*
 
 class OppfolgingsplanApiTest : DescribeSpec({
     val isdialogmeldingConsumer = mockk<IsdialogmeldingClient>(relaxed = true)
@@ -60,29 +55,3 @@ class OppfolgingsplanApiTest : DescribeSpec({
     }
 })
 
-private fun createFollowUpPlan(employeeIdentificationNumber: String): FollowUpPlanDTO {
-    val followUpPlanDTO = FollowUpPlanDTO(
-        employeeIdentificationNumber = employeeIdentificationNumber,
-        typicalWorkday = "Typical workday description",
-        tasksThatCanStillBeDone = "Tasks that can still be done",
-        tasksThatCanNotBeDone = "Tasks that cannot be done",
-        previousFacilitation = "Previous facilitation description",
-        plannedFacilitation = "Planned facilitation description",
-        otherFacilitationOptions = "Other facilitation options",
-        followUp = "Follow up description",
-        evaluationDate = LocalDate.now(),
-        sendPlanToNav = true,
-        needsHelpFromNav = false,
-        needsHelpFromNavDescription = null,
-        sendPlanToGeneralPractitioner = true,
-        messageToGeneralPractitioner = "Message to general practitioner",
-        additionalInformation = "Additional information",
-        contactPersonFullName = "Contact person full name",
-        contactPersonPhoneNumber = "12345678",
-        contactPersonEmail = "some@email.com",
-        employeeHasContributedToPlan = true,
-        employeeHasNotContributedToPlanDescription = null,
-        lpsName = "LPS name"
-    )
-    return followUpPlanDTO
-}
