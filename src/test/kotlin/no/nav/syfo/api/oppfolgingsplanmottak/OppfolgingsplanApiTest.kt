@@ -42,7 +42,7 @@ class OppfolgingsplanApiTest : DescribeSpec({
                 coEvery { isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(any(), any()) } returns true
                 coEvery { opPdfGenClient.getLpsPdf(any()) } returns pdfByteArray
 
-                val response = client.post("/api/v1/followupplan/write") {
+                val response = client.post("/api/v1/followupplan") {
                     bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
@@ -83,6 +83,7 @@ private fun createFollowUpPlan(employeeIdentificationNumber: String): FollowUpPl
         additionalInformation = "Additional information",
         contactPersonFullName = "Contact person full name",
         contactPersonPhoneNumber = "12345678",
+        contactPersonEmail = "some@email.com",
         employeeHasContributedToPlan = true,
         employeeHasNotContributedToPlanDescription = null,
         lpsName = "LPS name"

@@ -40,6 +40,7 @@ fun DatabaseInterface.storeFollowUpPlan(
             additional_information,
             contact_person_full_name,
             contact_person_phone_number,
+            contact_person_email,
             employee_has_contributed_to_plan,
             employee_has_not_contributed_to_plan_description,
             pdf,
@@ -53,7 +54,7 @@ fun DatabaseInterface.storeFollowUpPlan(
             lps_orgnumber,
             created_at,
             last_updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """.trimIndent()
 
     connection.use { connection ->
@@ -75,19 +76,20 @@ fun DatabaseInterface.storeFollowUpPlan(
             it.setString(15, followUpPlanDTO.additionalInformation)
             it.setString(16, followUpPlanDTO.contactPersonFullName)
             it.setString(17, followUpPlanDTO.contactPersonPhoneNumber)
-            it.setBoolean(18, followUpPlanDTO.employeeHasContributedToPlan)
-            it.setString(19, followUpPlanDTO.employeeHasNotContributedToPlanDescription)
-            it.setBytes(20, null)
-            it.setBoolean(21, followUpPlanDTO.sendPlanToNav)
-            it.setTimestamp(22, sentToNavAt)
-            it.setBoolean(23, followUpPlanDTO.sendPlanToGeneralPractitioner)
-            it.setTimestamp(24, sentToGeneralPractitionerAt)
-            it.setInt(25, 0)
-            it.setString(26, null)
-            it.setString(27, followUpPlanDTO.lpsName)
-            it.setString(28, lpsOrgnumber)
-            it.setTimestamp(29, Timestamp.valueOf(LocalDateTime.now()))
+            it.setString(18, followUpPlanDTO.contactPersonEmail)
+            it.setBoolean(19, followUpPlanDTO.employeeHasContributedToPlan)
+            it.setString(20, followUpPlanDTO.employeeHasNotContributedToPlanDescription)
+            it.setBytes(21, null)
+            it.setBoolean(22, followUpPlanDTO.sendPlanToNav)
+            it.setTimestamp(23, sentToNavAt)
+            it.setBoolean(24, followUpPlanDTO.sendPlanToGeneralPractitioner)
+            it.setTimestamp(25, sentToGeneralPractitionerAt)
+            it.setInt(26, 0)
+            it.setString(27, null)
+            it.setString(28, followUpPlanDTO.lpsName)
+            it.setString(29, lpsOrgnumber)
             it.setTimestamp(30, Timestamp.valueOf(LocalDateTime.now()))
+            it.setTimestamp(31, Timestamp.valueOf(LocalDateTime.now()))
             it.executeUpdate()
         }
         connection.commit()
