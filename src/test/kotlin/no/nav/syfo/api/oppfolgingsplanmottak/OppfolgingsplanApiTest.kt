@@ -38,7 +38,7 @@ class OppfolgingsplanApiTest : DescribeSpec({
                 val followUpPlanDTO = createFollowUpPlan(employeeIdentificationNumber)
 //                coJustRun { isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(any(), any())}
                 coEvery { isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(any(), any()) } returns true
-                val response = client.post("/api/v1/followupplan/write") {
+                val response = client.post("/api/v1/followupplan") {
                     bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
