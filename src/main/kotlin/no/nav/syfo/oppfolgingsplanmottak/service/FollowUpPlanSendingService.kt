@@ -30,12 +30,14 @@ class FollowUpPlanSendingService(
         var sentToFastlegeStatus: Boolean? = null
         var sentToNavStatus: Boolean? = null
         var pdf: ByteArray? = null
+        val shouldSendToNav = shouldSendToNav(toggles, followUpPlanDTO)
+        val shouldSendToGeneralPractitioner = shouldSendToGeneralPractitioner(toggles, followUpPlanDTO)
 
-        if ((toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) || (toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav)) {
+        if (shouldSendToGeneralPractitioner || shouldSendToNav) {
             pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
         }
 
-        if (toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) {
+        if (shouldSendToGeneralPractitioner) {
             if (pdf != null) {
                 sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(
                     sykmeldtFnr,
@@ -46,7 +48,7 @@ class FollowUpPlanSendingService(
             }
         }
 
-        if (toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav) {
+        if (shouldSendToNav) {
             val needsHelpFromNav = followUpPlanDTO.needsHelpFromNav ?: false
             if (needsHelpFromNav) {
                 sentToNavStatus = true
@@ -72,5 +74,13 @@ class FollowUpPlanSendingService(
             isSentToNavStatus = sentToNavStatus,
             pdf = pdf
         )
+    }
+
+    private fun shouldSendToNav(toggles: ToggleEnv, followUpPlanDTO: FollowUpPlanDTO): Boolean {
+        return toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav
+    }
+
+    private fun shouldSendToGeneralPractitioner(toggles: ToggleEnv, followUpPlanDTO: FollowUpPlanDTO): Boolean {
+        return toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner
     }
 }

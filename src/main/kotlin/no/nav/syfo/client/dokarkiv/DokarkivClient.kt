@@ -82,7 +82,7 @@ class DokarkivClient(
                 setBody(journalpostRequest)
             }
         } catch (e: Exception) {
-            log.error("zxzx: Could not send LPS plan to dokarkiv", e)
+            log.error("Could not send LPS plan to dokarkiv", e)
             throw e
         }
 

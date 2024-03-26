@@ -55,14 +55,11 @@ class PdlClient(
     }
 
     suspend fun getPersonInfo(fnr: String): PdlHentPerson? {
-        val response = getPerson("26918198953")
+        val response = getPerson("26918198953") //todo
 
         return when (response?.status) {
             HttpStatusCode.OK -> {
                 val pdlResponse = response.body<PdlPersonResponse>().data
-                log.warn("zxzx PDL pdlResponse: ${pdlResponse}")
-                log.warn("zxzx PDL person info navn: ${pdlResponse?.hentPerson?.navn?.first()}")
-                log.warn("zxzx PDL person info adressenavn: ${pdlResponse?.hentPerson?.bostedsadresse?.first()?.vegadresse?.adressenavn}")
                 pdlResponse
             }
 

@@ -86,7 +86,7 @@ fun PdlHentPerson.toPersonName(): String? {
     return if (navn?.fornavn.isNullOrEmpty() || navn?.etternavn.isNullOrEmpty()) {
         null
     } else {
-        "${navn?.fornavn} ${getMellomnavn(navn?.mellomnavn)} ${navn?.etternavn}"
+        "${navn?.fornavn}${getMellomnavn(navn?.mellomnavn)} ${navn?.etternavn}"
     }
 }
 
@@ -95,12 +95,9 @@ private fun getMellomnavn(mellomnavn: String?): String {
 }
 
 fun PdlHentPerson.toPersonAdress(): String? {
-    log.warn("zxzx: is gradert ${this.isNotGradert()}")
     if (this.isNotGradert()) {
         val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
-        log.warn("zxzx: vegadresse ${vegadresse}")
         if (vegadresse != null) {
-
             val adressenavn = vegadresse.adressenavn
             val husnummer = vegadresse.husnummer ?: ""
             val husbokstav = vegadresse.husbokstav ?: ""
@@ -120,7 +117,6 @@ fun PdlHentPerson.toPersonAdress(): String? {
 
 fun PdlHentPerson.isNotGradert(): Boolean {
     val adressebeskyttelse = this.hentPerson?.adressebeskyttelse
-    log.warn("zxzx: adressebeskyttelse ${adressebeskyttelse}")
 
     return adressebeskyttelse.isNullOrEmpty()
             || (adressebeskyttelse.first().gradering.name.isNotEmpty() && adressebeskyttelse.first().gradering.name == Gradering.UGRADERT.name)

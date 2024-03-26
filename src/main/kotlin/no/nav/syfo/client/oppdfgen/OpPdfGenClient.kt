@@ -71,12 +71,7 @@ class OpPdfGenClient(
         val employeeName = personInfo?.toPersonName() ?: fnr
         val employeeAdress = personInfo?.toPersonAdress()
 
-        val personDigitalContactInfo = dkifClient.person("26918198953")
-        log.warn("zxzx: fnr: email ${fnr}")
-        log.warn("zxzx: dkif: email ${personDigitalContactInfo?.epostadresse}")
-        log.warn("zxzx: dkif:mobile  ${personDigitalContactInfo?.mobiltelefonnummer}")
-        log.warn("zxzx: dkif: reservert ${personDigitalContactInfo?.reservert}")
-        log.warn("zxzx: dkif kan varsles: ${personDigitalContactInfo?.kanVarsles}")
+        val personDigitalContactInfo = dkifClient.person("26918198953")//TODO
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
             employeeName,
             employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,

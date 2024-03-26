@@ -1,7 +1,6 @@
 package no.nav.syfo.client.pdl.domain
 
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
@@ -23,7 +22,7 @@ class PdlResponseKtTest : DescribeSpec({
 
             name shouldNotBe null
             if (name != null) {
-                name shouldBeEqual "Ola Veldig Normann"
+                name shouldBe "Ola Veldig Normann"
             }
         }
 
@@ -43,7 +42,7 @@ class PdlResponseKtTest : DescribeSpec({
 
             name shouldNotBe null
             if (name != null) {
-                name shouldBeEqual "Ola Normann"
+                name shouldBe "Ola Normann"
             }
         }
 
