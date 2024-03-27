@@ -23,10 +23,13 @@ class EmbeddedDatabase : DatabaseInterface {
 
         dataSource = HikariDataSource(config)
 
-        Flyway.configure().dataSource(dataSource).load().apply {
-            migrate()
-            validate()
-        }
+        Flyway.configure()
+            .dataSource(dataSource)
+            .load()
+            .apply {
+                migrate()
+                validate()
+            }
     }
 
     override val connection: Connection
