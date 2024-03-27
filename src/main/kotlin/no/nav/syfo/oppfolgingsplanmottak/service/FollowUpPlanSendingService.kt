@@ -13,7 +13,7 @@ import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import org.slf4j.LoggerFactory
 
 class FollowUpPlanSendingService(
-    private val isdialogmeldingConsumer: IsdialogmeldingClient,
+    private val isdialogmeldingClient: IsdialogmeldingClient,
     private val followupPlanProducer: FollowUpPlanProducer,
     private val opPdfGenClient: OpPdfGenClient,
     private val dokarkivClient: DokarkivClient,
@@ -39,7 +39,7 @@ class FollowUpPlanSendingService(
 
         if (shouldSendToGeneralPractitioner) {
             if (pdf != null) {
-                sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(
+                sentToFastlegeStatus = isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
                     sykmeldtFnr,
                     pdf
                 )
