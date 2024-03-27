@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
-class PdlResponseKtTest : DescribeSpec({
+class PdlResponseTest : DescribeSpec({
     describe("Validation of employer information") {
         it("Should set correct space between mame with middle name") {
             val pdlResponse = PdlPersonResponse(

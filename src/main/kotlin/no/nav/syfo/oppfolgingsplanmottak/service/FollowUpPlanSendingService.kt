@@ -36,28 +36,31 @@ class FollowUpPlanSendingService(
 
         val sentToFastlegeStatus: Boolean =
             shouldSendToGeneralPractitioner && run {
-                // TODO: send actual PDF when data model and pdfgen are updated
-                isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
-                    sykmeldtFnr,
-                    pdf!!
-                )
-                true
+                if (pdf != null) {
+                    isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
+                        sykmeldtFnr,
+                        pdf
+                    )
+                    true
+                } else {
+                    false
+                }
             }
 
         if (shouldSendToNav) {
             val planToSendToNav = KFollowUpPlan(
-                uuid.toString(),
-                followUpPlanDTO.employeeIdentificationNumber,
-                employerOrgnr,
-                true,
-                LocalDate.now().toEpochDay().toInt(),
+                uuid = uuid.toString(),
+                fodselsnummer = followUpPlanDTO.employeeIdentificationNumber,
+                virksomhetsnummer = employerOrgnr,
+                behovForBistandFraNav = true,
+                opprettet = LocalDate.now().toEpochDay().toInt(),
             )
             followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
 
             if (pdf != null) {
                 dokarkivClient.journalforLps(followUpPlanDTO, employerOrgnr, pdf, uuid)
             } else {
-                log.warn("Could not send LPS-plan to NAV because PDF is null")
+                log.warn("Could not send LPS-plan with uuid $uuid to NAV because PDF is null")
             }
         }
 

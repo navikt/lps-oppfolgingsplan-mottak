@@ -118,7 +118,7 @@ class DokarkivClient(
     ) = AvsenderMottaker(
         id = orgnummer,
         idType = ID_TYPE_ORGNR,
-        navn = virksomhetsnavn, // TODO: IS it needed?
+        navn = virksomhetsnavn,
     )
 
     private fun createJournalpostRequest(
