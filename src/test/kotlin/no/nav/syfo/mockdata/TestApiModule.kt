@@ -28,7 +28,7 @@ fun Application.testApiModule(
     )
 
     val followUpPlanSendingService = FollowUpPlanSendingService(
-        isdialogmeldingConsumer = isdialogmeldingClient,
+        isdialogmeldingClient = isdialogmeldingClient,
         followupPlanProducer =  followupPlanProducer,
         opPdfGenClient = opPdfGenClient,
         dokarkivClient = dokarkivClient,
