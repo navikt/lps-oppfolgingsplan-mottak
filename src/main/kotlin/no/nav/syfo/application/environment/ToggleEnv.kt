@@ -5,6 +5,5 @@ data class ToggleEnv(
     val sendAltinnLpsPlanToNavToggle: Boolean,
     val journalforAltinnLpsPlanToggle: Boolean,
     val sendLpsPlanToFastlegeToggle: Boolean,
-    val sendLpsPlanToNavToggle: Boolean,
     val journalforLpsPlanToggle: Boolean,
 )

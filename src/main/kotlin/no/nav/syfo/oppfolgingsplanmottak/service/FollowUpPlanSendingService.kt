@@ -26,58 +26,51 @@ class FollowUpPlanSendingService(
         employerOrgnr: String,
     ): FollowUpPlan {
         val sykmeldtFnr = followUpPlanDTO.employeeIdentificationNumber
-
-        var sentToFastlegeStatus: Boolean? = null
-        var sentToNavStatus: Boolean? = null
         var pdf: ByteArray? = null
-        val shouldSendToNav = shouldSendToNav(toggles, followUpPlanDTO)
+        val shouldSendToNav = shouldSendToNav(followUpPlanDTO)
         val shouldSendToGeneralPractitioner = shouldSendToGeneralPractitioner(toggles, followUpPlanDTO)
 
         if (shouldSendToGeneralPractitioner || shouldSendToNav) {
             pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
         }
 
-        if (shouldSendToGeneralPractitioner) {
-            if (pdf != null) {
-                sentToFastlegeStatus = isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
+        val sentToFastlegeStatus: Boolean =
+            shouldSendToGeneralPractitioner && run {
+                // TODO: send actual PDF when data model and pdfgen are updated
+                isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
                     sykmeldtFnr,
-                    pdf
+                    pdf!!
                 )
-            } else {
-                log.warn("Could not send LPS-plan to general practitioner because PDF is null")
+                true
             }
-        }
 
         if (shouldSendToNav) {
-            val needsHelpFromNav = followUpPlanDTO.needsHelpFromNav ?: false
-            if (needsHelpFromNav) {
-                sentToNavStatus = true
-                val planToSendToNav = KFollowUpPlan(
-                    uuid.toString(),
-                    followUpPlanDTO.employeeIdentificationNumber,
-                    employerOrgnr,
-                    true,
-                    LocalDate.now().toEpochDay().toInt(),
-                )
-                followupPlanProducer.sendFollowUpPlanToNav(planToSendToNav)
-                if (pdf != null) {
-                    dokarkivClient.journalforLps(followUpPlanDTO, employerOrgnr, pdf, uuid)
-                } else {
-                    log.warn("Could not send LPS-plan to NAV because PDF is null")
-                }
+            val planToSendToNav = KFollowUpPlan(
+                uuid.toString(),
+                followUpPlanDTO.employeeIdentificationNumber,
+                employerOrgnr,
+                true,
+                LocalDate.now().toEpochDay().toInt(),
+            )
+            followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
+
+            if (pdf != null) {
+                dokarkivClient.journalforLps(followUpPlanDTO, employerOrgnr, pdf, uuid)
+            } else {
+                log.warn("Could not send LPS-plan to NAV because PDF is null")
             }
         }
 
         return FollowUpPlan(
             uuid = uuid.toString(),
             isSentToGeneralPractitionerStatus = sentToFastlegeStatus,
-            isSentToNavStatus = sentToNavStatus,
+            isSentToNavStatus = followUpPlanDTO.sendPlanToNav,
             pdf = pdf
         )
     }
 
-    private fun shouldSendToNav(toggles: ToggleEnv, followUpPlanDTO: FollowUpPlanDTO): Boolean {
-        return toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav
+    private fun shouldSendToNav(followUpPlanDTO: FollowUpPlanDTO): Boolean {
+        return followUpPlanDTO.sendPlanToNav && followUpPlanDTO.needsHelpFromNav == true
     }
 
     private fun shouldSendToGeneralPractitioner(toggles: ToggleEnv, followUpPlanDTO: FollowUpPlanDTO): Boolean {
