@@ -101,7 +101,7 @@ class DokarkivClient(
             }
 
             else -> {
-                log.error("zxzx: Call to dokarkiv failed with status: ${response.status}")
+                log.error("Call to dokarkiv failed with status: ${response.status}")
                 throw RuntimeException("Failed to call dokarkiv")
             }
         }
@@ -139,7 +139,7 @@ class DokarkivClient(
             sak = Sak(sakstype = SAKSTYPE_GENERELL_SAK),
             avsenderMottaker = avsenderMottaker,
             bruker = Bruker(
-                id = "26918198953", // TODO
+                id =fnr,
                 idType = FNR_TYPE,
             ),
             dokumenter = makeDokumenter(dokumentnavn, pdf),

@@ -71,7 +71,7 @@ class OpPdfGenClient(
         val employeeName = personInfo?.toPersonName() ?: fnr
         val employeeAdress = personInfo?.toPersonAdress()
 
-        val personDigitalContactInfo = dkifClient.person("26918198953")//TODO
+        val personDigitalContactInfo = dkifClient.person(fnr)
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
             employeeName,
             employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
