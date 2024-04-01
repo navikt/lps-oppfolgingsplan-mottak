@@ -4,14 +4,24 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.request.headers
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.append
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
-import no.nav.syfo.altinnmottak.domain.Fagmelding
+import no.nav.syfo.client.dkif.DkifClient
+import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.client.pdl.domain.toPersonAdress
+import no.nav.syfo.client.pdl.domain.toPersonName
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.createCallId
@@ -19,12 +29,14 @@ import org.slf4j.LoggerFactory
 
 class OpPdfGenClient(
     private val urls: UrlEnv,
-    private val appEnv: ApplicationEnv
+    private val appEnv: ApplicationEnv,
+    private val pdlClient: PdlClient,
+    private val dkifClient: DkifClient,
 ) {
     private val client = httpClientDefault()
 
     suspend fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
-        val requestUrl = "${urls.opPdfGenUrl}/$pathUrl"
+        val requestUrl = "${urls.opPdfGenUrl}/$ALTINN_PLAN_URL"
         val requestBody = mapper.writeValueAsString(fagmelding)
         val response = try {
             client.post(requestUrl) {
@@ -36,7 +48,49 @@ class OpPdfGenClient(
                 setBody(requestBody)
             }
         } catch (e: Exception) {
-            log.error("Call to get generate PDF for LPS-plan failed due to exception: ${e.message}", e)
+            log.error("Call to get generate PDF for Altinn LPS-plan failed due to exception: ${e.message}", e)
+            throw e
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                response.body<ByteArray>()
+            }
+
+            else -> {
+                log.error("Could not generate Altinn PDF. Call failed with status: ${response.status}")
+                null
+            }
+        }
+    }
+
+    suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
+        val fnr = followUpPlanDTO.employeeIdentificationNumber
+        val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_URL"
+        val personInfo = pdlClient.getPersonInfo(fnr)
+        val employeeName = personInfo?.toPersonName() ?: fnr
+        val employeeAdress = personInfo?.toPersonAdress()
+
+        val personDigitalContactInfo = dkifClient.person("26918198953")//TODO
+        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
+            employeeName,
+            employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
+            employeeEmail = personDigitalContactInfo?.epostadresse,
+            employeeAdress
+        )
+        val requestBody = mapper.writeValueAsString(request)
+
+        val response = try {
+            client.post(requestUrl) {
+                headers {
+                    append(HttpHeaders.ContentType, ContentType.Application.Json)
+                    append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
+                    append(NAV_CALL_ID_HEADER, createCallId())
+                }
+                setBody(requestBody)
+            }
+        } catch (e: Exception) {
+            log.error("Call to get PDF for LPS-plan failed due to exception: ${e.message}", e)
             throw e
         }
 
@@ -56,7 +110,8 @@ class OpPdfGenClient(
 
     companion object {
         private val log = LoggerFactory.getLogger(OpPdfGenClient::class.qualifiedName)
-        private const val pathUrl = "api/v1/genpdf/opservice/oppfolgingsplanlps"
+        private const val ALTINN_PLAN_URL = "api/v1/genpdf/opservice/oppfolgingsplanlps"
+        private const val FOLLOWUP_PLAN_URL = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
 
         private val mapper = ObjectMapper()
             .registerKotlinModule()

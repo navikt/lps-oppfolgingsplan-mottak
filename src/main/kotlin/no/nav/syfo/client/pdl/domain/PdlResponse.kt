@@ -1,40 +1,50 @@
 package no.nav.syfo.client.pdl.domain
 
 import java.io.Serializable
+import org.slf4j.LoggerFactory
 
-data class PdlIdentResponse(
+data class PdlIdenterResponse(
     val errors: List<PdlError>?,
-    val data: PdlHentIdenter?
+    val data: PdlHentIdenter?,
 )
 
 data class PdlHentIdenter(
-    val hentIdenter: PdlIdenter?
+    val hentIdenter: PdlIdenter?,
 ) : Serializable
 
 data class PdlIdenter(
-    val identer: List<PdlIdent>
+    val identer: List<PdlIdent>,
 ) : Serializable
 
 data class PdlIdent(
-    val ident: String
+    val ident: String,
 ) : Serializable
 
 data class PdlPersonResponse(
     val errors: List<PdlError>?,
-    val data: PdlHentPerson?
+    val data: PdlHentPerson?,
 ) : Serializable
 
 data class PdlHentPerson(
-    val hentPerson: PdlPerson?
+    val hentPerson: PdlPerson?,
 ) : Serializable
 
 data class PdlPerson(
-    val adressebeskyttelse: List<Adressebeskyttelse>?,
+    var adressebeskyttelse: List<Adressebeskyttelse>?,
     val navn: List<PersonNavn>?,
-    val foedsel: List<PdlFoedsel>?
+    val bostedsadresse: List<Bostedsadresse>,
 ) : Serializable
 
-data class PdlFoedsel(val foedselsdato: String?)
+data class Bostedsadresse(
+    val vegadresse: Vegadresse?,
+)
+
+data class Vegadresse(
+    val adressenavn: String?,
+    val husnummer: String?,
+    val husbokstav: String?,
+    val postnummer: String?,
+)
 
 data class PersonNavn(
     val fornavn: String?,
@@ -43,28 +53,73 @@ data class PersonNavn(
 )
 
 data class Adressebeskyttelse(
-    val gradering: Gradering
+    val gradering: Gradering,
 ) : Serializable
 
 enum class Gradering : Serializable {
     STRENGT_FORTROLIG_UTLAND,
     STRENGT_FORTROLIG,
-    FORTROLIG
+    FORTROLIG,
+    UGRADERT, // Ugraderte personer kan også ha tomt felt
 }
 
 data class PdlError(
     val message: String,
     val locations: List<PdlErrorLocation>,
     val path: List<String>?,
-    val extensions: PdlErrorExtension
+    val extensions: PdlErrorExtension,
 )
 
 data class PdlErrorLocation(
     val line: Int?,
-    val column: Int?
+    val column: Int?,
 )
 
 data class PdlErrorExtension(
     val code: String?,
-    val classification: String
+    val classification: String,
 )
+
+fun PdlHentPerson.toPersonName(): String? {
+    val navn = this.hentPerson?.navn?.first()
+
+    return if (navn?.fornavn.isNullOrEmpty() || navn?.etternavn.isNullOrEmpty()) {
+        null
+    } else {
+        "${navn?.fornavn}${getMellomnavn(navn?.mellomnavn)} ${navn?.etternavn}"
+    }
+}
+
+private fun getMellomnavn(mellomnavn: String?): String {
+    return if (mellomnavn !== null) " $mellomnavn" else ""
+}
+
+fun PdlHentPerson.toPersonAdress(): String? {
+    if (this.isNotGradert()) {
+        val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
+        if (vegadresse != null) {
+            val adressenavn = vegadresse.adressenavn
+            val husnummer = vegadresse.husnummer ?: ""
+            val husbokstav = vegadresse.husbokstav ?: ""
+            val postnummer = if (!vegadresse.postnummer.isNullOrEmpty()) {
+                ", ${vegadresse.postnummer}"
+            } else {
+                ""
+            }
+
+            log.warn("$adressenavn ${husnummer}${husbokstav}, $postnummer")
+            return "$adressenavn ${husnummer}${husbokstav}$postnummer"
+        }
+    }
+    log.info("Can not get person's address due to adressebeskyttelse")
+    return null
+}
+
+fun PdlHentPerson.isNotGradert(): Boolean {
+    val adressebeskyttelse = this.hentPerson?.adressebeskyttelse
+
+    return adressebeskyttelse.isNullOrEmpty()
+            || (adressebeskyttelse.first().gradering.name.isNotEmpty() && adressebeskyttelse.first().gradering.name == Gradering.UGRADERT.name)
+}
+
+private val log = LoggerFactory.getLogger(PdlHentPerson::class.qualifiedName)

@@ -1,12 +1,12 @@
 package no.nav.syfo.oppfolgingsplanmottak.kafka
 
-import java.util.*
-import no.nav.syfo.altinnmottak.kafka.domain.KFollowUpPlan
+import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import no.nav.syfo.application.environment.KafkaEnv
 import no.nav.syfo.application.kafka.producerProperties
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class FollowUpPlanProducer(
     env: KafkaEnv,
@@ -19,7 +19,7 @@ class FollowUpPlanProducer(
         kafkaProducer = KafkaProducer(kafkaConfig)
     }
 
-    fun sendFollowUpPlanToNav(kFollowupPlan: KFollowUpPlan) {
+    fun createFollowUpPlanTaskInModia(kFollowupPlan: KFollowUpPlan) {
         try {
             val recordToSend = ProducerRecord(
                 "team-esyfo.aapen-syfo-oppfolgingsplan-lps-nav-v2",
@@ -27,12 +27,12 @@ class FollowUpPlanProducer(
                 kFollowupPlan
             )
             kafkaProducer.send(recordToSend)
-            log.info("Followup-LPS sent to NAV")
+            log.info("Followup-plan task sent to Modia with UUID ${kFollowupPlan.uuid}")
         } catch (e: Exception) {
             log.error(
-                "Encountered error while sending KFollowupPlan with UUID ${kFollowupPlan.uuid} to NAV"
+                "Encountered error while sending KFollowupPlan with UUID ${kFollowupPlan.uuid} to Modia"
             )
-            throw RuntimeException("Could not send LPS to NAV", e)
+            throw RuntimeException("Could not send followup-plan task to Modia", e)
         }
     }
 }

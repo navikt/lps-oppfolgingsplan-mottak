@@ -75,6 +75,8 @@ fun getEnv(): ApplicationEnvironment {
             dokarkivScope = getEnvVar("DOKARKIV_SCOPE"),
             istilgangskontrollUrl = getEnvVar("ISTILGANGSKONTROLL_URL"),
             istilgangskontrollClientId = getEnvVar("ISTILGANGSKONTROLL_CLIENT_ID"),
+            dkifUrl = getEnvVar("DKIF_URL"),
+            dkifScope = getEnvVar("DKIF_SCOPE"),
         ),
         altinnLps = AltinnLpsEnv(
             sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt(),
@@ -83,7 +85,6 @@ fun getEnv(): ApplicationEnvironment {
             sendAltinnLpsPlanToNavToggle = getEnvVar("TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV").toBoolean(),
             sendAltinnLpsPlanToFastlegeToggle = getEnvVar("TOGGLE_SEND_ALTINN_LPS_PLAN_TO_FASTLEGE").toBoolean(),
             journalforAltinnLpsPlanToggle = getEnvVar("TOGGLE_JOURNALFOR__ALTINN_LPS_PLAN").toBoolean(),
-            sendLpsPlanToNavToggle = getEnvVar("TOGGLE_SEND_LPS_PLAN_TO_NAV").toBoolean(),
             sendLpsPlanToFastlegeToggle = getEnvVar("TOGGLE_SEND_LPS_PLAN_TO_FASTLEGE").toBoolean(),
             journalforLpsPlanToggle = getEnvVar("TOGGLE_JOURNALFOR_LPS_PLAN").toBoolean(),
         ),

@@ -28,9 +28,9 @@ fun Routing.registerFollowUpPlanApi(
     val log = LoggerFactory.getLogger("FollowUpPlanApi")
     val uuid = "uuid"
 
-    route("/api/v1/followupplan/") {
+    route("/api/v1/followupplan") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
-            post("write") {
+            post {
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val planUuid = UUID.randomUUID()
                 val employerOrgnr = getOrgnumberFromClaims()
@@ -46,18 +46,19 @@ fun Routing.registerFollowUpPlanApi(
                     sentToGeneralPractitionerAt = null,
                     sentToNavAt = null,
                 )
-                val followUpPlanResponse =
+                val followUpPlan =
                     followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
 
-                val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
-                val sentToNavAt = getSendingTimestamp(followUpPlanResponse.isSentToNavStatus)
+                val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlan.isSentToGeneralPractitionerStatus)
+                val sentToNavAt = getSendingTimestamp(followUpPlan.isSentToNavStatus)
+                val pdf = followUpPlan.pdf
 
-                database.updateSentAt(planUuid, sentToGeneralPractitionerAt = sentToGeneralPractitionerAt, sentToNavAt = sentToNavAt)
+                database.updateSentAt(planUuid, sentToGeneralPractitionerAt = sentToGeneralPractitionerAt, sentToNavAt = sentToNavAt, pdf = pdf)
 
-                call.respond(followUpPlanResponse)
+                call.respond(followUpPlan.toFollowUpPlanResponse())
             }
 
-            get("read/sendingStatus/{$uuid}") {
+            get("/{$uuid}/sendingstatus") {
                 val uuidString = call.parameters["uuid"].toString()
                 val sendingStatus = database.findSendingStatus(UUID.fromString(uuidString))
                 call.respond(sendingStatus)

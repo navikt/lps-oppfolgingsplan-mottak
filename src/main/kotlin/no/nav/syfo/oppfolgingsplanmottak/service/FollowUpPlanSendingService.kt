@@ -2,55 +2,81 @@ package no.nav.syfo.oppfolgingsplanmottak.service
 
 import java.time.LocalDate
 import java.util.*
-import no.nav.syfo.altinnmottak.kafka.domain.KFollowUpPlan
+import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import no.nav.syfo.application.environment.ToggleEnv
+import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
+import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
+import org.slf4j.LoggerFactory
 
 class FollowUpPlanSendingService(
-    private val isdialogmeldingConsumer: IsdialogmeldingClient,
+    private val isdialogmeldingClient: IsdialogmeldingClient,
     private val followupPlanProducer: FollowUpPlanProducer,
+    private val opPdfGenClient: OpPdfGenClient,
+    private val dokarkivClient: DokarkivClient,
     private val toggles: ToggleEnv,
 ) {
+    val log = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
     suspend fun sendFollowUpPlan(
         followUpPlanDTO: FollowUpPlanDTO,
         uuid: UUID,
         employerOrgnr: String,
-    ): FollowUpPlanResponse {
+    ): FollowUpPlan {
         val sykmeldtFnr = followUpPlanDTO.employeeIdentificationNumber
+        var pdf: ByteArray? = null
+        val shouldSendToNav = shouldSendToNav(followUpPlanDTO)
+        val shouldSendToGeneralPractitioner = shouldSendToGeneralPractitioner(toggles, followUpPlanDTO)
 
-        var sentToFastlegeStatus: Boolean? = null
-        var sentToNavStatus: Boolean? = null
-
-        if (toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner) {
-            // TODO: send actual PDF when data model and pdfgen are updated
-            sentToFastlegeStatus = isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(
-                sykmeldtFnr,
-                "<MOCK PDF CONTENT>".toByteArray()
-            )
+        if (shouldSendToGeneralPractitioner || shouldSendToNav) {
+            pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
         }
 
-        if (toggles.sendLpsPlanToNavToggle && followUpPlanDTO.sendPlanToNav) {
-            val needsHelpFromNav = followUpPlanDTO.needsHelpFromNav ?: false
-            sentToNavStatus = true
-            if (needsHelpFromNav) {
-                val planToSendToNav = KFollowUpPlan(
-                    uuid.toString(),
-                    followUpPlanDTO.employeeIdentificationNumber,
-                    employerOrgnr,
-                    needsHelpFromNav,
-                    LocalDate.now().toEpochDay().toInt(),
-                )
-                followupPlanProducer.sendFollowUpPlanToNav(planToSendToNav)
+        val sentToFastlegeStatus: Boolean =
+            shouldSendToGeneralPractitioner && run {
+                if (pdf != null) {
+                    isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
+                        sykmeldtFnr,
+                        pdf
+                    )
+                    true
+                } else {
+                    false
+                }
             }
+
+        if (shouldSendToNav) {
+            val planToSendToNav = KFollowUpPlan(
+                uuid = uuid.toString(),
+                fodselsnummer = followUpPlanDTO.employeeIdentificationNumber,
+                virksomhetsnummer = employerOrgnr,
+                behovForBistandFraNav = true,
+                opprettet = LocalDate.now().toEpochDay().toInt(),
+            )
+            followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
         }
 
-        return FollowUpPlanResponse(
+        if (pdf != null && followUpPlanDTO.sendPlanToNav) {
+            dokarkivClient.journalforLps(followUpPlanDTO, employerOrgnr, pdf, uuid)
+        } else {
+            log.warn("Could not send LPS-plan with uuid $uuid to NAV because PDF is null")
+        }
+
+        return FollowUpPlan(
             uuid = uuid.toString(),
             isSentToGeneralPractitionerStatus = sentToFastlegeStatus,
-            isSentToNavStatus = sentToNavStatus,
+            isSentToNavStatus = followUpPlanDTO.sendPlanToNav,
+            pdf = pdf
         )
+    }
+
+    private fun shouldSendToNav(followUpPlanDTO: FollowUpPlanDTO): Boolean {
+        return followUpPlanDTO.sendPlanToNav && followUpPlanDTO.needsHelpFromNav == true
+    }
+
+    private fun shouldSendToGeneralPractitioner(toggles: ToggleEnv, followUpPlanDTO: FollowUpPlanDTO): Boolean {
+        return toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner
     }
 }

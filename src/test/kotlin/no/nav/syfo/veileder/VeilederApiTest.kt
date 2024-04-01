@@ -75,6 +75,7 @@ val oppfolgingsplan = FollowUpPlanDTO(
     additionalInformation = "Litt tilleggsinfo",
     contactPersonFullName = "Nissefar",
     contactPersonPhoneNumber = "99887766",
+    contactPersonEmail = "some@email.com",
     employeeHasContributedToPlan = true,
     employeeHasNotContributedToPlanDescription = null,
     lpsName = "TEST"

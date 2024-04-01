@@ -71,6 +71,8 @@ spec:
         - host: syfooppdfgen.intern.dev.nav.no
         - host: dokarkiv.dev-fss-pub.nais.io
       rules:
+        - application: digdir-krr-proxy
+          namespace: team-rocket
         - application: syfooppdfgen
         - application: isdialogmelding
           namespace: teamsykefravr
@@ -115,9 +117,9 @@ spec:
     - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
       value: "6"
     - name: TOGGLE_SEND_LPS_PLAN_TO_NAV
-      value: "false"
+      value: "true"
     - name: TOGGLE_SEND_LPS_PLAN_TO_FASTLEGE
-      value: "false"
+      value: "true"
     - name: TOGGLE_JOURNALFOR_LPS_PLAN
       value: "false"
     - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV
@@ -128,3 +130,7 @@ spec:
       value: "true"
     - name: MASKINPORTEN_CUSTOM_SCOPE_NAME
       value: "nav:oppfolgingsplan/lps.write"
+    - name: DKIF_URL
+      value: http://digdir-krr-proxy.team-rocket/rest/v1/person
+    - name: DKIF_SCOPE
+      value: dev-gcp.team-rocket.digdir-krr-proxy

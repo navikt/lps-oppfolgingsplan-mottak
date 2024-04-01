@@ -55,7 +55,9 @@
     "dokarkivUrl": "http://dokarkiv.no",
     "dokarkivScope": "dokarkiv_scope",
     "istilgangskontrollUrl": "isTilgangskontrollUrl",
-    "istilgangskontrollClientId": "localhost.istilgangskontroll"
+    "istilgangskontrollClientId": "localhost.istilgangskontroll",
+    "dkifUrl": "localhost.dkif",
+    "dkifScope": "localhost.dkif"
   },
   "altinnLps": {
     "sendToFastlegeRetryThreshold": 6
@@ -65,7 +67,6 @@
      "sendAltinnLpsPlanToNavToggle": true,
      "journalforAltinnLpsPlanToggle": true,
      "sendLpsPlanToFastlegeToggle": true,
-     "sendLpsPlanToNavToggle": true,
      "journalforLpsPlanToggle": true
   }
 }

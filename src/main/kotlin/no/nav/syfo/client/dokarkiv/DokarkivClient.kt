@@ -1,14 +1,27 @@
 package no.nav.syfo.client.dokarkiv
 
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.request.headers
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.append
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
-import no.nav.syfo.client.dokarkiv.domain.*
+import no.nav.syfo.client.dokarkiv.domain.AvsenderMottaker
+import no.nav.syfo.client.dokarkiv.domain.Bruker
+import no.nav.syfo.client.dokarkiv.domain.Dokument
+import no.nav.syfo.client.dokarkiv.domain.Dokumentvariant
+import no.nav.syfo.client.dokarkiv.domain.JournalpostRequest
+import no.nav.syfo.client.dokarkiv.domain.JournalpostResponse
+import no.nav.syfo.client.dokarkiv.domain.Sak
 import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.createBearerToken
 import org.slf4j.LoggerFactory
 
@@ -21,23 +34,43 @@ class DokarkivClient(
     private val client = httpClientDefault()
     private val log = LoggerFactory.getLogger(DokarkivClient::class.qualifiedName)
 
+    suspend fun journalforLps(
+        followUpPlan: FollowUpPlanDTO,
+        employerOrgnr: String,
+        pdf: ByteArray,
+        uuid: UUID,
+    ): String {
+        val avsenderMottaker = createAvsenderMottaker(employerOrgnr, employerOrgnr)
+        val journalpostRequest = createJournalpostRequest(
+            followUpPlan.employeeIdentificationNumber,
+            pdf,
+            navn = employerOrgnr, //TODO: employer company name, fetch from ereg
+            avsenderMottaker,
+            "NAV_NO",
+            uuid.toString(),
+        )
+        return sendRequestToDokarkiv(journalpostRequest)
+    }
+
     suspend fun journalforAltinnLps(
         lps: AltinnLpsOppfolgingsplan,
         virksomhetsnavn: String,
     ): String {
-        val avsenderMottaker = createAvsenderMottaker(lps, virksomhetsnavn)
+        val avsenderMottaker = createAvsenderMottaker(lps.orgnummer, virksomhetsnavn)
         val journalpostRequest = createJournalpostRequest(
-            lps,
+            lps.fnr!!,
+            lps.pdf!!,
             virksomhetsnavn,
             avsenderMottaker,
-            KANAL_TYPE_ALTINN,
+            "ALTINN",
+            lps.uuid!!.toString(),
         )
         return sendRequestToDokarkiv(journalpostRequest)
     }
 
     @Suppress("ThrowsCount")
     private suspend fun sendRequestToDokarkiv(journalpostRequest: JournalpostRequest): String {
-        val token = azureAdClient.getSystemToken(scope) ?.accessToken
+        val token = azureAdClient.getSystemToken(scope)?.accessToken
             ?: throw RuntimeException("Failed to Journalfor: No token was found")
         val requestUrl = baseUrl + JOURNALPOST_API_PATH
         val response = try {
@@ -49,7 +82,7 @@ class DokarkivClient(
                 setBody(journalpostRequest)
             }
         } catch (e: Exception) {
-            log.error("Could not send Altinn-LPS to dokarkiv", e)
+            log.error("Could not send LPS plan to dokarkiv", e)
             throw e
         }
 
@@ -61,14 +94,14 @@ class DokarkivClient(
             }
 
             HttpStatusCode.Conflict -> {
-                log.warn("Journalpost for Altinn-LPS already created!")
+                log.warn("Journalpost for LPS plan already created!")
                 runBlocking {
                     response.body<JournalpostResponse>()
                 }
             }
 
             else -> {
-                log.error("Call to dokarkiv failed with status: ${response.status}")
+                log.error("zxzx: Call to dokarkiv failed with status: ${response.status}")
                 throw RuntimeException("Failed to call dokarkiv")
             }
         }
@@ -80,21 +113,23 @@ class DokarkivClient(
     }
 
     private fun createAvsenderMottaker(
-        lps: AltinnLpsOppfolgingsplan,
-        virksomhetsnavn: String
+        orgnummer: String,
+        virksomhetsnavn: String,
     ) = AvsenderMottaker(
-        id = lps.orgnummer,
+        id = orgnummer,
         idType = ID_TYPE_ORGNR,
         navn = virksomhetsnavn,
     )
 
     private fun createJournalpostRequest(
-        lps: AltinnLpsOppfolgingsplan,
-        virksomhetsnavn: String,
+        fnr: String,
+        pdf: ByteArray,
+        navn: String,
         avsenderMottaker: AvsenderMottaker,
         kanal: String,
+        uuid: String,
     ): JournalpostRequest {
-        val dokumentnavn = "Oppfølgingsplan $virksomhetsnavn"
+        val dokumentnavn = "Oppfølgingsplan $navn"
         return JournalpostRequest(
             tema = TEMA_OPP,
             tittel = dokumentnavn,
@@ -104,11 +139,11 @@ class DokarkivClient(
             sak = Sak(sakstype = SAKSTYPE_GENERELL_SAK),
             avsenderMottaker = avsenderMottaker,
             bruker = Bruker(
-                id = lps.fnr!!,
+                id = "26918198953", // TODO
                 idType = FNR_TYPE,
             ),
-            dokumenter = makeDokumenter(dokumentnavn, lps.pdf!!),
-            eksternReferanseId = lps.uuid.toString()
+            dokumenter = makeDokumenter(dokumentnavn, pdf),
+            eksternReferanseId = uuid,
         )
     }
 
@@ -132,7 +167,6 @@ class DokarkivClient(
     )
 
     companion object {
-        const val KANAL_TYPE_ALTINN = "ALTINN"
         const val ID_TYPE_ORGNR = "ORGNR"
         const val TEMA_OPP = "OPP"
         const val SAKSTYPE_GENERELL_SAK = "GENERELL_SAK"
