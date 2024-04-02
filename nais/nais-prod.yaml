@@ -128,3 +128,6 @@ spec:
       value: "true"
     - name: MASKINPORTEN_CUSTOM_SCOPE_NAME
       value: "nav:oppfolgingsplan/lps.write"
+    - name: EREG_BASEURL
+      value: https://modapp.adeo.no
+

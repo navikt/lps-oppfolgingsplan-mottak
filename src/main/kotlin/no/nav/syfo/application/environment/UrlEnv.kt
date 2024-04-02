@@ -10,4 +10,5 @@ data class UrlEnv(
     val dokarkivScope: String,
     val istilgangskontrollUrl: String,
     val istilgangskontrollClientId: String,
+    val eregBaseUrl: String,
 )

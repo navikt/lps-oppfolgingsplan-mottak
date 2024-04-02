@@ -55,7 +55,8 @@
     "dokarkivUrl": "http://dokarkiv.no",
     "dokarkivScope": "dokarkiv_scope",
     "istilgangskontrollUrl": "isTilgangskontrollUrl",
-    "istilgangskontrollClientId": "localhost.istilgangskontroll"
+    "istilgangskontrollClientId": "localhost.istilgangskontroll",
+    "eregBaseUrl": "localhost.eregBaseUrl"
   },
   "altinnLps": {
     "sendToFastlegeRetryThreshold": 6
