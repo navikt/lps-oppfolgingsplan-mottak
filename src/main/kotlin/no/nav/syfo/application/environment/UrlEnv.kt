@@ -10,6 +10,6 @@ data class UrlEnv(
     val dokarkivScope: String,
     val istilgangskontrollUrl: String,
     val istilgangskontrollClientId: String,
-    val krrProxyUrl: String,
-    val krrProxyScope: String,
+    val dkifUrl: String,
+    val dkifScope: String,
 )
