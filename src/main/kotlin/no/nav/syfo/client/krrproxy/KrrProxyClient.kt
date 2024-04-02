@@ -1,23 +1,28 @@
 package no.nav.syfo.client.krrproxy
 
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.append
 import java.util.*
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
-import no.nav.syfo.client.krrproxy.domain.Kontaktinfo
-import no.nav.syfo.client.krrproxy.domain.KontaktinfoMapper
 import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.client.krrproxy.domain.Kontaktinfo
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
+import no.nav.syfo.util.configuredJacksonMapper
 import org.slf4j.LoggerFactory
 
 class KrrProxyClient(
     private val urlEnv: UrlEnv,
     private val azureAdTokenConsumer: AzureAdClient) {
     private val client = httpClientDefault()
+    private val objectMapper = configuredJacksonMapper()
 
     suspend fun person(fnr: String): Kontaktinfo? {
         val accessToken = "Bearer ${azureAdTokenConsumer.getSystemToken(urlEnv.krrProxyScope)}"
@@ -37,7 +42,7 @@ class KrrProxyClient(
         when (response?.status) {
             HttpStatusCode.OK -> {
                 val rawJson: String = response.body()
-                return KontaktinfoMapper.mapPerson(rawJson)
+                return objectMapper.readValue(rawJson, Kontaktinfo::class.java)
             }
 
             HttpStatusCode.Unauthorized -> {
