@@ -56,8 +56,8 @@
     "dokarkivScope": "dokarkiv_scope",
     "istilgangskontrollUrl": "isTilgangskontrollUrl",
     "istilgangskontrollClientId": "localhost.istilgangskontroll",
-    "dkifUrl": "localhost.dkif",
-    "dkifScope": "localhost.dkif"
+    "krrProxyUrl": "localhost.krr.url",
+    "krrProxyScope": "localhost.krr.scope"
   },
   "altinnLps": {
     "sendToFastlegeRetryThreshold": 6

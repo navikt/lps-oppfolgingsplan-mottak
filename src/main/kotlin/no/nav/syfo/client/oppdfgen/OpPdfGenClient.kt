@@ -16,7 +16,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
-import no.nav.syfo.client.dkif.DkifClient
+import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.pdl.domain.toPersonAdress
@@ -31,12 +31,12 @@ class OpPdfGenClient(
     private val urls: UrlEnv,
     private val appEnv: ApplicationEnv,
     private val pdlClient: PdlClient,
-    private val dkifClient: DkifClient,
+    private val krrProxyClient: KrrProxyClient,
 ) {
     private val client = httpClientDefault()
 
     suspend fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
-        val requestUrl = "${urls.opPdfGenUrl}/$ALTINN_PLAN_URL"
+        val requestUrl = "${urls.opPdfGenUrl}/$ALTINN_PLAN_PATH"
         val requestBody = mapper.writeValueAsString(fagmelding)
         val response = try {
             client.post(requestUrl) {
@@ -66,12 +66,12 @@ class OpPdfGenClient(
 
     suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
         val fnr = followUpPlanDTO.employeeIdentificationNumber
-        val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_URL"
+        val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_PATH"
         val personInfo = pdlClient.getPersonInfo(fnr)
         val employeeName = personInfo?.toPersonName() ?: fnr
         val employeeAdress = personInfo?.toPersonAdress()
 
-        val personDigitalContactInfo = dkifClient.person(fnr)
+        val personDigitalContactInfo = krrProxyClient.person(fnr)
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
             employeeName,
             employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
@@ -110,8 +110,8 @@ class OpPdfGenClient(
 
     companion object {
         private val log = LoggerFactory.getLogger(OpPdfGenClient::class.qualifiedName)
-        private const val ALTINN_PLAN_URL = "api/v1/genpdf/opservice/oppfolgingsplanlps"
-        private const val FOLLOWUP_PLAN_URL = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
+        private const val ALTINN_PLAN_PATH = "api/v1/genpdf/opservice/oppfolgingsplanlps"
+        private const val FOLLOWUP_PLAN_PATH = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
 
         private val mapper = ObjectMapper()
             .registerKotlinModule()

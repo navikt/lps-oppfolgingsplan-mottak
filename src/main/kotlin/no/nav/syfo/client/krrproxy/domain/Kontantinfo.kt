@@ -1,4 +1,4 @@
-package no.nav.syfo.consumer.domain
+package no.nav.syfo.client.krrproxy.domain
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper

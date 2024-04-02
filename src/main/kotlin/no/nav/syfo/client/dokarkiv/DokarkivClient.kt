@@ -63,7 +63,7 @@ class DokarkivClient(
             virksomhetsnavn,
             avsenderMottaker,
             "ALTINN",
-            lps.uuid!!.toString(),
+            lps.uuid.toString(),
         )
         return sendRequestToDokarkiv(journalpostRequest)
     }
@@ -139,7 +139,7 @@ class DokarkivClient(
             sak = Sak(sakstype = SAKSTYPE_GENERELL_SAK),
             avsenderMottaker = avsenderMottaker,
             bruker = Bruker(
-                id =fnr,
+                id = fnr,
                 idType = FNR_TYPE,
             ),
             dokumenter = makeDokumenter(dokumentnavn, pdf),

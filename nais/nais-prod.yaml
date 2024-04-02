@@ -130,7 +130,7 @@ spec:
       value: "true"
     - name: MASKINPORTEN_CUSTOM_SCOPE_NAME
       value: "nav:oppfolgingsplan/lps.write"
-    - name: DKIF_URL
+    - name: KRR_PROXY_URL
       value: http://digdir-krr-proxy.team-rocket/rest/v1/person
-    - name: DKIF_SCOPE
+    - name: KRR_PROXY_SCOPE
       value: prod-gcp.team-rocket.digdir-krr-proxy
