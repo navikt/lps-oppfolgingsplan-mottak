@@ -49,7 +49,7 @@ data class FollowUpPlanDTO(
 
     fun toOppfolgingsplanOpPdfGenRequest(employeeName: String?, employeePhoneNumber: String?, employeeEmail:String?, employeeAddress:String?): OppfolgingsplanOpPdfGenRequest {
         val sendPlanTo = getSendToString(this.sendPlanToNav, this.sendPlanToGeneralPractitioner)
-        val evaluationDateFormatted = getevaluationDateFormatted(this.evaluationDate)
+        val evaluationDateFormatted = getEvaluationDateFormatted(this.evaluationDate)
 
         return OppfolgingsplanOpPdfGenRequest(
             LpsPlanPdfData(
@@ -80,7 +80,7 @@ data class FollowUpPlanDTO(
         )
     }
 
-    fun getevaluationDateFormatted(date: LocalDate): String {
+    fun getEvaluationDateFormatted(date: LocalDate): String {
         return date.format(DateTimeFormatter.ofPattern("dd. MMMM yyyy"))
     }
 

@@ -116,10 +116,8 @@ fun PdlHentPerson.toPersonAdress(): String? {
 }
 
 fun PdlHentPerson.isNotGradert(): Boolean {
-    val adressebeskyttelse = this.hentPerson?.adressebeskyttelse
-
-    return adressebeskyttelse.isNullOrEmpty()
-            || (adressebeskyttelse.first().gradering.name.isNotEmpty() && adressebeskyttelse.first().gradering.name == Gradering.UGRADERT.name)
+    val graderingName = this.hentPerson?.adressebeskyttelse?.firstOrNull()?.gradering?.name
+    return graderingName == null || graderingName == Gradering.UGRADERT.name
 }
 
 private val log = LoggerFactory.getLogger(PdlHentPerson::class.qualifiedName)
