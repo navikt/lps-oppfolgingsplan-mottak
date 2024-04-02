@@ -43,7 +43,7 @@ data class FollowUpPlanDTO(
             "needsHelpFromNavDescription is obligatory if needsHelpFromNav is true"
         }
         require(contributionDescriptionUsedCorrectly()) {
-            "employeeHasNotContributedToPlanDescription is mandatory and can only be used if employeeHasContributedToPlan = false"
+            "employeeHasNotContributedToPlanDescription is mandatory if employeeHasContributedToPlan = false"
         }
     }
 

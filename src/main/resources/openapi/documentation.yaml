@@ -64,6 +64,20 @@ paths:
             'application/json':
               schema:
                 $ref: "#/components/schemas/FollowUpPlanResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "Invalid request. Error message: <Some error message>, Error cause: <Some cause>"
+        "500":
+          description: "Internal Server Error"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "Failed to retrieve follow-up plan: <Some error message>"
 components:
   securitySchemes:
     bearerAuth:
@@ -83,67 +97,88 @@ components:
         employeeIdentificationNumber:
           type: "string"
           description: "A Norwegian national identity number or D number."
+          example: "12345678901"
         typicalWorkday:
           type: "string"
           description: "Description of a typical day at work."
+          example: "Leading the Galactic Empire, attending strategic meetings, lightsaber training"
         tasksThatCanStillBeDone:
           type: "string"
           description: "Ordinary tasks that still can be done."
+          example: "Attending meetings, strategic planning"
         tasksThatCanNotBeDone:
           type: "string"
           description: "Ordinary tasks that can no longer be done because of illness."
+          example: "Lightsaber training"
         previousFacilitation:
           type: "string"
           description: "Any previous facilitation that has been done related to the employee's current illness."
+          example: "Provided ergonomic chair and voice amplifier"
         plannedFacilitation:
           type: "string"
           description: "Description of facilitation that will be done from now on."
+          example: "Flexible working hours, remote command options"
         otherFacilitationOptions:
           type: "string"
           description: "Are there any other options for facilitation at the workplace that have not been tried out yet?"
+          example: "Job rotation, task automation"
         followUp:
           type: "string"
           description: "How will the employer/leader follow up the planned facilitation?"
+          example: "Weekly check-ins to discuss progress and adjustments"
         evaluationDate:
           type: "string"
           format: "date"
           description: "When will the employer/leader and employee evaluate this oppfolgingsplan?"
+          example: "2023-12-31"
         sendPlanToNav:
           type: "boolean"
           description: "Do you want to send this plan to NAV?"
+          example: true
         needsHelpFromNav:
           type: "boolean"
           description: "Do you need help from NAV? If yes, a task will be created at NAVs internal systems. Only relevant if the plan should be sent to NAV."
+          example: true
         needsHelpFromNavDescription:
           type: "string"
           description: "Description of what kind of help is needed. Obligatory if needsHelpFromNav is true."
+          example: "Need assistance with job placement"
         sendPlanToGeneralPractitioner:
           type: "boolean"
           description: "Do you want to send this plan to the employee's general practitioner?"
+          example: true
         messageToGeneralPractitioner:
           type: "string"
           description: "Message to the general practitioner."
+          example: "Please review the follow-up plan for the patient"
         additionalInformation:
           type: "string"
           description: "Additional information, if relevant."
+          example: "Darth Vader prefers to work in the evening due to health condition"
         contactPersonFullName:
           type: "string"
           description: "Full name of the person responsible for following up the employee. Typically the nearest leader."
+          example: "Emperor Palpatine"
         contactPersonPhoneNumber:
           type: "string"
           description: "Phone number of the person responsible for following up the employee."
+          example: "99999999"
         contactPersonEmail:
           type: "string"
           description: "E-mail of the person responsible for following up the employee."
+          example: "emperor@empire.com"
         employeeHasContributedToPlan:
           type: "boolean"
           description: "Has the employee been involved in the process of creating this plan?"
+          example: false
         employeeHasNotContributedToPlanDescription:
           type: "string"
           description: "Description of why the employee does not have contributed to the plan. Obligatory if employeeHasContributedToPlan is false."
+          example: "Employee was not available due to Sith business"
         lpsName:
           type: "string"
           description: "Name of the consumer system sending in this plan"
+          example: "Empire HR System"
       required:
       - "employeeIdentificationNumber"
       - "typicalWorkday"
