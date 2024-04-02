@@ -1,12 +1,12 @@
 package no.nav.syfo.oppfolgingsplanmottak.kafka
 
-import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
+import java.util.*
 import no.nav.syfo.application.environment.KafkaEnv
 import no.nav.syfo.application.kafka.producerProperties
+import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
-import java.util.*
 
 class FollowUpPlanProducer(
     env: KafkaEnv,

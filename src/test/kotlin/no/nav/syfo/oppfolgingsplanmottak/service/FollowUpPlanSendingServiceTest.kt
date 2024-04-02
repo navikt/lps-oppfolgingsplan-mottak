@@ -5,6 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
+import java.util.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.dokarkiv.DokarkivClient
@@ -13,7 +14,6 @@ import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.mockdata.randomFollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
-import java.util.*
 
 class FollowUpPlanSendingServiceTest : DescribeSpec({
     val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)

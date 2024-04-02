@@ -1,8 +1,5 @@
 package no.nav.syfo.oppfolgingsplanmottak.service
 
-import java.time.LocalDate
-import java.util.*
-import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
@@ -10,6 +7,9 @@ import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
+import java.time.LocalDate
+import java.util.*
+import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import org.slf4j.LoggerFactory
 
 class FollowUpPlanSendingService(
@@ -20,6 +20,7 @@ class FollowUpPlanSendingService(
     private val toggles: ToggleEnv,
 ) {
     val log = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
+
     suspend fun sendFollowUpPlan(
         followUpPlanDTO: FollowUpPlanDTO,
         uuid: UUID,
@@ -49,11 +50,11 @@ class FollowUpPlanSendingService(
 
         if (shouldSendToNav) {
             val planToSendToNav = KFollowUpPlan(
-                uuid = uuid.toString(),
-                fodselsnummer = followUpPlanDTO.employeeIdentificationNumber,
-                virksomhetsnummer = employerOrgnr,
-                behovForBistandFraNav = true,
-                opprettet = LocalDate.now().toEpochDay().toInt(),
+                uuid.toString(),
+                followUpPlanDTO.employeeIdentificationNumber,
+                employerOrgnr,
+                true,
+                LocalDate.now().toEpochDay().toInt(),
             )
             followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
         }
