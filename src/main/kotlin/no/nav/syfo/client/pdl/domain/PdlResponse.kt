@@ -107,7 +107,6 @@ fun PdlHentPerson.toPersonAdress(): String? {
                 ""
             }
 
-            log.warn("$adressenavn ${husnummer}${husbokstav}, $postnummer")
             return "$adressenavn ${husnummer}${husbokstav}$postnummer"
         }
     }
