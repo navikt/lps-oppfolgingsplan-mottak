@@ -25,9 +25,9 @@ class KrrProxyClient(
     private val objectMapper = configuredJacksonMapper()
 
     suspend fun person(fnr: String): Kontaktinfo? {
-        val accessToken = "Bearer ${azureAdTokenConsumer.getSystemToken(urlEnv.dkifScope)}"
+        val accessToken = "Bearer ${azureAdTokenConsumer.getSystemToken(urlEnv.krrProxyScope)}"
         val response: HttpResponse? = try {
-            client.get(urlEnv.dkifUrl) {
+            client.get(urlEnv.krrProxyUrl) {
                 headers {
                     append(HttpHeaders.ContentType, ContentType.Application.Json)
                     append(HttpHeaders.Authorization, accessToken)
