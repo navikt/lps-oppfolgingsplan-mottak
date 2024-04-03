@@ -36,9 +36,14 @@ class KrrProxyClient(
                 }
             }
         } catch (e: Exception) {
-            log.error("Error while calling KRR-PROXY: ${e.message}", e)
+            log.error("Error while calling KRR-PROXY: ${e.message}, stacktrace ${e.printStackTrace()}", e)
+//            log.error("Could not get kontaktinfo from KRR-PROXY: $response, WWW-Authenticate header: ${response?.headers?.get("WWW-Authenticate")}")
+
             return null
         }
+
+
+
         when (response?.status) {
             HttpStatusCode.OK -> {
                 val rawJson: String = response.body()
