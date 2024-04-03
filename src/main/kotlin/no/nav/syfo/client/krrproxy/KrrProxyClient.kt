@@ -51,7 +51,7 @@ class KrrProxyClient(
             }
 
             else -> {
-                log.error("Could not get kontaktinfo from KRR-PROXY: $response")
+                log.error("Could not get kontaktinfo from KRR-PROXY: $response, WWW-Authenticate header: ${response?.headers?.get("WWW-Authenticate")}")
                 return null
             }
         }

@@ -39,6 +39,7 @@ class AzureAdClient(
 
     suspend fun getSystemToken(scopeClientId: String): AzureAdToken? {
         val cacheKey = "${CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX}$scopeClientId"
+        log.warn("Cache key: $cacheKey")
         val cachedToken = cache.get(key = cacheKey)
         return if (cachedToken?.isExpired() == false) {
             cachedToken
