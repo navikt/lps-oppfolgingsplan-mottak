@@ -58,6 +58,7 @@ class AzureAdClient(
 //                }
 //            }
 //        }
+        log.warn("TOken: ${azureAdTokenResponse?.access_token}, type: ${azureAdTokenResponse?.token_type}")
         return azureAdTokenResponse?.toAzureAdToken()
     }
 
