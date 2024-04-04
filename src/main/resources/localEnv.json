@@ -55,7 +55,9 @@
     "dokarkivUrl": "http://dokarkiv.no",
     "dokarkivScope": "dokarkiv_scope",
     "istilgangskontrollUrl": "isTilgangskontrollUrl",
-    "istilgangskontrollClientId": "localhost.istilgangskontroll"
+    "istilgangskontrollClientId": "localhost.istilgangskontroll",
+    "krrProxyUrl": "localhost.krr.url",
+    "krrProxyScope": "localhost.krr.scope"
   },
   "altinnLps": {
     "sendToFastlegeRetryThreshold": 6
