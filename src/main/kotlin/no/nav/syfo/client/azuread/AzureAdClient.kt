@@ -38,12 +38,11 @@ class AzureAdClient(
     )?.toAzureAdToken()
 
     suspend fun getSystemToken(scopeClientId: String): AzureAdToken? {
-//        val cacheKey = "${CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX}$scopeClientId"
-//        log.warn("Cache key: $cacheKey")
-//        val cachedToken = cache.get(key = cacheKey)
-//        return if (cachedToken?.isExpired() == false) {
-//            cachedToken
-//        } else {
+        val cacheKey = "${CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX}$scopeClientId"
+        val cachedToken = cache.get(key = cacheKey)
+        return if (cachedToken?.isExpired() == false) {
+            cachedToken
+        } else {
             val azureAdTokenResponse = getAccessToken(
                 Parameters.build {
                     append("client_id", clientId)
@@ -52,14 +51,12 @@ class AzureAdClient(
                     append("scope", "api://$scopeClientId/.default")
                 }
             )
-//            azureAdTokenResponse?.let { token ->
-//                token.toAzureAdToken().also {
-//                    cache[cacheKey] = it
-//                }
-//            }
-//        }
-        log.warn("TOken: ${azureAdTokenResponse?.access_token}, type: ${azureAdTokenResponse?.token_type}")
-        return azureAdTokenResponse?.toAzureAdToken()
+            azureAdTokenResponse?.let { token ->
+                token.toAzureAdToken().also {
+                    cache[cacheKey] = it
+                }
+            }
+        }
     }
 
     private suspend fun getAccessToken(

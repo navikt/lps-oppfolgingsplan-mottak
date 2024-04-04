@@ -26,7 +26,6 @@ class KrrProxyClient(
 
     suspend fun person(fnr: String): Kontaktinfo? {
         val accessToken = "Bearer ${azureAdTokenConsumer.getSystemToken(urlEnv.krrProxyScope)?.accessToken}"
-        log.warn("Bearer token: $accessToken")
         val response: HttpResponse? = try {
             client.get(urlEnv.krrProxyUrl) {
                 headers {
