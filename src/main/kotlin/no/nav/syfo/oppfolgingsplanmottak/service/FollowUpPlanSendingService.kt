@@ -1,5 +1,7 @@
 package no.nav.syfo.oppfolgingsplanmottak.service
 
+import java.time.LocalDate
+import java.util.*
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
@@ -7,8 +9,6 @@ import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
-import java.time.LocalDate
-import java.util.*
 import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import org.slf4j.LoggerFactory
 
@@ -38,11 +38,16 @@ class FollowUpPlanSendingService(
         val sentToFastlegeStatus: Boolean =
             shouldSendToGeneralPractitioner && run {
                 if (pdf != null) {
-                    isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
-                        sykmeldtFnr,
-                        pdf
-                    )
-                    true
+                    try {
+                        isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
+                            sykmeldtFnr,
+                            pdf
+                        )
+                        true
+                    } catch (e: Exception) {
+                        log.error("Could not send plan to general practitioner due  to exception: ", e)
+                        false
+                    }
                 } else {
                     false
                 }
