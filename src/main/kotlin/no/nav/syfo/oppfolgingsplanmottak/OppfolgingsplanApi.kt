@@ -46,15 +46,16 @@ fun Routing.registerFollowUpPlanApi(
                     sentToGeneralPractitionerAt = null,
                     sentToNavAt = null,
                 )
-                val followUpPlanResponse =
+                val followUpPlan =
                     followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
 
-                val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlanResponse.isSentToGeneralPractitionerStatus)
-                val sentToNavAt = getSendingTimestamp(followUpPlanResponse.isSentToNavStatus)
+                val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlan.isSentToGeneralPractitionerStatus)
+                val sentToNavAt = getSendingTimestamp(followUpPlan.isSentToNavStatus)
+                val pdf = followUpPlan.pdf
 
-                database.updateSentAt(planUuid, sentToGeneralPractitionerAt = sentToGeneralPractitionerAt, sentToNavAt = sentToNavAt)
+                database.updateSentAt(planUuid, sentToGeneralPractitionerAt = sentToGeneralPractitionerAt, sentToNavAt = sentToNavAt, pdf = pdf)
 
-                call.respond(followUpPlanResponse)
+                call.respond(followUpPlan.toFollowUpPlanResponse())
             }
 
             get("/{$uuid}/sendingstatus") {

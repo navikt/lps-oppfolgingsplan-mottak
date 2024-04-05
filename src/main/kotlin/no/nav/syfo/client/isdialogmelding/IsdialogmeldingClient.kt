@@ -42,7 +42,7 @@ class IsdialogmeldingClient(
                 setBody(rsOppfoelgingsplan)
             }
         } catch (e: Exception) {
-            log.error("Exception while sending altinn-LPS to fastlege", e)
+            log.error("Exception while sending LPS to fastlege", e)
             throw e
         }
 

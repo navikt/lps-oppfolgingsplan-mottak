@@ -75,6 +75,8 @@ fun getEnv(): ApplicationEnvironment {
             dokarkivScope = getEnvVar("DOKARKIV_SCOPE"),
             istilgangskontrollUrl = getEnvVar("ISTILGANGSKONTROLL_URL"),
             istilgangskontrollClientId = getEnvVar("ISTILGANGSKONTROLL_CLIENT_ID"),
+            krrProxyUrl = getEnvVar("KRR_PROXY_URL"),
+            krrProxyScope = getEnvVar("KRR_PROXY_SCOPE"),
             eregBaseUrl = getEnvVar("EREG_BASEURL"),
         ),
         altinnLps = AltinnLpsEnv(

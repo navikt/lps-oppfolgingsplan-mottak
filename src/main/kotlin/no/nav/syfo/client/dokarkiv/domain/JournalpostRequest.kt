@@ -11,4 +11,5 @@ data class JournalpostRequest(
     val sak: Sak,
     val tema: String,
     val eksternReferanseId: String,
+    val overstyrInnsynsregler: String = "VISES_MASKINELT_GODKJENT", // By default, user can not see documents created by others. This one enables viewing on dokarkiv page
 )

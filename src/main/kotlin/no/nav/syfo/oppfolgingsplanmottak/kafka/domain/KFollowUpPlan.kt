@@ -1,4 +1,4 @@
-package no.nav.syfo.altinnmottak.kafka.domain
+package no.nav.syfo.oppfolgingsplanmottak.kafka.domain
 
 data class KFollowUpPlan(
     val uuid: String,

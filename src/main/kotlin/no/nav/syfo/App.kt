@@ -30,6 +30,7 @@ import no.nav.syfo.client.wellknown.getWellKnown
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 
@@ -71,9 +72,10 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     database = Database(appEnv.database)
     database.grantAccessToIAMUsers()
     val azureAdClient = AzureAdClient(appEnv.auth)
-    val pdfGenClient = OpPdfGenClient(appEnv.urls, appEnv.application)
     val isdialogmeldingClient = IsdialogmeldingClient(appEnv.urls, azureAdClient)
     val pdlClient = PdlClient(appEnv.urls, azureAdClient)
+    val krrProxyClient = KrrProxyClient(appEnv.urls, azureAdClient)
+    val pdfGenClient = OpPdfGenClient(appEnv.urls, appEnv.application, pdlClient, krrProxyClient)
     val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
     val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient)
 
@@ -90,7 +92,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
 
     val followupPlanProducer = FollowUpPlanProducer(appEnv.kafka)
 
-    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, appEnv.toggles)
+    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, pdfGenClient, dokarkivClient, appEnv.toggles)
 
     val wellKnownInternalAzureAD = getWellKnown(
         wellKnownUrl = appEnv.auth.azuread.wellKnownUrl,
