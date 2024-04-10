@@ -33,7 +33,7 @@ class EregClient(
 
     suspend fun getOrganisationInformation(orgnr: String): EregOrganisasjonResponse? {
         val response = try {
-            client.get("${eregBaseUrl}/ereg/api/v2/organisasjon/{$orgnr}") {
+            client.get("${eregBaseUrl}/ereg/api/v2/organisasjon/$orgnr") {
                 val token = azureAdClient.getSystemToken(scope)?.accessToken
                     ?: throw RuntimeException("Failed to fetch organization name from EREG: No token was found")
                 headers {
