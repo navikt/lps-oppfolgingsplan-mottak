@@ -9,16 +9,9 @@ data class EregOrganisasjonResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class EregOrganisasjonNavn(
-        val navnelinje1: String,
-        val redigertnavn: String?
+        val sammensattnavn: String,
 )
 
 fun EregOrganisasjonResponse.getNavn(): String {
-    return this.navn.let {
-        if (it.redigertnavn?.isNotEmpty() == true) {
-            it.redigertnavn
-        } else {
-            it.navnelinje1
-        }
-    }
+    return this.navn.sammensattnavn
 }

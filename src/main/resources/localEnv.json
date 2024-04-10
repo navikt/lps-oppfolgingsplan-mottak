@@ -58,7 +58,8 @@
     "istilgangskontrollClientId": "localhost.istilgangskontroll",
     "krrProxyUrl": "localhost.krr.url",
     "krrProxyScope": "localhost.krr.scope",
-    "eregBaseUrl": "localhost.eregBaseUrl"
+    "eregBaseUrl": "localhost.eregBaseUrl",
+    "eregScope": "eregScope"
   },
   "altinnLps": {
     "sendToFastlegeRetryThreshold": 6

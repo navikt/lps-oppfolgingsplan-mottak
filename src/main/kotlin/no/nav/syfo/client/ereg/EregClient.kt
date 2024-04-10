@@ -10,10 +10,10 @@ import io.ktor.http.append
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
+import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.ereg.domain.EregOrganisasjonResponse
 import no.nav.syfo.client.ereg.domain.getNavn
 import no.nav.syfo.client.httpClientDefault
-import no.nav.syfo.client.sts.StsClient
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.createBearerToken
@@ -21,27 +21,30 @@ import no.nav.syfo.util.createCallId
 import org.slf4j.LoggerFactory
 
 class EregClient(
-    private val urls: UrlEnv,
+    urls: UrlEnv,
     private val appEnv: ApplicationEnv,
-    private val stsClient: StsClient,
+    private val azureAdClient: AzureAdClient,
+
 ) {
-    private val baseUrl = urls.eregBaseUrl
+    private val eregBaseUrl = urls.eregBaseUrl
+    private val scope = urls.eregScope
     private val client = httpClientDefault()
     private val log = LoggerFactory.getLogger(EregClient::class.qualifiedName)
 
     suspend fun getOrganisationInformation(orgnr: String): EregOrganisasjonResponse? {
         val response = try {
-            client.get("${baseUrl}/ereg/api/v1/organisasjon/{$orgnr}") {
-                val stsToken = stsClient.token()
+            client.get("${eregBaseUrl}/ereg/api/v2/organisasjon/{$orgnr}") {
+                val token = azureAdClient.getSystemToken(scope)?.accessToken
+                    ?: throw RuntimeException("Failed to fetch organization name: No token was found")
                 headers {
                     append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(HttpHeaders.Authorization, createBearerToken(stsToken))
+                    append(HttpHeaders.Authorization, createBearerToken(token))
                     append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
                     append(NAV_CALL_ID_HEADER, createCallId())
                 }
             }
         } catch (e: Exception) {
-            log.error("Could not send Altinn-LPS to dokarkiv", e)
+            log.error("Could not fetch organization name", e)
             throw e
         }
         return when (response.status) {

@@ -70,6 +70,7 @@ spec:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: syfooppdfgen.intern.dev.nav.no
         - host: dokarkiv.dev-fss-pub.nais.io
+        - host: ereg-services-q1.dev-fss-pub.nais.io
       rules:
         - application: digdir-krr-proxy
           namespace: team-rocket
@@ -134,6 +135,7 @@ spec:
       value: http://digdir-krr-proxy.team-rocket/rest/v1/person
     - name: KRR_PROXY_SCOPE
       value: dev-gcp.team-rocket.digdir-krr-proxy
-    - name: EREG_BASEURL
-      value: https://modapp-q1.adeo.no
-
+    - name: EREG_URL
+      value: https://ereg-services-q1.dev-fss-pub.nais.io
+    - name: EREG_SCOPE
+      value: dev-fss-pub.arbeidsforhold.ereg-services-q1

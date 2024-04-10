@@ -8,7 +8,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
-import java.util.UUID
+import java.util.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
@@ -20,6 +20,7 @@ import no.nav.syfo.client.dokarkiv.domain.Dokumentvariant
 import no.nav.syfo.client.dokarkiv.domain.JournalpostRequest
 import no.nav.syfo.client.dokarkiv.domain.JournalpostResponse
 import no.nav.syfo.client.dokarkiv.domain.Sak
+import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.createBearerToken
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory
 class DokarkivClient(
     urls: UrlEnv,
     private val azureAdClient: AzureAdClient,
+    private val eregClient: EregClient,
 ) {
     private val baseUrl = urls.dokarkivUrl
     private val scope = urls.dokarkivScope
@@ -41,10 +43,11 @@ class DokarkivClient(
         uuid: UUID,
     ): String {
         val avsenderMottaker = createAvsenderMottaker(employerOrgnr, employerOrgnr)
+
         val journalpostRequest = createJournalpostRequest(
             followUpPlan.employeeIdentificationNumber,
             pdf,
-            navn = employerOrgnr, //TODO: employer company name, fetch from ereg
+            navn = eregClient.getEmployerOrganisationName(employerOrgnr) ?: employerOrgnr,
             avsenderMottaker,
             "NAV_NO",
             uuid.toString(),

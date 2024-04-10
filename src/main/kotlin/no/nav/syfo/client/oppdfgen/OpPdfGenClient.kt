@@ -16,8 +16,8 @@ import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
-import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.pdl.domain.toPersonAdress
 import no.nav.syfo.client.pdl.domain.toPersonName
@@ -70,8 +70,8 @@ class OpPdfGenClient(
         val personInfo = pdlClient.getPersonInfo(fnr)
         val employeeName = personInfo?.toPersonName() ?: fnr
         val employeeAdress = personInfo?.toPersonAdress()
-
         val personDigitalContactInfo = krrProxyClient.person(fnr)
+
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
             employeeName,
             employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
