@@ -7,7 +7,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
-import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
@@ -25,7 +24,7 @@ class EregClient(
     private val appEnv: ApplicationEnv,
     private val azureAdClient: AzureAdClient,
 
-) {
+    ) {
     private val eregBaseUrl = urls.eregBaseUrl
     private val scope = urls.eregScope
     private val client = httpClientDefault()
@@ -49,9 +48,7 @@ class EregClient(
         }
         return when (response.status) {
             HttpStatusCode.OK -> {
-                runBlocking {
-                    response.body<EregOrganisasjonResponse>()
-                }
+                response.body<EregOrganisasjonResponse>()
             }
 
             else -> {
