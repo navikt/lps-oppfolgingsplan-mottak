@@ -1,13 +1,12 @@
 package no.nav.syfo.oppfolgingsplanmottak
 
-import io.ktor.server.application.call
-import io.ktor.server.auth.authenticate
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Routing
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.plugins.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
@@ -31,31 +30,54 @@ fun Routing.registerFollowUpPlanApi(
     route("/api/v1/followupplan") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post {
-                val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
-                val planUuid = UUID.randomUUID()
-                val employerOrgnr = getOrgnumberFromClaims()
-                val lpsOrgnumber = getLpsOrgnumberFromClaims()
+                try {
+                    val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
+                    val planUuid = UUID.randomUUID()
+                    val employerOrgnr = getOrgnumberFromClaims()
+                    val lpsOrgnumber = getLpsOrgnumberFromClaims()
 
-                log.info("Received follow up plan from ${followUpPlanDTO.lpsName}, LPS orgnr: $lpsOrgnumber")
+                    log.info("Received follow up plan from ${followUpPlanDTO.lpsName}, LPS orgnr: $lpsOrgnumber")
 
-                database.storeFollowUpPlan(
-                    uuid = planUuid,
-                    followUpPlanDTO = followUpPlanDTO,
-                    organizationNumber = employerOrgnr,
-                    lpsOrgnumber = lpsOrgnumber,
-                    sentToGeneralPractitionerAt = null,
-                    sentToNavAt = null,
-                )
-                val followUpPlan =
-                    followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
+                    database.storeFollowUpPlan(
+                        uuid = planUuid,
+                        followUpPlanDTO = followUpPlanDTO,
+                        organizationNumber = employerOrgnr,
+                        lpsOrgnumber = lpsOrgnumber,
+                        sentToGeneralPractitionerAt = null,
+                        sentToNavAt = null,
+                    )
+                    val followUpPlan =
+                        followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
 
-                val sentToGeneralPractitionerAt = getSendingTimestamp(followUpPlan.isSentToGeneralPractitionerStatus)
-                val sentToNavAt = getSendingTimestamp(followUpPlan.isSentToNavStatus)
-                val pdf = followUpPlan.pdf
+                    val sentToGeneralPractitionerAt =
+                        getSendingTimestamp(followUpPlan.isSentToGeneralPractitionerStatus)
+                    val sentToNavAt = getSendingTimestamp(followUpPlan.isSentToNavStatus)
+                    val pdf = followUpPlan.pdf
 
-                database.updateSentAt(planUuid, sentToGeneralPractitionerAt = sentToGeneralPractitionerAt, sentToNavAt = sentToNavAt, pdf = pdf)
+                    database.updateSentAt(
+                        planUuid,
+                        sentToGeneralPractitionerAt = sentToGeneralPractitionerAt,
+                        sentToNavAt = sentToNavAt,
+                        pdf = pdf
+                    )
 
-                call.respond(followUpPlan.toFollowUpPlanResponse())
+                    call.respond(followUpPlan.toFollowUpPlanResponse())
+                } catch (e: BadRequestException) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Invalid request. Error message: ${e.message}, Error cause: ${e.cause}"
+                    )
+                } catch (e: IllegalArgumentException) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Invalid input. Error message: ${e.message}, Error cause: ${e.cause}"
+                    )
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        "Failed to retrieve follow-up plan: ${e.message}"
+                    )
+                }
             }
 
             get("/{$uuid}/sendingstatus") {
