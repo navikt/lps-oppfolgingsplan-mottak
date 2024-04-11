@@ -44,8 +44,7 @@ class DokarkivClient(
     ): String {
         val avsenderMottaker = createAvsenderMottaker(employerOrgnr, employerOrgnr)
         val orgName = eregClient.getEmployerOrganisationName(employerOrgnr) ?: employerOrgnr
-        log.info("Fetched org name from EREG: ${orgName}")
-        //EREG
+
         val journalpostRequest = createJournalpostRequest(
             followUpPlan.employeeIdentificationNumber,
             pdf,

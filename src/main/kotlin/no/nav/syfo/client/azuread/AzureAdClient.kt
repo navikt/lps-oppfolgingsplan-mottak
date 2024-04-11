@@ -63,7 +63,6 @@ class AzureAdClient(
         formParameters: Parameters,
     ): AzureAdTokenResponse? =
         try {
-            log.info("qwqw: ${formParameters.get("scope")}")
             val response: HttpResponse = httpClient.post(aadAccessTokenUrl) {
                 accept(ContentType.Application.Json)
                 setBody(FormDataContent(formParameters))
