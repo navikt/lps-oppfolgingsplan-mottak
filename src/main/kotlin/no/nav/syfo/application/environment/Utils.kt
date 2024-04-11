@@ -77,6 +77,8 @@ fun getEnv(): ApplicationEnvironment {
             istilgangskontrollClientId = getEnvVar("ISTILGANGSKONTROLL_CLIENT_ID"),
             krrProxyUrl = getEnvVar("KRR_PROXY_URL"),
             krrProxyScope = getEnvVar("KRR_PROXY_SCOPE"),
+            eregBaseUrl = getEnvVar("EREG_URL"),
+            eregScope = getEnvVar("EREG_SCOPE"),
         ),
         altinnLps = AltinnLpsEnv(
             sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt(),

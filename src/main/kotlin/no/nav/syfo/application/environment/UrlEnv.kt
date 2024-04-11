@@ -12,4 +12,6 @@ data class UrlEnv(
     val istilgangskontrollClientId: String,
     val krrProxyUrl: String,
     val krrProxyScope: String,
+    val eregBaseUrl: String,
+    val eregScope: String,
 )

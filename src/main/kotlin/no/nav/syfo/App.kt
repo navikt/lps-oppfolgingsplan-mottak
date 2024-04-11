@@ -30,6 +30,7 @@ import no.nav.syfo.client.wellknown.getWellKnown
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
@@ -75,9 +76,10 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     val isdialogmeldingClient = IsdialogmeldingClient(appEnv.urls, azureAdClient)
     val pdlClient = PdlClient(appEnv.urls, azureAdClient)
     val krrProxyClient = KrrProxyClient(appEnv.urls, azureAdClient)
+    val eregClient = EregClient(appEnv.urls, appEnv.application, azureAdClient )
     val pdfGenClient = OpPdfGenClient(appEnv.urls, appEnv.application, pdlClient, krrProxyClient)
     val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
-    val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient)
+    val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient, eregClient)
 
     val altinnLpsService = AltinnLpsService(
         pdlClient,
