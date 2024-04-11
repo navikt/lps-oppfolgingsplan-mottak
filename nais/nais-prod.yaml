@@ -138,4 +138,4 @@ spec:
     - name: EREG_URL
       value: https://ereg-services.prod-fss-pub.nais.io
     - name: EREG_SCOPE
-      value: prod-fss-pub.arbeidsforhold.ereg-services
+      value: prod-fss.arbeidsforhold.ereg-services
