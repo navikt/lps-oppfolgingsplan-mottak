@@ -17,9 +17,9 @@ spec:
         product: oppfolgingsplan
         separator: "/"
         name: lps.write
-  scopes:
-      consumes:
-        - name: "nav:oppfolgingsplan/lps.write"
+    scopes:
+        consumes:
+          - name: "nav:oppfolgingsplan/lps.write"
   liveness:
     path: /internal/is_alive
     initialDelay: 10
