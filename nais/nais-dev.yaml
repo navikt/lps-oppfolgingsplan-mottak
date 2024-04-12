@@ -10,7 +10,14 @@ spec:
   port: 8080
   maskinporten:
     enabled: true
-    scopes:
+    exposes:
+      - accessibleForAll: true
+        delegationSource: altinn
+        enabled: true
+        product: oppfolgingsplan
+        separator: "/"
+        name: lps.write
+  scopes:
       consumes:
         - name: "nav:oppfolgingsplan/lps.write"
   liveness:
