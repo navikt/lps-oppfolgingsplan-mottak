@@ -11,6 +11,13 @@ spec:
   maskinporten:
     enabled: true
     scopes:
+      exposes:
+        - accessibleForAll: true
+          delegationSource: altinn
+          enabled: true
+          product: oppfolgingsplan
+          separator: "/"
+          name: lps.write
       consumes:
         - name: "nav:oppfolgingsplan/lps.write"
   liveness:

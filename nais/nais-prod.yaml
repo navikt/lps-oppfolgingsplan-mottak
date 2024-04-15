@@ -10,6 +10,14 @@ spec:
   port: 8080
   maskinporten:
     enabled: true
+    scopes:
+      exposes:
+        - accessibleForAll: true
+          delegationSource: altinn
+          enabled: true
+          product: oppfolgingsplan
+          separator: "/"
+          name: lps.write
   liveness:
     path: /internal/is_alive
     initialDelay: 10
