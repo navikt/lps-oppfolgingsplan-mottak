@@ -19,6 +19,7 @@ import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.client.pdl.domain.getPostnummer
 import no.nav.syfo.client.pdl.domain.toPersonAdress
 import no.nav.syfo.client.pdl.domain.toPersonName
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
@@ -69,7 +70,9 @@ class OpPdfGenClient(
         val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_PATH"
         val personInfo = pdlClient.getPersonInfo(fnr)
         val employeeName = personInfo?.toPersonName() ?: fnr
-        val employeeAdress = personInfo?.toPersonAdress()
+        val bosted = personInfo?.getPostnummer()?.let { pdlClient.getPoststed(it) }
+        val employeeAdress = personInfo?.toPersonAdress()+ " $bosted"
+        log.info("QWQW: employeeAdress to print: $employeeAdress")
         val personDigitalContactInfo = krrProxyClient.person(fnr)
 
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(

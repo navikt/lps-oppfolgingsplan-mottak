@@ -13,10 +13,17 @@ import java.io.FileNotFoundException
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
+import no.nav.syfo.client.pdl.domain.Criterion
+import no.nav.syfo.client.pdl.domain.Paging
 import no.nav.syfo.client.pdl.domain.PdlHentPerson
 import no.nav.syfo.client.pdl.domain.PdlIdenterResponse
 import no.nav.syfo.client.pdl.domain.PdlPersonResponse
 import no.nav.syfo.client.pdl.domain.PdlRequest
+import no.nav.syfo.client.pdl.domain.PdlRequestInterface
+import no.nav.syfo.client.pdl.domain.PdlSokAdresseResponse
+import no.nav.syfo.client.pdl.domain.SearchRule
+import no.nav.syfo.client.pdl.domain.SokAdressePdlRequest
+import no.nav.syfo.client.pdl.domain.SokAdresseVariables
 import no.nav.syfo.client.pdl.domain.Variables
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -81,32 +88,66 @@ class PdlClient(
     }
 
     private suspend fun getFnr(ident: String): HttpResponse? {
-        val token = azureAdClient.getSystemToken(urls.pdlScope)?.accessToken
-        val bearerTokenString = "Bearer $token"
+
         val graphQuery = this::class.java.getResource(IDENTER_QUERY)?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
         val requestBody = PdlRequest(graphQuery, Variables(ident))
-        return try {
-            client.post(urls.pdlUrl) {
-                headers {
-                    append(PDL_BEHANDLINGSNUMMER_HEADER, BEHANDLINGSNUMMER_DIGITAL_OPPFOLGINGSPLAN)
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(HttpHeaders.Authorization, bearerTokenString)
-                }
-                setBody(requestBody)
-            }
-        } catch (e: Exception) {
-            log.error("Error while calling PDL: ${e.message}", e)
-            null
-        }
+        return postCallToPdl(requestBody)
     }
 
     private suspend fun getPerson(ident: String): HttpResponse? {
-        val token = azureAdClient.getSystemToken(urls.pdlScope)?.accessToken
-        val bearerTokenString = "Bearer $token"
         val graphQuery = this::class.java.getResource(PERSON_QUERY)?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not found resource: $PERSON_QUERY")
         val requestBody = PdlRequest(graphQuery, Variables(ident))
+        return postCallToPdl(requestBody)
+    }
+
+    private suspend fun sokAdresse(postnummer: String): HttpResponse? {
+        val graphQuery = this::class.java.getResource(SOK_ADRESSE)?.readText()?.replace("[\n\r]", "")
+            ?: throw FileNotFoundException("Could not found resource: $SOK_ADRESSE")
+        val requestBody = SokAdressePdlRequest(
+            graphQuery,
+            SokAdresseVariables(
+                paging = Paging(),
+                criteria = listOf(Criterion(searchRule = SearchRule(value = postnummer)))
+            )
+        )
+
+        return postCallToPdl(requestBody)
+    }
+
+    suspend fun getPoststed(postnummer: String): String? {
+        val response = sokAdresse(postnummer)
+
+        return when (response?.status) {
+            HttpStatusCode.OK -> {
+                val poststed =
+                    response.body<PdlSokAdresseResponse>().data?.sokAdresse?.hits?.first()?.vegadresse?.poststed
+                log.info("QWQW: Fetched poststed from PDL: $poststed")
+                poststed
+            }
+
+            HttpStatusCode.NoContent -> {
+                log.error("QWQW: Could not get poststed from PDL: No content found in the response body")
+                null
+            }
+
+            HttpStatusCode.Unauthorized -> {
+                log.error("QWQW: Could not get poststed from PDL: Unable to authorize")
+                null
+            }
+
+            else -> {
+                log.error("QWQW: Could not get poststed from PDL: $response")
+                null
+            }
+        }
+    }
+
+    private suspend fun postCallToPdl(requestBody: PdlRequestInterface): HttpResponse? {
+        val token = azureAdClient.getSystemToken(urls.pdlScope)?.accessToken
+        val bearerTokenString = "Bearer $token"
+
         return try {
             client.post(urls.pdlUrl) {
                 headers {

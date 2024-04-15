@@ -1,0 +1,9 @@
+query ($paging:Paging, $criteria:[Criterion]) {
+    sokAdresse (paging: $paging,  criteria: $criteria){
+        hits {
+            vegadresse {
+                poststed
+            }
+        }
+    }
+}

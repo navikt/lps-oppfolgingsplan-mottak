@@ -70,6 +70,27 @@ data class PdlError(
     val extensions: PdlErrorExtension,
 )
 
+data class PdlSokAdresseResponse(
+    val errors: List<PdlError>?,
+    val data: PdlSokAdresse?,
+) : Serializable
+
+data class PdlSokAdresse(
+    val sokAdresse: SokAdresse?,
+) : Serializable
+
+data class SokAdresse(
+    val hits: List<Hit>,
+) : Serializable
+
+data class Hit(
+    val vegadresse: Poststed?,
+) : Serializable
+
+data class Poststed(
+    val poststed: String?,
+)
+
 data class PdlErrorLocation(
     val line: Int?,
     val column: Int?,
@@ -113,6 +134,27 @@ fun PdlHentPerson.toPersonAdress(): String? {
     log.info("Can not get person's address due to adressebeskyttelse")
     return null
 }
+
+fun PdlHentPerson.getPostnummer(): String? {
+    if (this.isNotGradert()) {
+        val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
+        if (vegadresse != null) {
+            return if (!vegadresse.postnummer.isNullOrEmpty()) {
+                log.info("QWQW vegadresse.postnummer: ${vegadresse.postnummer}")
+                vegadresse.postnummer
+            } else {
+                log.info("QWQW Can not get person's postnummer due to postnummer is null or empty")
+                null
+            }
+        } else{
+            log.info("QWQW Can not get person's postnummer due to vegadresse is null")
+            return null
+        }
+    }
+    log.info("QWQW Can not get person's postnummer due to adressebeskyttelse")
+    return null
+}
+
 
 fun PdlHentPerson.isNotGradert(): Boolean {
     val graderingName = this.hentPerson?.adressebeskyttelse?.firstOrNull()?.gradering?.name
