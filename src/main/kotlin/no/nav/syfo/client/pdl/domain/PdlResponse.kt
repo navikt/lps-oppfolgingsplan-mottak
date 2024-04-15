@@ -1,7 +1,6 @@
 package no.nav.syfo.client.pdl.domain
 
 import java.io.Serializable
-import org.slf4j.LoggerFactory
 
 data class PdlIdenterResponse(
     val errors: List<PdlError>?,
@@ -115,50 +114,7 @@ private fun getMellomnavn(mellomnavn: String?): String {
     return if (mellomnavn !== null) " $mellomnavn" else ""
 }
 
-fun PdlHentPerson.toPersonAdress(): String? {
-    if (this.isNotGradert()) {
-        val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
-        if (vegadresse != null) {
-            val adressenavn = vegadresse.adressenavn
-            val husnummer = vegadresse.husnummer ?: ""
-            val husbokstav = vegadresse.husbokstav ?: ""
-            val postnummer = if (!vegadresse.postnummer.isNullOrEmpty()) {
-                ", ${vegadresse.postnummer}"
-            } else {
-                ""
-            }
-
-            return "$adressenavn ${husnummer}${husbokstav}$postnummer"
-        }
-    }
-    log.info("Can not get person's address due to adressebeskyttelse")
-    return null
-}
-
-fun PdlHentPerson.getPostnummer(): String? {
-    if (this.isNotGradert()) {
-        val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
-        if (vegadresse != null) {
-            return if (!vegadresse.postnummer.isNullOrEmpty()) {
-                log.info("QWQW vegadresse.postnummer: ${vegadresse.postnummer}")
-                vegadresse.postnummer
-            } else {
-                log.info("QWQW Can not get person's postnummer due to postnummer is null or empty")
-                null
-            }
-        } else{
-            log.info("QWQW Can not get person's postnummer due to vegadresse is null")
-            return null
-        }
-    }
-    log.info("QWQW Can not get person's postnummer due to adressebeskyttelse")
-    return null
-}
-
-
 fun PdlHentPerson.isNotGradert(): Boolean {
     val graderingName = this.hentPerson?.adressebeskyttelse?.firstOrNull()?.gradering?.name
     return graderingName == null || graderingName == Gradering.UGRADERT.name
 }
-
-private val log = LoggerFactory.getLogger(PdlHentPerson::class.qualifiedName)
