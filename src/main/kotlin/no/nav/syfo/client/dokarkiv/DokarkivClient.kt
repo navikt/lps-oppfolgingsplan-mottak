@@ -1,15 +1,16 @@
 package no.nav.syfo.client.dokarkiv
 
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
 import java.util.*
-import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
@@ -77,7 +78,7 @@ class DokarkivClient(
         val token = azureAdClient.getSystemToken(scope)?.accessToken
             ?: throw RuntimeException("Failed to Journalfor: No token was found")
         val requestUrl = baseUrl + JOURNALPOST_API_PATH
-        val response = //try {
+        val response = try {
             client.post(requestUrl) {
                 headers {
                     append(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -85,38 +86,35 @@ class DokarkivClient(
                 }
                 setBody(journalpostRequest)
             }
-        //        } catch (e: ResponseException) {
-        //            log.error("Could not send LPS plan to dokarkiv", e)
-        //            val responseStatus = e.response.status
-        //            throw e
-        //        }
-
-        log.info("qwqw: HTTP code er ${response.status.value}")
-
-        val responseBody = when (response.status) {
-            HttpStatusCode.Created -> {
-                runBlocking {
-                    response.body<JournalpostResponse>()
+        } catch (e: ResponseException) {
+            val errorResponse = e.response
+            when (errorResponse.status) {
+                HttpStatusCode.Conflict -> {
+                    log.warn("Journalpost for LPS plan already created!")
+                    val errorResponseBody = errorResponse.body<JournalpostResponse>()
+                    val id = errorResponseBody.journalpostId.toString()
+                    log.info("qwqw errorResponseBody $errorResponseBody")
+                    log.info("qwqw errorResponseBody.journalpostId ${errorResponseBody.journalpostId}")
+                    return id
                 }
-            }
 
-            HttpStatusCode.Conflict -> {
-                log.warn("Journalpost for LPS plan already created!")
-                runBlocking {
-                    response.body<JournalpostResponse>()
+                else -> {
+                    log.error("Call to dokarkiv failed with status: ${errorResponse.status}")
+                    throw RuntimeException("Failed to call dokarkiv. Status: ${errorResponse.status}, message: ${errorResponse.bodyAsText()}")
                 }
-            }
-
-            else -> {
-                log.error("Call to dokarkiv failed with status: ${response.status}")
-                throw RuntimeException("Failed to call dokarkiv")
             }
         }
 
-        if (!responseBody.journalpostferdigstilt) {
-            log.warn("Journalpost is not ferdigstilt with message " + responseBody.melding)
+        log.info("qwqw HTTP code er ${response.status.value}")
+
+        if (response.status == HttpStatusCode.Created) {
+            val responseBody = response.body<JournalpostResponse>()
+            if (!responseBody.journalpostferdigstilt) {
+                log.warn("Journalpost is not ferdigstilt with message " + responseBody.melding)
+            }
+            return responseBody.journalpostId.toString()
         }
-        return responseBody.journalpostId.toString()
+        throw Exception("qwqw Unknonwn HTTP response status code while requesting Dokarkiv")
     }
 
     private fun createAvsenderMottaker(
