@@ -25,7 +25,6 @@ class PdlUtils(private val pdlClient: PdlClient) {
 
             if (vegadresse != null) {
                 return if (!vegadresse.postnummer.isNullOrEmpty()) {
-                    log.info("QWQW vegadresse.postnummer: ${vegadresse.postnummer}")
                     adressenavn = vegadresse.adressenavn ?: ""
                     husnummer = vegadresse.husnummer ?: ""
                     husbokstav = vegadresse.husbokstav ?: ""
@@ -34,15 +33,15 @@ class PdlUtils(private val pdlClient: PdlClient) {
 
                     "$adressenavn ${husnummer}${husbokstav} $postnummer $bosted"
                 } else {
-                    log.info("QWQW Can not get person's postnummer due to postnummer is null or empty")
+                    log.info("Can not get person's postnummer due to postnummer is null or empty")
                    null
                 }
             } else {
-                log.info("QWQW Can not get person's postnummer due to vegadresse is null")
+                log.info("Can not get person's postnummer due to vegadresse is null")
                 return null
             }
         } else {
-            log.info("QWW Can not get person's address due to adressebeskyttelse")
+            log.info("Can not get person's address due to adressebeskyttelse")
             return null
         }
     }

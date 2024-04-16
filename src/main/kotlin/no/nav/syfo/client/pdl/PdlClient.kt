@@ -121,25 +121,31 @@ class PdlClient(
 
         return when (response?.status) {
             HttpStatusCode.OK -> {
-                val poststed =
-                    response.body<PdlSokAdresseResponse>().data?.sokAdresse?.hits?.first()?.vegadresse?.poststed
-                log.info("QWQW: Fetched poststed from PDL: ${response.body<PdlSokAdresseResponse>()}")
-                log.info("QWQW: Fetched poststed from PDL: $poststed")
-                poststed
+                val responseBody = response.body<PdlSokAdresseResponse>()
+                if (responseBody.errors.isNullOrEmpty()){
+                    val poststed =
+                        responseBody.data?.sokAdresse?.hits?.first()?.vegadresse?.poststed
+                    log.info("Fetched poststed from PDL: $poststed")
+                    poststed
+                } else {
+                    log.error("Could not get poststed from PDL, response contains errors: ${responseBody.errors}")
+                    return null
+                }
+
             }
 
             HttpStatusCode.NoContent -> {
-                log.error("QWQW: Could not get poststed from PDL: No content found in the response body")
+                log.error("Could not get poststed from PDL: No content found in the response body")
                 null
             }
 
             HttpStatusCode.Unauthorized -> {
-                log.error("QWQW: Could not get poststed from PDL: Unable to authorize")
+                log.error("Could not get poststed from PDL: Unable to authorize")
                 null
             }
 
             else -> {
-                log.error("QWQW: Could not get poststed from PDL: $response")
+                log.error("Could not get poststed from PDL: $response")
                 null
             }
         }

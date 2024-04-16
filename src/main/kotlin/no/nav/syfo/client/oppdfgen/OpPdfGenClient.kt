@@ -71,8 +71,6 @@ class OpPdfGenClient(
         val employeeName = pdlUtils.getPersonNameString(personInfo, fnr)
         val employeeAdress = pdlUtils.getPersonAdressString(fnr)
 
-        log.info("QWQW: employeeAdress to print: $employeeAdress")
-
         val personDigitalContactInfo = krrProxyClient.person(fnr)
 
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
