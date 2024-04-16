@@ -40,9 +40,9 @@ class PdlClient(
 
         return when (response?.status) {
             HttpStatusCode.OK -> {
-                val responseBody =  response.body<PdlIdenterResponse>()
-                if (responseBody.errors.isNullOrEmpty()){
-                    val pdlResponse =responseBody.data?.hentIdenter?.identer?.first()?.ident
+                val responseBody = response.body<PdlIdenterResponse>()
+                if (responseBody.errors.isNullOrEmpty()) {
+                    val pdlResponse = responseBody.data?.hentIdenter?.identer?.first()?.ident
                     pdlResponse
                 } else {
                     log.error("Could not get fnr from PDL: response contains errors: ${responseBody.errors}")
@@ -73,8 +73,8 @@ class PdlClient(
         return when (response?.status) {
             HttpStatusCode.OK -> {
                 val responseBody = response.body<PdlPersonResponse>()
-                if (responseBody.errors.isNullOrEmpty()){
-                    val pdlResponse =responseBody.data
+                if (responseBody.errors.isNullOrEmpty()) {
+                    val pdlResponse = responseBody.data
                     pdlResponse
                 } else {
                     log.error("Could not get person info from PDL: response contains errors: ${responseBody.errors}")
@@ -132,7 +132,7 @@ class PdlClient(
         return when (response?.status) {
             HttpStatusCode.OK -> {
                 val responseBody = response.body<PdlSokAdresseResponse>()
-                if (responseBody.errors.isNullOrEmpty()){
+                if (responseBody.errors.isNullOrEmpty()) {
                     val poststed =
                         responseBody.data?.sokAdresse?.hits?.first()?.vegadresse?.poststed
                     log.info("Fetched poststed from PDL: $poststed")
@@ -141,7 +141,6 @@ class PdlClient(
                     log.error("Could not get poststed from PDL, response contains errors: ${responseBody.errors}")
                     return null
                 }
-
             }
 
             HttpStatusCode.NoContent -> {
