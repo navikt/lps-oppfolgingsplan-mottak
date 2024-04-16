@@ -9,6 +9,8 @@ import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.engine.stop
 import io.ktor.server.netty.Netty
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.asCoroutineDispatcher
 import no.nav.syfo.altinnmottak.AltinnLpsService
 import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
@@ -22,18 +24,16 @@ import no.nav.syfo.application.kafka.kafkaModule
 import no.nav.syfo.application.scheduling.schedulerModule
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.dokarkiv.DokarkivClient
+import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
+import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.getWellKnown
-import org.slf4j.LoggerFactory
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import no.nav.syfo.client.ereg.EregClient
-import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
+import org.slf4j.LoggerFactory
 
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
@@ -76,7 +76,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     val isdialogmeldingClient = IsdialogmeldingClient(appEnv.urls, azureAdClient)
     val pdlClient = PdlClient(appEnv.urls, azureAdClient)
     val krrProxyClient = KrrProxyClient(appEnv.urls, azureAdClient)
-    val eregClient = EregClient(appEnv.urls, appEnv.application, azureAdClient )
+    val eregClient = EregClient(appEnv.urls, appEnv.application, azureAdClient)
     val pdfGenClient = OpPdfGenClient(appEnv.urls, appEnv.application, pdlClient, krrProxyClient)
     val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
     val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient, eregClient)
@@ -94,7 +94,13 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
 
     val followupPlanProducer = FollowUpPlanProducer(appEnv.kafka)
 
-    val followUpPlanSendingService = FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, pdfGenClient, dokarkivClient, appEnv.toggles)
+    val followUpPlanSendingService = FollowUpPlanSendingService(
+        isdialogmeldingClient,
+        followupPlanProducer,
+        pdfGenClient,
+        dokarkivClient,
+        appEnv.toggles
+    )
 
     val wellKnownInternalAzureAD = getWellKnown(
         wellKnownUrl = appEnv.auth.azuread.wellKnownUrl,

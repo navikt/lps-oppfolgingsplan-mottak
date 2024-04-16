@@ -19,8 +19,6 @@ import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.client.pdl.PdlClient
-import no.nav.syfo.client.pdl.domain.toPersonAdress
-import no.nav.syfo.client.pdl.domain.toPersonName
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
@@ -34,6 +32,7 @@ class OpPdfGenClient(
     private val krrProxyClient: KrrProxyClient,
 ) {
     private val client = httpClientDefault()
+    private val pdlUtils = PdlUtils(pdlClient)
 
     suspend fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
         val requestUrl = "${urls.opPdfGenUrl}/$ALTINN_PLAN_PATH"
@@ -65,11 +64,13 @@ class OpPdfGenClient(
     }
 
     suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
-        val fnr = followUpPlanDTO.employeeIdentificationNumber
         val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_PATH"
+        val fnr = followUpPlanDTO.employeeIdentificationNumber
+
         val personInfo = pdlClient.getPersonInfo(fnr)
-        val employeeName = personInfo?.toPersonName() ?: fnr
-        val employeeAdress = personInfo?.toPersonAdress()
+        val employeeName = pdlUtils.getPersonNameString(personInfo, fnr)
+        val employeeAdress = pdlUtils.getPersonAdressString(fnr)
+
         val personDigitalContactInfo = krrProxyClient.person(fnr)
 
         val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(

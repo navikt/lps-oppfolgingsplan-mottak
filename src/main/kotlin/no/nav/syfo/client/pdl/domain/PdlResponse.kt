@@ -1,7 +1,6 @@
 package no.nav.syfo.client.pdl.domain
 
 import java.io.Serializable
-import org.slf4j.LoggerFactory
 
 data class PdlIdenterResponse(
     val errors: List<PdlError>?,
@@ -65,9 +64,30 @@ enum class Gradering : Serializable {
 
 data class PdlError(
     val message: String,
-    val locations: List<PdlErrorLocation>,
+    val locations: List<PdlErrorLocation>?,
     val path: List<String>?,
     val extensions: PdlErrorExtension,
+)
+
+data class PdlSokAdresseResponse(
+    val errors: List<PdlError>?,
+    val data: PdlSokAdresse?,
+) : Serializable
+
+data class PdlSokAdresse(
+    val sokAdresse: SokAdresse?,
+) : Serializable
+
+data class SokAdresse(
+    val hits: List<Hit>,
+) : Serializable
+
+data class Hit(
+    val vegadresse: Poststed?,
+) : Serializable
+
+data class Poststed(
+    val poststed: String?,
 )
 
 data class PdlErrorLocation(
@@ -94,29 +114,7 @@ private fun getMellomnavn(mellomnavn: String?): String {
     return if (mellomnavn !== null) " $mellomnavn" else ""
 }
 
-fun PdlHentPerson.toPersonAdress(): String? {
-    if (this.isNotGradert()) {
-        val vegadresse = this.hentPerson?.bostedsadresse?.first()?.vegadresse
-        if (vegadresse != null) {
-            val adressenavn = vegadresse.adressenavn
-            val husnummer = vegadresse.husnummer ?: ""
-            val husbokstav = vegadresse.husbokstav ?: ""
-            val postnummer = if (!vegadresse.postnummer.isNullOrEmpty()) {
-                ", ${vegadresse.postnummer}"
-            } else {
-                ""
-            }
-
-            return "$adressenavn ${husnummer}${husbokstav}$postnummer"
-        }
-    }
-    log.info("Can not get person's address due to adressebeskyttelse")
-    return null
-}
-
 fun PdlHentPerson.isNotGradert(): Boolean {
     val graderingName = this.hentPerson?.adressebeskyttelse?.firstOrNull()?.gradering?.name
     return graderingName == null || graderingName == Gradering.UGRADERT.name
 }
-
-private val log = LoggerFactory.getLogger(PdlHentPerson::class.qualifiedName)

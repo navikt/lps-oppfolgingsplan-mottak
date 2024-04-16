@@ -143,54 +143,5 @@ class PdlResponseTest : DescribeSpec({
 
             gradering shouldBe false
         }
-
-        it("Should set correct spaces in address string if all fields are present") {
-            val pdlResponse = PdlPersonResponse(
-                null,
-                PdlHentPerson(
-                    PdlPerson(
-                        adressebeskyttelse = listOf(),
-                        navn = listOf(PersonNavn("", "", "")),
-                        bostedsadresse = listOf(Bostedsadresse(Vegadresse("Fancy gate", "1", "A", "1234"))),
-                    )
-                )
-            )
-            val address = pdlResponse.data!!.toPersonAdress()
-
-            address shouldBe "Fancy gate 1A, 1234"
-        }
-
-        it("Should set correct spaces in address string if all husbokstav field is missing") {
-            val pdlResponse = PdlPersonResponse(
-                null,
-                PdlHentPerson(
-                    PdlPerson(
-                        adressebeskyttelse = listOf(),
-                        navn = listOf(PersonNavn("", "", "")),
-                        bostedsadresse = listOf(Bostedsadresse(Vegadresse("Fancy gate", "1", "", "1234"))),
-                    )
-                )
-            )
-            val address = pdlResponse.data!!.toPersonAdress()
-
-            address shouldBe "Fancy gate 1, 1234"
-        }
-
-        it("Should not set comma and extra space in address string if postnummer is missing") {
-            val pdlResponse = PdlPersonResponse(
-                null,
-                PdlHentPerson(
-                    PdlPerson(
-                        adressebeskyttelse = listOf(),
-                        navn = listOf(PersonNavn("", "", "")),
-                        bostedsadresse = listOf(Bostedsadresse(Vegadresse("Fancy gate", "1", "B", ""))),
-                    )
-                )
-            )
-            val address = pdlResponse.data!!.toPersonAdress()
-
-            address shouldBe "Fancy gate 1B"
-        }
     }
-
 })
