@@ -41,7 +41,6 @@ class PdlClient(
                     log.error("Could not get fnr from PDL: response contains errors: ${responseBody.errors}")
                     null
                 }
-
             }
 
             HttpStatusCode.NoContent -> {
@@ -74,7 +73,6 @@ class PdlClient(
                     log.error("Could not get person info from PDL: response contains errors: ${responseBody.errors}")
                     null
                 }
-
             }
 
             HttpStatusCode.NoContent -> {
