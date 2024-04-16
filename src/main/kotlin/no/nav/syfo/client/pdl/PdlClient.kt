@@ -123,6 +123,7 @@ class PdlClient(
             HttpStatusCode.OK -> {
                 val poststed =
                     response.body<PdlSokAdresseResponse>().data?.sokAdresse?.hits?.first()?.vegadresse?.poststed
+                log.info("QWQW: Fetched poststed from PDL: ${response.body<PdlPersonResponse>()}")
                 log.info("QWQW: Fetched poststed from PDL: $poststed")
                 poststed
             }
