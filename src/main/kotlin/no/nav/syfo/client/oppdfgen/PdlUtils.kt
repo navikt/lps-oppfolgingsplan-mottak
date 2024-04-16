@@ -17,31 +17,18 @@ class PdlUtils(private val pdlClient: PdlClient) {
 
         if (personInfo != null && personInfo.isNotGradert()) {
             val vegadresse = personInfo.hentPerson?.bostedsadresse?.first()?.vegadresse
-            val postnummer: String
             val bosted: String
-            val adressenavn: String
-            val husnummer: String
-            val husbokstav: String
 
-            if (vegadresse != null) {
-                return if (!vegadresse.postnummer.isNullOrEmpty()) {
-                    adressenavn = vegadresse.adressenavn ?: ""
-                    husnummer = vegadresse.husnummer ?: ""
-                    husbokstav = vegadresse.husbokstav ?: ""
-                    postnummer = vegadresse.postnummer
-                    bosted = pdlClient.getPoststed(postnummer) ?: ""
+            return if (vegadresse != null && !vegadresse.postnummer.isNullOrEmpty()) {
+                bosted = pdlClient.getPoststed(vegadresse.postnummer) ?: ""
 
-                    "$adressenavn ${husnummer}${husbokstav} $postnummer $bosted"
-                } else {
-                    log.info("Can not get person's postnummer due to postnummer is null or empty")
-                   null
-                }
+                "${vegadresse.adressenavn ?: ""} ${vegadresse.husnummer ?: ""}${vegadresse.husbokstav ?: ""} ${vegadresse.postnummer} $bosted"
             } else {
-                log.info("Can not get person's postnummer due to vegadresse is null")
-                return null
+                log.info("Can not get person's address string due to vegadresse or postnummer are null")
+                null
             }
         } else {
-            log.info("Can not get person's address due to adressebeskyttelse")
+            log.info("Can not get person's address string due to adressebeskyttelse")
             return null
         }
     }
