@@ -102,7 +102,7 @@ class PdlClient(
     }
 
     private suspend fun sokAdresse(postnummer: String): HttpResponse? {
-        val graphQuery = this::class.java.getResource(SOK_ADRESSE)?.readText()?.replace("[\n\r]", "")
+        val graphQuery = this::class.java.getResource(SOK_ADRESSE)?.readText()
             ?: throw FileNotFoundException("Could not found resource: $SOK_ADRESSE")
         val requestBody = SokAdressePdlRequest(
             graphQuery,
