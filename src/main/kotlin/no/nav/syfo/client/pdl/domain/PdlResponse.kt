@@ -64,7 +64,7 @@ enum class Gradering : Serializable {
 
 data class PdlError(
     val message: String,
-    val locations: List<PdlErrorLocation>,
+    val locations: List<PdlErrorLocation>?,
     val path: List<String>?,
     val extensions: PdlErrorExtension,
 )
