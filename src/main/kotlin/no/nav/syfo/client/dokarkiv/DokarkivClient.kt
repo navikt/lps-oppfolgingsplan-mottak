@@ -77,7 +77,7 @@ class DokarkivClient(
         val token = azureAdClient.getSystemToken(scope)?.accessToken
             ?: throw RuntimeException("Failed to Journalfor: No token was found")
         val requestUrl = baseUrl + JOURNALPOST_API_PATH
-        val response = try {
+        val response = //try {
             client.post(requestUrl) {
                 headers {
                     append(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -85,10 +85,13 @@ class DokarkivClient(
                 }
                 setBody(journalpostRequest)
             }
-        } catch (e: Exception) {
-            log.error("Could not send LPS plan to dokarkiv", e)
-            throw e
-        }
+        //        } catch (e: ResponseException) {
+        //            log.error("Could not send LPS plan to dokarkiv", e)
+        //            val responseStatus = e.response.status
+        //            throw e
+        //        }
+
+        log.info("qwqw: HTTP code er ${response.status.value}")
 
         val responseBody = when (response.status) {
             HttpStatusCode.Created -> {
