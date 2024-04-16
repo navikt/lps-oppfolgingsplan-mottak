@@ -88,7 +88,6 @@ class PdlClient(
     }
 
     private suspend fun getFnr(ident: String): HttpResponse? {
-
         val graphQuery = this::class.java.getResource(IDENTER_QUERY)?.readText()?.replace("[\n\r]", "")
             ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
         val requestBody = PdlRequest(graphQuery, Variables(ident))
@@ -112,7 +111,6 @@ class PdlClient(
                 criteria = listOf(Criterion(searchRule = SearchRule(postnummer)))
             )
         )
-
         return postCallToPdl(requestBody)
     }
 
