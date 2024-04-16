@@ -109,7 +109,7 @@ class PdlClient(
             graphQuery,
             SokAdresseVariables(
                 paging = Paging(),
-                criteria = listOf(Criterion(searchRule = SearchRule(value = postnummer)))
+                criteria = listOf(Criterion(searchRule = SearchRule(postnummer)))
             )
         )
 
