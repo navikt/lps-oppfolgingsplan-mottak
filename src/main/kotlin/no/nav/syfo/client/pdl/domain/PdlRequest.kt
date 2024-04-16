@@ -27,8 +27,7 @@ data class Paging(
 )
 
 data class SearchRule(
-    val name: String? = "equals",
-    val value: String,
+    val equals: String,
 )
 
 data class Criterion(
