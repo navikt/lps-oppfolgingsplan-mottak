@@ -88,14 +88,14 @@ class PdlClient(
     }
 
     private suspend fun getFnr(ident: String): HttpResponse? {
-        val graphQuery = this::class.java.getResource(IDENTER_QUERY)?.readText()?.replace("[\n\r]", "")
+        val graphQuery = this::class.java.getResource(IDENTER_QUERY)?.readText()
             ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
         val requestBody = PdlRequest(graphQuery, Variables(ident))
         return postCallToPdl(requestBody)
     }
 
     private suspend fun getPerson(ident: String): HttpResponse? {
-        val graphQuery = this::class.java.getResource(PERSON_QUERY)?.readText()?.replace("[\n\r]", "")
+        val graphQuery = this::class.java.getResource(PERSON_QUERY)?.readText()
             ?: throw FileNotFoundException("Could not found resource: $PERSON_QUERY")
         val requestBody = PdlRequest(graphQuery, Variables(ident))
         return postCallToPdl(requestBody)
