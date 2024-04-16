@@ -33,8 +33,15 @@ class PdlClient(
 
         return when (response?.status) {
             HttpStatusCode.OK -> {
-                val pdlResponse = response.body<PdlIdenterResponse>().data?.hentIdenter?.identer?.first()?.ident
-                pdlResponse
+                val responseBody =  response.body<PdlIdenterResponse>()
+                if (responseBody.errors.isNullOrEmpty()){
+                    val pdlResponse =responseBody.data?.hentIdenter?.identer?.first()?.ident
+                    pdlResponse
+                } else {
+                    log.error("Could not get fnr from PDL: response contains errors: ${responseBody.errors}")
+                    null
+                }
+
             }
 
             HttpStatusCode.NoContent -> {
@@ -59,22 +66,29 @@ class PdlClient(
 
         return when (response?.status) {
             HttpStatusCode.OK -> {
-                val pdlResponse = response.body<PdlPersonResponse>().data
-                pdlResponse
+                val responseBody = response.body<PdlPersonResponse>()
+                if (responseBody.errors.isNullOrEmpty()){
+                    val pdlResponse =responseBody.data
+                    pdlResponse
+                } else {
+                    log.error("Could not get person info from PDL: response contains errors: ${responseBody.errors}")
+                    null
+                }
+
             }
 
             HttpStatusCode.NoContent -> {
-                log.error("Could not get fnr from PDL: No content found in the response body")
+                log.error("Could not get person info from PDL: No content found in the response body")
                 null
             }
 
             HttpStatusCode.Unauthorized -> {
-                log.error("Could not get fnr from PDL: Unable to authorize")
+                log.error("Could not get person info from PDL: Unable to authorize")
                 null
             }
 
             else -> {
-                log.error("Could not get fnr from PDL: $response")
+                log.error("Could not get person info from PDL: $response")
                 null
             }
         }
