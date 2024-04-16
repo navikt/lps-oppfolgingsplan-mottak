@@ -22,7 +22,7 @@ data class SokAdresseVariables(
 )
 
 data class Paging(
-    val paging: String? = "1",
+    val pageNumber: String? = "1",
     val resultsPerPage: String? = "1",
 )
 
