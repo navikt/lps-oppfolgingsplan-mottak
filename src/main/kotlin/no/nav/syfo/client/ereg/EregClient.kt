@@ -31,7 +31,7 @@ class EregClient(
     private val client = httpClientDefault()
     private val log = LoggerFactory.getLogger(EregClient::class.qualifiedName)
 
-    suspend fun getOrganisationInformation(orgnr: String): EregOrganisasjonResponse? {
+    private suspend fun getOrganisationInformation(orgnr: String): EregOrganisasjonResponse? {
         val response = try {
             client.get("${eregBaseUrl}/ereg/api/v2/organisasjon/$orgnr") {
                 val token = azureAdClient.getSystemToken(scope)?.accessToken

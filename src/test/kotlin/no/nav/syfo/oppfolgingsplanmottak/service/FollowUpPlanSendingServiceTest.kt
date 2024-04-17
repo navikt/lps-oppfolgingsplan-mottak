@@ -1,3 +1,5 @@
+package no.nav.syfo.oppfolgingsplanmottak.service
+
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -13,7 +15,6 @@ import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.mockdata.randomFollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
-import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 
 class FollowUpPlanSendingServiceTest : DescribeSpec({
     val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)

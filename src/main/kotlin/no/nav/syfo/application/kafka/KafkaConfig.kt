@@ -20,7 +20,7 @@ const val SSL = "SSL"
 const val USER_INFO = "USER_INFO"
 const val ONE_SECOND_IN_MILLIS = 1000L
 
-val pollDurationInMillis = Duration.ofMillis(ONE_SECOND_IN_MILLIS)
+val pollDurationInMillis: Duration = Duration.ofMillis(ONE_SECOND_IN_MILLIS)
 
 fun commonProperties(env: KafkaEnv): Properties {
     val sslConfig = env.sslConfig
