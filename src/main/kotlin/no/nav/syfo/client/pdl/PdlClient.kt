@@ -93,7 +93,7 @@ class PdlClient(
             }
 
             else -> {
-                log.error("Could not get person info from PDL: $response")
+                log.error("Call to  get person info from PDL failed with response: $response")
                 null
             }
         }
