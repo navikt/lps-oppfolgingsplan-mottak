@@ -61,7 +61,7 @@ class IsdialogmeldingClient(
             }
 
             else -> {
-                log.error("Call to to send LPS plan to fastlege failed with status: ${response.status}, message: ${response.bodyAsText()}")
+                log.error("Call to to send LPS plan to fastlege failed with status: ${response.status}, response body: ${response.bodyAsText()}")
                 false
             }
         }

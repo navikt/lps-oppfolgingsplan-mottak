@@ -106,7 +106,7 @@ class DokarkivClient(
             }
 
             else -> {
-                log.error("Call to Dokarkiv failed with status: ${response.status}, message: ${response.bodyAsText()}")
+                log.error("Call to Dokarkiv failed with status: ${response.status}, : ${response.bodyAsText()}")
                 throw RuntimeException("Failed to call dokarkiv")
             }
         }

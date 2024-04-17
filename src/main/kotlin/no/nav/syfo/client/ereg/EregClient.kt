@@ -53,7 +53,7 @@ class EregClient(
             }
 
             else -> {
-                log.error("Call to get name by virksomhetsnummer from EREG failed with status: ${response.status}, message: ${response.bodyAsText()}")
+                log.error("Call to get name by virksomhetsnummer from EREG failed with status: ${response.status}, response body: ${response.bodyAsText()}")
                 null
             }
         }
