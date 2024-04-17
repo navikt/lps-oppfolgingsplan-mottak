@@ -3,6 +3,7 @@ package no.nav.syfo.client.isdialogmelding
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -60,7 +61,7 @@ class IsdialogmeldingClient(
             }
 
             else -> {
-                log.error("Unable to send LPS plan to fastlege (HTTP error code: ${response.status}")
+                log.error("Call to to send LPS plan to fastlege failed with status: ${response.status}, response body: ${response.bodyAsText()}")
                 false
             }
         }

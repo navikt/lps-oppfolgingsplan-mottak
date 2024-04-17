@@ -3,6 +3,7 @@ package no.nav.syfo.client.ereg
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -52,7 +53,7 @@ class EregClient(
             }
 
             else -> {
-                log.error("Call to get name by virksomhetsnummer from EREG failed with status: ${response.status}")
+                log.error("Call to get name by virksomhetsnummer from EREG failed with status: ${response.status}, response body: ${response.bodyAsText()}")
                 null
             }
         }

@@ -4,6 +4,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -37,7 +38,6 @@ class KrrProxyClient(
             }
         } catch (e: Exception) {
             log.error("Error while calling KRR-PROXY: ${e.message}, stacktrace ${e.printStackTrace()}", e)
-//            log.error("Could not get kontaktinfo from KRR-PROXY: $response, WWW-Authenticate header: ${response?.headers?.get("WWW-Authenticate")}")
 
             return null
         }
@@ -56,7 +56,7 @@ class KrrProxyClient(
             }
 
             else -> {
-                log.error("Could not get kontaktinfo from KRR-PROXY: $response, WWW-Authenticate header: ${response?.headers?.get("WWW-Authenticate")}")
+                log.error("Call to get  kontaktinfo from KRR-PROXY failed with status: ${response?.status}, WWW-Authenticate header:${response?.headers?.get("WWW-Authenticate")}, response body: ${response?.bodyAsText()}")
                 return null
             }
         }

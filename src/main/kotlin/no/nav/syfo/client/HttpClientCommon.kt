@@ -22,7 +22,6 @@ val commonConfig: HttpClientConfig<out HttpClientEngineConfig>.() -> Unit = {
         }
         constantDelay(REQUEST_RETRY_DELAY)
     }
-    expectSuccess = true
 }
 
 val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {

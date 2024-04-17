@@ -137,19 +137,23 @@ components:
           example: true
         needsHelpFromNav:
           type: "boolean"
-          description: "Do you need help from NAV? If yes, a task will be created at NAVs internal systems. Only relevant if the plan should be sent to NAV."
+          description: "Do you need help from NAV? If yes, a task will be created at NAV's internal systems. 
+          Only relevant if the plan should be sent to NAV, when sendPlanToNav is true. 
+          Must be false when sendPlanToNav is false."
           example: true
         needsHelpFromNavDescription:
           type: "string"
-          description: "Description of what kind of help is needed. Obligatory if needsHelpFromNav is true."
+          description: "Description of what kind of help is needed. 
+          Obligatory if needsHelpFromNav is true. 
+          Must be null if needsHelpFromNav is false."
           example: "Need assistance with job placement"
         sendPlanToGeneralPractitioner:
           type: "boolean"
-          description: "Do you want to send this plan to the employee's general practitioner?"
+          description: "Do you want to send this plan to the employee's general practitioner (fastlege)?"
           example: true
         messageToGeneralPractitioner:
           type: "string"
-          description: "Message to the general practitioner."
+          description: "Message to the general practitioner (fastlege)."
           example: "Please review the follow-up plan for the patient"
         additionalInformation:
           type: "string"
@@ -173,7 +177,9 @@ components:
           example: false
         employeeHasNotContributedToPlanDescription:
           type: "string"
-          description: "Description of why the employee does not have contributed to the plan. Obligatory if employeeHasContributedToPlan is false."
+          description: "Description of why the employee does not have contributed to the plan. 
+          Obligatory if employeeHasContributedToPlan is false.
+          Must be null if employeeHasContributedToPlan is true"
           example: "Employee was not available due to Sith business"
         lpsName:
           type: "string"
@@ -202,8 +208,8 @@ components:
           type: "string"
           description: "An id for a follow up plan"
         isSentToGeneralPractitionerStatus:
-          type: "string"
+          type: "boolean"
           description: "Status for sending a plan to general practitioner, true or false"
         isSentToNavStatus:
-          type: "string"
+          type: "boolean"
           description: "Status for sending a plan to NAV, true or false"
