@@ -3,6 +3,8 @@ package no.nav.syfo.oppfolgingsplanmottak.service
 import java.time.LocalDate
 import java.util.*
 import no.nav.syfo.application.environment.ToggleEnv
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_FALSE
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
@@ -62,6 +64,9 @@ class FollowUpPlanSendingService(
                 LocalDate.now().toEpochDay().toInt(),
             )
             followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
+            COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE.increment()
+        } else {
+            COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_FALSE.increment()
         }
 
         if (pdf != null && followUpPlanDTO.sendPlanToNav) {

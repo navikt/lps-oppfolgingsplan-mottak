@@ -3,6 +3,8 @@ package no.nav.syfo.oppfolgingsplanmottak.kafka
 import java.util.*
 import no.nav.syfo.application.environment.KafkaEnv
 import no.nav.syfo.application.kafka.producerProperties
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_NAV_FALSE
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_NAV_TRUE
 import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -28,7 +30,9 @@ class FollowUpPlanProducer(
             )
             kafkaProducer.send(recordToSend)
             log.info("Followup-plan task sent to Modia with UUID ${kFollowupPlan.uuid}")
+            COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_NAV_TRUE.increment()
         } catch (e: Exception) {
+            COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_NAV_FALSE.increment()
             log.error(
                 "Encountered error while sending KFollowupPlan with UUID ${kFollowupPlan.uuid} to Modia"
             )

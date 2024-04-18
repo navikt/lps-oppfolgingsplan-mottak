@@ -9,6 +9,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
 import no.nav.syfo.application.environment.UrlEnv
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_TRUE
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.client.isdialogmelding.domain.RSOppfoelgingsplan
@@ -44,12 +46,14 @@ class IsdialogmeldingClient(
             }
         } catch (e: Exception) {
             log.error("Exception while sending LPS to fastlege", e)
+            COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE.increment()
             throw e
         }
 
         return when (response.status) {
             HttpStatusCode.OK -> {
                 log.info("Successfully sent LPS PDF to fastlege")
+                COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_TRUE.increment()
                 true
             }
 
@@ -57,11 +61,13 @@ class IsdialogmeldingClient(
                 log.warn(
                     "Unable to determine fastlege, or lacking appropiate 'partnerinformasjon'-data",
                 )
+                COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE.increment()
                 false
             }
 
             else -> {
                 log.error("Call to to send LPS plan to fastlege failed with status: ${response.status}, response body: ${response.bodyAsText()}")
+                COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE.increment()
                 false
             }
         }
