@@ -80,11 +80,11 @@ data class FollowUpPlanDTO(
         )
     }
 
-    fun getEvaluationDateFormatted(date: LocalDate): String {
+    private fun getEvaluationDateFormatted(date: LocalDate): String {
         return date.format(DateTimeFormatter.ofPattern("dd. MMMM yyyy"))
     }
 
-    fun getSendToString(nav: Boolean, lege: Boolean): String {
+    private fun getSendToString(nav: Boolean, lege: Boolean): String {
         var sendToStr = ""
         if (nav) {
             sendToStr += "NAV"

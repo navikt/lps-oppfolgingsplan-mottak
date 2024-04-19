@@ -55,7 +55,7 @@ val altinnLpsPlan = AltinnLpsOppfolgingsplan(
     lastChanged = LocalDateTime.now()
 )
 
-val oppfolgingsplanUUID = UUID.randomUUID()
+val oppfolgingsplanUUID: UUID = UUID.randomUUID()
 
 val oppfolgingsplan = FollowUpPlanDTO(
     UserConstants.ARBEIDSTAKER_FNR,

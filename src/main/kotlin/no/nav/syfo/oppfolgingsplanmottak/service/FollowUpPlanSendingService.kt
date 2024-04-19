@@ -10,6 +10,7 @@ import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class FollowUpPlanSendingService(
@@ -19,7 +20,7 @@ class FollowUpPlanSendingService(
     private val dokarkivClient: DokarkivClient,
     private val toggles: ToggleEnv,
 ) {
-    val log = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
+    val log: Logger = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
 
     suspend fun sendFollowUpPlan(
         followUpPlanDTO: FollowUpPlanDTO,

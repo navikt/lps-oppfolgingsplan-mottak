@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import no.nav.helse.op2016.Skjemainnhold
 
 @Suppress("LongParameterList")
 class AltinnLpsService(
@@ -165,9 +166,9 @@ class AltinnLpsService(
 
     fun sendToFastlegeRetryThreshold() = sendToFastlegeRetryThreshold
 
-    fun xmlToOppfolgingsplan(xml: String) = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(xml)
+    private fun xmlToOppfolgingsplan(xml: String) = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(xml)
 
-    fun xmlToSkjemainnhold(xml: String) = xmlToOppfolgingsplan(xml).skjemainnhold
+    private fun xmlToSkjemainnhold(xml: String): Skjemainnhold = xmlToOppfolgingsplan(xml).skjemainnhold
 
     fun sendLpsPlanToNav(
         uuid: UUID,

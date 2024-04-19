@@ -22,12 +22,4 @@ fun Application.kafkaModule(
             appState.ready = false
         }
     }
-//    launch(backgroundTasksContext) {
-//        try {
-//            val lpsMigrationKafkaConsumer = LpsMigrationKafkaConsumer(env.kafka, database)
-//            lpsMigrationKafkaConsumer.listen(appState)
-//        } finally {
-//            appState.ready = false
-//        }
-//    }
 }

@@ -13,7 +13,7 @@ import no.nav.syfo.application.environment.ApplicationEnv
 import java.net.InetAddress
 
 class LeaderElection(val application: ApplicationEnv) {
-    val objectMapper = ObjectMapper().registerKotlinModule()
+    private val objectMapper = ObjectMapper().registerKotlinModule()
 
     fun thisPodIsLeader(): Boolean {
         val electorPath = application.electorPath

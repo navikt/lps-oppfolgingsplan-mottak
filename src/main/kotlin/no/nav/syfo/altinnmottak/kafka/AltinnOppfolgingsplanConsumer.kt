@@ -17,7 +17,7 @@ const val ALTINNKANAL_TOPIC = "alf.aapen-altinn-oppfolgingsplan-mottatt-v2"
 
 class AltinnOppfolgingsplanConsumer(
     val env: KafkaEnv,
-    val altinnLPSService: AltinnLpsService
+    private val altinnLPSService: AltinnLpsService
 ) {
     private val log: Logger = LoggerFactory.getLogger(AltinnOppfolgingsplanConsumer::class.qualifiedName)
     private val kafkaListener: KafkaConsumer<String, ReceivedMessage>

@@ -10,10 +10,7 @@ fun AuthenticationConfig.configureMaskinportenJwt(
 ) {
     jwt(name = jwtIssuer.jwtIssuerType.name) {
         authHeader {
-            val token = it.getToken()
-            if (token == null) {
-                return@authHeader null
-            }
+            val token = it.getToken() ?: return@authHeader null
             return@authHeader HttpAuthHeader.Single("Bearer", token)
         }
         verifier(jwkProvider(jwtIssuer.wellKnown.jwksUri), jwtIssuer.wellKnown.issuer)

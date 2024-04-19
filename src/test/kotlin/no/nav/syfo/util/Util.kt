@@ -32,7 +32,7 @@ class LpsHelper {
         return Triple(AR_2, fnr, payload)
     }
 
-    fun loadXML(resourcePath: String): Pair<String, String> {
+    private fun loadXML(resourcePath: String): Pair<String, String> {
         val payload = this::class.java.getResource(resourcePath).readText()
         val fnr = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(payload).skjemainnhold.sykmeldtArbeidstaker.fnr
         return Pair(fnr, payload)

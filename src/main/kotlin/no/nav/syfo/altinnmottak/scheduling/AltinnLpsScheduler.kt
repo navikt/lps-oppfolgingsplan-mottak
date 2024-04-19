@@ -42,7 +42,7 @@ class AltinnLpsScheduler(
         }
     }
 
-    fun generateRetryProcessLpsPlanJob(): Pair<JobDetail, SimpleTrigger> {
+    private fun generateRetryProcessLpsPlanJob(): Pair<JobDetail, SimpleTrigger> {
         val lpsRetryProcessLpsJob = newJob(AltinnLpsRetryProcessLpsJob::class.java)
             .withIdentity(RETRY_PROCESSING_LPS_PLAN_JOB, ALTINN_LPS_PLAN_GROUP)
             .build()
@@ -61,7 +61,7 @@ class AltinnLpsScheduler(
         return Pair(lpsRetryProcessLpsJob, lpsRetryProcessLpsTrigger)
     }
 
-    fun generateRetryForwardLpsPlanJob(): Pair<JobDetail, SimpleTrigger> {
+    private fun generateRetryForwardLpsPlanJob(): Pair<JobDetail, SimpleTrigger> {
         val lpsRetryForwardLpsJob = newJob(AltinnLpsRetryForwardLpsJob::class.java)
             .withIdentity(RETRY_FORWARD_LPS_PLAN_JOB, ALTINN_LPS_PLAN_GROUP)
             .build()
