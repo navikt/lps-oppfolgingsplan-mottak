@@ -14,7 +14,7 @@ import io.prometheus.client.hotspot.DefaultExports
 const val METRICS_NS = "lps_oppfolgingsplan_mottak"
 const val TAG_BISTAND = "bistand"
 const val TAG_BISTAND_FOLLOWUP = "bistandfollowup"
-const val TAG_FASLEGE = "fastlege"
+const val TAG_FASTLEGE = "fastlege"
 const val TAG_GOSYS = "gosys"
 const val TAG_DELT = "delt"
 const val TAG_DELT_FOLLOWUP = "deltfollowup"
@@ -57,12 +57,12 @@ val COUNT_METRIKK_DELT_MED_FASTLEGE: Counter = Counter
 
 val COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_TRUE: Counter = Counter
     .builder(METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE)
-    .tags(TAG_FASLEGE, "true")
+    .tags(TAG_FASTLEGE, "true")
     .register(METRICS_REGISTRY)
 
 val COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE: Counter = Counter
     .builder(METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE)
-    .tags(TAG_FASLEGE, "false")
+    .tags(TAG_FASTLEGE, "false")
     .register(METRICS_REGISTRY)
 
 val COUNT_METRIKK_BISTAND_FRA_NAV_TRUE: Counter = Counter
