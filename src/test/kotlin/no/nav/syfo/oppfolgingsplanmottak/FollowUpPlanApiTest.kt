@@ -22,7 +22,7 @@ import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
 import java.util.*
 
-class OppfolgingsplanApiTest : DescribeSpec({
+class FollowUpPlanApiTest : DescribeSpec({
     val isdialogmeldingConsumer = mockk<IsdialogmeldingClient>(relaxed = true)
     val opPdfGenClient = mockk<OpPdfGenClient>(relaxed = true)
 
