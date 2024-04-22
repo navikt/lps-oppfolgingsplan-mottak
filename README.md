@@ -12,8 +12,8 @@ The endpoint for submitting a follow-up plan will return a unique uuid. This uui
 
 #### Interchangeable terms and abbreviations in the project
 
-+ "oppfølgingsplan", "followup plan", "lps plan" means same in terms of this project
-+ "general practitioner", "fastlege"  means same in terms of this project
++ "oppfølgingsplan", "followup plan", "lps plan" means the same in terms of this project
++ "general practitioner", "fastlege"  means the same in terms of this project
 + LPS: "Lønn- og personalsystem", external software operating on behalf of employer (for example sending followup plan
   to NAV)
 
