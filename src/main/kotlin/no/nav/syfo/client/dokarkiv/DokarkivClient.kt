@@ -13,6 +13,8 @@ import java.util.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_FALSE
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_TRUE
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.dokarkiv.domain.AvsenderMottaker
 import no.nav.syfo.client.dokarkiv.domain.Bruker
@@ -88,14 +90,17 @@ class DokarkivClient(
             }
         } catch (e: Exception) {
             log.error("Could not send LPS plan to dokarkiv", e)
+            COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_FALSE.increment()
             throw e
         }
 
         val responseBody = when (response.status) {
             HttpStatusCode.Created -> {
+                COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_TRUE.increment()
                 runBlocking {
                     response.body<JournalpostResponse>()
                 }
+
             }
 
             HttpStatusCode.Conflict -> {
@@ -107,6 +112,7 @@ class DokarkivClient(
 
             else -> {
                 log.error("Call to Dokarkiv failed with status: ${response.status}, : ${response.bodyAsText()}")
+                COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_FALSE.increment()
                 throw RuntimeException("Failed to call dokarkiv")
             }
         }
