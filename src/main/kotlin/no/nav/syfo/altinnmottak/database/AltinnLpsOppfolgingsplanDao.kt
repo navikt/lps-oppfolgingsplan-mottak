@@ -42,53 +42,6 @@ fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppf
     }
 }
 
-fun DatabaseInterface.storeMigratedAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppfolgingsplan) {
-    val insertStatement = """
-        INSERT INTO ALTINN_LPS (
-            uuid,
-            lps_fnr,
-            fnr,
-            orgnummer,
-            pdf,
-            xml,
-            should_send_to_nav,
-            should_send_to_fastlege,
-            sent_to_nav,
-            sent_to_fastlege,
-            send_to_fastlege_retry_count,
-            journalpost_id,
-            archive_reference,
-            created,
-            last_changed,
-            migrated
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """.trimIndent()
-
-    connection.use { connection ->
-        connection.prepareStatement(insertStatement).use {
-            it.setObject(1, altinnLpsPlan.uuid)
-            it.setString(2, altinnLpsPlan.lpsFnr)
-            it.setString(3, altinnLpsPlan.fnr)
-            it.setString(4, altinnLpsPlan.orgnummer)
-            it.setBytes(5, altinnLpsPlan.pdf)
-            it.setString(6, altinnLpsPlan.xml)
-            it.setBoolean(7, altinnLpsPlan.shouldSendToNav)
-            it.setBoolean(8, altinnLpsPlan.shouldSendToFastlege)
-            it.setBoolean(9, altinnLpsPlan.sentToNav)
-            it.setBoolean(10, altinnLpsPlan.sentToFastlege)
-            it.setInt(11, altinnLpsPlan.sendToFastlegeRetryCount)
-            it.setString(12, altinnLpsPlan.journalpostId)
-            it.setString(13, altinnLpsPlan.archiveReference)
-            it.setTimestamp(14, Timestamp.valueOf(altinnLpsPlan.created))
-            it.setTimestamp(15, Timestamp.valueOf(LocalDateTime.now()))
-            it.setBoolean(16, true)
-            it.executeUpdate()
-        }
-        connection.commit()
-    }
-}
-
-
 fun DatabaseInterface.storeFnr(uuid: UUID, fnr: String): Int {
     val updateStatement = """
         UPDATE ALTINN_LPS
