@@ -1,7 +1,5 @@
 # LPS follow-up plan API: Consumer guide
 
-<hr>
-
 This API allows for the submission of a follow-up plan to NAV on behalf of an employer. This API is a <i>Delegated
 API</i>, which means that you as the API consumer is acting on behalf of another company/end-user. The API is secured
 with Maskinporten.
@@ -90,6 +88,7 @@ Please note that the demo app only showcases the fields relevant for the API. Th
 Please write an email to **team-esyfo@nav.no** if you have questions about the API.
 Please note that questions about maskinporten or Altinn must be directed to Digdir/Altinn.
 
+<br>
 <details>
 <summary><b>🛠️🛠️ For NAV Developers 🛠️🛠️</b></summary>
 
