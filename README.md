@@ -67,10 +67,12 @@ note that you will need to provide a valid Maskinporten token in the Authorizati
 ## 🧪 Testing
 We have a step-by-step guide on how to test a delegated API (in our test environment), providing a bit more detail than
 the steps above. Please refer to
-the [Testing Guide](TestingGuide.pptx)
+the [Testing Guide](TestingGuide.pdf)
 
-<a href="./TestingGuide.pptx" target="_blank">testings PDF.</a>
-<a href="./TestingGuide.pptx" download>download testings PDF.</a>
+<br>
+<a href="./TestingGuide.pdf" target="_blank">testings PDF.</a>
+<br>
+<a href="./TestingGuide.pdf" download>download testings PDF.</a>
 
 ## 🎬 Demo
 
