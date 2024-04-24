@@ -97,7 +97,7 @@ is therefore not included in the API. <br>
 ## ✉️ Contact
 
 Please write an email to **team-esyfo@nav.no** if you have questions about the API.
-Please note that questions about maskinporten or Altinn must be directed to Digdir/Altinn.
+Questions about maskinporten or Altinn must be directed to Digdir/Altinn.
 
 <br>
 <details>
