@@ -1,6 +1,6 @@
 # LPS follow-up plan API: Consumer guide
 
-This API allows for the submission of a follow-up plan to NAV and/or the general practitioner on behalf of an employer. This API is a <i>Delegated
+This API allows for the submission of a follow-up plan to NAV and/or the general practitioner on behalf of an employer. This is a <i>Delegated
 API</i>, which means that you as the API consumer is acting on behalf of another company/end-user. The API is secured
 with Maskinporten.
 
