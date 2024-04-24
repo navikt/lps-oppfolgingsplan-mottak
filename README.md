@@ -16,7 +16,7 @@ the resulting PDF will be sent to the general practitioner.
 ### 1. Configure a maskinporten-client
 
 In order to use the API, you need to have a Maskinporten client configured. Please refer to
-the [Maskinporten documentation](https://docs.digdir.no/docs/Maskinporten/maskinporten_summary.html)
+the [Maskinporten documentation](https://docs.digdir.no/docs/Maskinporten/maskinporten_summary.html).
 Please take note that this is a so called <i>Delegated API</i>, which means that you are acting on behalf of an
 employer. You
 can find technical documentation on how to configure the delegation-part
