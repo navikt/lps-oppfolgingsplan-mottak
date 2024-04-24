@@ -65,12 +65,11 @@ note that you will need to provide a valid Maskinporten token in the Authorizati
 - Production API: `https://lps-oppfolgingsplan-mottak.nav.no/api/v1/followupplan/{uuid}/sendingstatus`
 
 ## 🧪 Testing
-
-** TODO: Endre lenka til annet sted **
-
 We have a step-by-step guide on how to test a delegated API (in our test environment), providing a bit more detail than
 the steps above. Please refer to
-the [Testing Guide](https://navno.sharepoint.com/:p:/s/DigitalsamhandlingiNorgeAS/EZTWnqX-EZ1GmqKqYtlBc2AB-eHHoCy1KTHoF_Mig5UZNg?e=mCk5nx)
+the [Testing Guide](TestingGuide.pptx)
+
+<a href="TestingGuide.pptx" target="_blank">testings PDF.</a>
 
 ## 🎬 Demo
 
