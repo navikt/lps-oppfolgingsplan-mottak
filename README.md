@@ -1,11 +1,13 @@
 # LPS follow-up plan API: Consumer guide
 
-This API allows for the submission of a follow-up plan to NAV and/or the general practitioner on behalf of an employer. This is a <i>Delegated
+This API allows for the submission of a follow-up plan to NAV and/or the general practitioner on behalf of an employer.
+This is a <i>Delegated
 API</i>, which means that you as the API consumer is acting on behalf of another company/end-user. The API is secured
 with Maskinporten.
 
 When a follow-up plan is submitted, the API will generate a PDF file to be shared with NAV and/or the general
-practitioner, depending on the input from `sendPlanToNav` and `sendPlanToGeneralPractitioner`. When `sendPlanToNav` is set
+practitioner, depending on the input from `sendPlanToNav` and `sendPlanToGeneralPractitioner`. When `sendPlanToNav` is
+set
 to true, the resulting PDF is accessible to the employee on sick leave at
 https://person.nav.no/dokumentarkiv/tema/OPP (login required). If it is set to false, the follow-up plan will not be
 shared with NAV, and the PDF will not be added to the NAV website. When `sendPlanToGeneralPractitioner` is set to true,
@@ -24,7 +26,8 @@ here: [Maskinporten delegation](https://docs.digdir.no/docs/Maskinporten/maskinp
 
 ### 2. The employer must delegate rights to act on their behalf
 
-To submit a follow-up plan on behalf of an employer, the employer must delegate rights to the API (scope). This is done
+To submit a follow-up plan on behalf of an employer, the employer must delegate rights to the API (scope) to you as an
+LPS system. This is done
 in Altinn. Please refer to
 the [Altinn documentation](https://altinn.github.io/docs/utviklingsguider/api-delegering/tilgangsstyrer/). Please note
 that the employer can find our API by searching for <i>"Oppfølgingsplan"</i> in Altinn, in the menu for <i>"Tilgang til
@@ -36,6 +39,8 @@ To retrieve a Maskinporten token on behalf of the employer, you need to send a P
 endpoint. Please refer to
 the [Maskinporten documentation](https://docs.digdir.no/docs/Maskinporten/maskinporten_summary.html) for more
 information.
+<br>
+- Scope to be used when requesting token: `nav:oppfolgingsplan/lps.write`
 
 ### 4. Submit a follow-up plan
 
@@ -60,10 +65,12 @@ note that you will need to provide a valid Maskinporten token in the Authorizati
 - Production API: `https://lps-oppfolgingsplan-mottak.nav.no/api/v1/followupplan/{uuid}/sendingstatus`
 
 ## 🧪 Testing
+
 ** TODO: Endre lenka til annet sted **
 
 We have a step-by-step guide on how to test a delegated API (in our test environment), providing a bit more detail than
-the steps above. Please refer to the [Testing Guide](https://navno.sharepoint.com/:p:/s/DigitalsamhandlingiNorgeAS/EZTWnqX-EZ1GmqKqYtlBc2AB-eHHoCy1KTHoF_Mig5UZNg?e=mCk5nx)
+the steps above. Please refer to
+the [Testing Guide](https://navno.sharepoint.com/:p:/s/DigitalsamhandlingiNorgeAS/EZTWnqX-EZ1GmqKqYtlBc2AB-eHHoCy1KTHoF_Mig5UZNg?e=mCk5nx)
 
 ## 🎬 Demo
 
@@ -72,7 +79,10 @@ input-fields with headers and descriptions for our API. When you fill out the de
 maskinporten-token on behalf of a random test-user, and submit this to our API on our test server. On the last page you
 will be able to download a PDF, which looks similar to the PDF generated in production. <br>
 
-Please note that the demo app only showcases the fields relevant for the API. This means that you are not limited to these fields (and functionality) in your own application! We encourage you to customize the form to fit your own needs. For example could `sykmeldingsgrad` be a relevant field for leaders, however NAV does not need this information, and it is therefore not included in the API. <br>
+Please note that the demo app only showcases the fields relevant for the API. This means that you are not limited to
+these fields (and functionality) in your own application! We encourage you to customize the form to fit your own needs.
+For example could `sykmeldingsgrad` be a relevant field for leaders, however NAV does not need this information, and it
+is therefore not included in the API. <br>
 
 - [Link to demo app](https://demo.ekstern.dev.nav.no/oppfolgingsplan-lps)
 - [Link to demo repository](https://github.com/navikt/oppfolgingsplan-lps-demo)
