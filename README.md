@@ -69,7 +69,8 @@ We have a step-by-step guide on how to test a delegated API (in our test environ
 the steps above. Please refer to
 the [Testing Guide](TestingGuide.pptx)
 
-<a href="TestingGuide.pptx" target="_blank">testings PDF.</a>
+<a href="./TestingGuide.pptx" target="_blank">testings PDF.</a>
+<a href="./TestingGuide.pptx" download>download testings PDF.</a>
 
 ## 🎬 Demo
 
