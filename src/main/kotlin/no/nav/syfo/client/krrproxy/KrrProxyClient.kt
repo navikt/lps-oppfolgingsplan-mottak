@@ -1,5 +1,6 @@
 package no.nav.syfo.client.krrproxy
 
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -21,8 +22,9 @@ import org.slf4j.LoggerFactory
 
 class KrrProxyClient(
     private val urlEnv: UrlEnv,
-    private val azureAdTokenConsumer: AzureAdClient) {
-    private val client = httpClientDefault()
+    private val azureAdTokenConsumer: AzureAdClient,
+    private val client: HttpClient = httpClientDefault(),
+) {
     private val objectMapper = configuredJacksonMapper()
 
     suspend fun person(fnr: String): Kontaktinfo? {
@@ -56,7 +58,13 @@ class KrrProxyClient(
             }
 
             else -> {
-                log.error("Call to get  kontaktinfo from KRR-PROXY failed with status: ${response?.status}, WWW-Authenticate header:${response?.headers?.get("WWW-Authenticate")}, response body: ${response?.bodyAsText()}")
+                log.error(
+                    "Call to get  kontaktinfo from KRR-PROXY failed with status: ${response?.status}, WWW-Authenticate header:${
+                        response?.headers?.get(
+                            "WWW-Authenticate"
+                        )
+                    }, response body: ${response?.bodyAsText()}"
+                )
                 return null
             }
         }

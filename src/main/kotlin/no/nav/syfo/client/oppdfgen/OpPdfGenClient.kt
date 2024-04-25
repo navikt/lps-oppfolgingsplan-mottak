@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
@@ -31,8 +32,9 @@ class OpPdfGenClient(
     private val appEnv: ApplicationEnv,
     private val pdlClient: PdlClient,
     private val krrProxyClient: KrrProxyClient,
+    private val client: HttpClient = httpClientDefault(),
 ) {
-    private val client = httpClientDefault()
+
     private val pdlUtils = PdlUtils(pdlClient)
 
     suspend fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
@@ -113,7 +115,7 @@ class OpPdfGenClient(
     companion object {
         private val log = LoggerFactory.getLogger(OpPdfGenClient::class.qualifiedName)
         private const val ALTINN_PLAN_PATH = "api/v1/genpdf/opservice/oppfolgingsplanlps"
-        private const val FOLLOWUP_PLAN_PATH = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
+        const val FOLLOWUP_PLAN_PATH = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
 
         private val mapper = ObjectMapper()
             .registerKotlinModule()

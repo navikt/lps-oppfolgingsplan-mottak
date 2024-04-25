@@ -4,14 +4,16 @@ import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.server.testing.*
-import io.mockk.coEvery
-import io.mockk.mockk
-import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
-import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.server.testing.testApplication
+import io.mockk.clearAllMocks
+import java.util.*
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
@@ -20,27 +22,25 @@ import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
-import java.util.*
 
 class FollowUpPlanApiTest : DescribeSpec({
-    val isdialogmeldingConsumer = mockk<IsdialogmeldingClient>(relaxed = true)
-    val opPdfGenClient = mockk<OpPdfGenClient>(relaxed = true)
 
     beforeSpec {
-        coEvery { isdialogmeldingConsumer.sendLpsPlanToGeneralPractitioner(any(), any()) } returns true
+    }
+
+    beforeTest {
+        clearAllMocks()
     }
 
     describe("Retrieval of oppfølgingsplaner") {
         val employeeIdentificationNumber = "12345678912"
         val employeeOrgnumber = "123456789"
-        val pdfByteArray = "<MOCK PDF CONTENT>".toByteArray()
 
-        it("Submits and stores a follow-up plan").config(enabled = false) { // TODO: reenable
+        it("Submits and stores a follow-up plan").config(enabled = true) {
             testApplication {
                 val (embeddedDatabase, client) = configureTestApplication()
 
                 val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(employeeIdentificationNumber)
-                coEvery { opPdfGenClient.getLpsPdf(any()) } returns pdfByteArray
 
                 val response = client.post("/api/v1/followupplan") {
                     bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
