@@ -36,7 +36,7 @@ class FollowUpPlanApiTest : DescribeSpec({
         val employeeIdentificationNumber = "12345678912"
         val employeeOrgnumber = "123456789"
 
-        it("Submits and stores a follow-up plan").config(enabled = true) {
+        it("Submits and stores a follow-up plan") {
             testApplication {
                 val (embeddedDatabase, client) = configureTestApplication()
 
