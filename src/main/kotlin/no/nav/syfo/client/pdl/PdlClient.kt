@@ -1,5 +1,6 @@
 package no.nav.syfo.client.pdl
 
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
@@ -31,8 +32,9 @@ import org.slf4j.LoggerFactory
 class PdlClient(
     private val urls: UrlEnv,
     private val azureAdClient: AzureAdClient,
+    private val client: HttpClient = httpClientDefault(),
 ) {
-    private val client = httpClientDefault()
+
     private val log: Logger = LoggerFactory.getLogger(PdlClient::class.qualifiedName)
 
     suspend fun mostRecentFnr(fnr: String): String? {
