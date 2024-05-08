@@ -1,6 +1,7 @@
 package no.nav.syfo.oppfolgingsplanmottak
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.BadRequestException
@@ -86,10 +87,30 @@ fun Routing.registerFollowUpPlanApi(
             }
 
             get("/{$uuid}/sendingstatus") {
-                val uuidString = call.parameters["uuid"].toString()
-                val sendingStatus = database.findSendingStatus(UUID.fromString(uuidString))
-                call.respond(sendingStatus)
+                try {
+                    val uuidString = call.uuid().toString()
+                    val sendingStatus = database.findSendingStatus(UUID.fromString(uuidString))
+                    call.respond(sendingStatus)
+                }catch (e: BadRequestException) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Invalid request. Error message: ${e.message}, Error cause: ${e.cause}"
+                    )
+                } catch (e: IllegalArgumentException) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Invalid input. Error message: ${e.message}, Error cause: ${e.cause}"
+                    )
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        "Failed to fetch follow-up plan status: ${e.message}"
+                    )
+                }
             }
         }
     }
 }
+
+private fun ApplicationCall.uuid(): UUID = UUID.fromString(this.parameters["uuid"])
+    ?: throw IllegalArgumentException("Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request")

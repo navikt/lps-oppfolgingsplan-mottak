@@ -78,6 +78,20 @@ paths:
             'application/json':
               schema:
                 $ref: "#/components/schemas/FollowUpPlanResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "Invalid request. Error message: <Some error message>, Error cause: <Some cause>"
+        "500":
+          description: "Internal Server Error"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "Failed to retrieve follow-up plan: <Some error message>"
 
 components:
   securitySchemes:
