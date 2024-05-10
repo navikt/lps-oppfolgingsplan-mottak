@@ -41,7 +41,17 @@ fun Application.apiModule(
     installMetrics()
     installCallId()
     installContentNegotiation()
-    installStatusPages()
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            if (cause is AuthorizationException) {
+                call.respond(HttpStatusCode.Unauthorized, "Unauthorized, cause: $cause")
+            }
+        }
+        status(HttpStatusCode.NotFound) { call, status ->
+            call.respond(HttpStatusCode.NotFound, "Unauthorized, cause: requested URI doesn't exist")
+        }
+    }
+
     install(Authentication) {
         configureMaskinportenJwt(
             MaskinportenJwtIssuer(
@@ -57,17 +67,6 @@ fun Application.apiModule(
         )
         if (environment.isDev()) {
             configureBasicAuthentication(environment.auth.basic)
-        }
-    }
-
-    install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            if (cause is AuthorizationException) {
-                call.respond(HttpStatusCode.Unauthorized, "Unauthorized, cause: $cause")
-            }
-        }
-        status(HttpStatusCode.NotFound) { call, status ->
-            call.respond(HttpStatusCode.NotFound, "Unauthorized, cause: requested URI doesn't exist")
         }
     }
 
