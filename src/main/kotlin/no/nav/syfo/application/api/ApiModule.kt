@@ -1,13 +1,10 @@
 package no.nav.syfo.application.api
 
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
 import no.nav.syfo.application.ApplicationEnvironment
 import no.nav.syfo.application.ApplicationState
@@ -26,7 +23,6 @@ import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
 import no.nav.syfo.oppfolgingsplanmottak.registerFollowUpPlanApi
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.veileder.registerVeilederApi
-import org.apache.kafka.common.errors.AuthorizationException
 
 @Suppress("LongParameterList")
 fun Application.apiModule(
@@ -41,16 +37,7 @@ fun Application.apiModule(
     installMetrics()
     installCallId()
     installContentNegotiation()
-    install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            if (cause is AuthorizationException) {
-                call.respond(HttpStatusCode.Unauthorized, "Unauthorized, cause: $cause")
-            }
-        }
-        status(HttpStatusCode.NotFound) { call, status ->
-            call.respond(HttpStatusCode.NotFound, "Unauthorized, cause: requested URI doesn't exist")
-        }
-    }
+    installStatusPages()
 
     install(Authentication) {
         configureMaskinportenJwt(
