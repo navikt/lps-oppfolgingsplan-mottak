@@ -85,6 +85,13 @@ paths:
               schema:
                 type: "string"
                 example: "Invalid request. Error message: <Some error message>, Error cause: <Some cause>"
+        "404":
+          description: "NotFound"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "The follow-up plan with a given uuid not found"
         "500":
           description: "Internal Server Error"
           content:
