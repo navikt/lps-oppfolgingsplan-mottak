@@ -88,10 +88,16 @@ fun Routing.registerFollowUpPlanApi(
 
             get("/{$uuid}/sendingstatus") {
                 try {
-                    val uuidString = call.uuid().toString()
-                    val sendingStatus = database.findSendingStatus(UUID.fromString(uuidString))
-                    call.respond(sendingStatus)
-                }catch (e: BadRequestException) {
+                    val sendingStatus = database.findSendingStatus(call.uuid())
+                    if (sendingStatus != null){
+                        call.respond(sendingStatus)
+                    } else {
+                        call.respond(
+                            HttpStatusCode.NotFound,
+                            "The follow-up plan with a given uuid not found"
+                        )
+                    }
+                } catch (e: BadRequestException) {
                     call.respond(
                         HttpStatusCode.BadRequest,
                         "Invalid request. Error message: ${e.message}, Error cause: ${e.cause}"
@@ -112,5 +118,6 @@ fun Routing.registerFollowUpPlanApi(
     }
 }
 
-private fun ApplicationCall.uuid(): UUID = UUID.fromString(this.parameters["uuid"])
+private fun ApplicationCall.uuid(): UUID =
+    UUID.fromString(this.parameters["uuid"])
     ?: throw IllegalArgumentException("Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request")

@@ -32,6 +32,19 @@ class EmbeddedDatabase : DatabaseInterface {
             }
     }
 
+    fun dropData() {
+        val tables = listOf(
+            "FOLLOW_UP_PLAN_LPS_V1",
+        )
+
+        connection.use { connection ->
+            tables.forEach { table ->
+                connection.prepareStatement("DELETE FROM $table").executeUpdate()
+            }
+            connection.commit()
+        }
+    }
+
     override val connection: Connection
         get() = dataSource.connection.apply { autoCommit = false }
 }
