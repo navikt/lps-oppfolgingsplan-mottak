@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -124,6 +125,22 @@ class FollowUpPlanApiTest : DescribeSpec({
                 responseMessage shouldContain "Failed to convert request body"
             }
         }
+
+        it("Fails when no plan with requested uuid is found") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+                val uuid = UUID.randomUUID()
+                val response = client.get("/api/v1/followupplan/$uuid/sendingstatus") {
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    contentType(ContentType.Application.Json)
+                }
+                val responseMessage = response.body<String>()
+
+                response shouldHaveStatus HttpStatusCode.NotFound
+                responseMessage shouldContain "The follow-up plan with a given uuid was not found"
+            }
+        }
+
     }
 })
 

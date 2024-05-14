@@ -38,6 +38,7 @@ fun Application.apiModule(
     installCallId()
     installContentNegotiation()
     installStatusPages()
+
     install(Authentication) {
         configureMaskinportenJwt(
             MaskinportenJwtIssuer(
