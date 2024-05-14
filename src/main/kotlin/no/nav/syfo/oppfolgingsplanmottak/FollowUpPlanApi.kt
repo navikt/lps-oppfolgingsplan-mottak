@@ -94,7 +94,7 @@ fun Routing.registerFollowUpPlanApi(
                     } else {
                         call.respond(
                             HttpStatusCode.NotFound,
-                            "The follow-up plan with a given uuid not found"
+                            "The follow-up plan with a given uuid was not found"
                         )
                     }
                 } catch (e: BadRequestException) {

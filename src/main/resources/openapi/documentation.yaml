@@ -91,7 +91,7 @@ paths:
             'text/plain':
               schema:
                 type: "string"
-                example: "The follow-up plan with a given uuid not found"
+                example: "The follow-up plan with a given uuid was not found"
         "500":
           description: "Internal Server Error"
           content:

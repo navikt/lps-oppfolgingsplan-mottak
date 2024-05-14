@@ -137,7 +137,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 val responseMessage = response.body<String>()
 
                 response shouldHaveStatus HttpStatusCode.NotFound
-                responseMessage shouldContain "The follow-up plan with a given uuid not found"
+                responseMessage shouldContain "The follow-up plan with a given uuid was not found"
             }
         }
 
