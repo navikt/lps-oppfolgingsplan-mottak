@@ -1,30 +1,17 @@
 # LPS follow-up plan API: Consumer guide
 
-This API allows for the submission of a follow-up plan to NAV and/or the general practitioner on behalf of an employer.
+This API allows for the submission of a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general practitioner on behalf of an employer.
 This is a <i>Delegated
 API</i>, which means that you as the API consumer are acting on behalf of another company/end-user. The API is secured
-with Maskinporten.
+with Maskinporten. NAV does not authorize the API consumer directly. Authorization to submit a plan is given to you as an API consumer by the end-user in Altinn.
 
-When a follow-up plan is submitted, the API will generate a PDF file to be shared with NAV and/or the general
-practitioner, depending on the input from `sendPlanToNav` and `sendPlanToGeneralPractitioner`. When `sendPlanToNav` is
-set
-to true, the resulting PDF is accessible to the employee on sick leave at
-https://person.nav.no/dokumentarkiv/tema/OPP (login required). If it is set to false, the follow-up plan will not be
-shared with NAV, and the PDF will not be added to the NAV website. When `sendPlanToGeneralPractitioner` is set to true,
-the resulting PDF will be sent to the general practitioner.
+## 🎯 Target audience
+
+This README is primarily intended for "Lønns- og personalsystemer" (Payroll and HR Systems) that wants to integrate with NAV for submitting follow-up plans.
 
 ## 🚀 Getting started
 
-### 1. Configure a maskinporten-client
-
-In order to use the API, you need to have a Maskinporten client configured. Please refer to
-the [Maskinporten documentation](https://docs.digdir.no/docs/Maskinporten/maskinporten_summary.html).
-Please take note that this is a so called <i>Delegated API</i>, which means that you are acting on behalf of an
-employer. You
-can find technical documentation on how to configure the delegation-part
-here: [Maskinporten delegation](https://docs.digdir.no/docs/Maskinporten/maskinporten_guide_apikonsument#bruke-delegering-som-leverand%C3%B8r)
-
-### 2. The employer must delegate rights to act on their behalf
+### 1. The employer must delegate rights to act on their behalf
 
 To submit a follow-up plan on behalf of an employer, the employer must delegate rights to the API (scope) to you as an
 LPS system. This is done
@@ -32,6 +19,13 @@ in Altinn. Please refer to
 the [Altinn documentation](https://altinn.github.io/docs/utviklingsguider/api-delegering/tilgangsstyrer/). Please note
 that the employer can find our API by searching for <i>"Oppfølgingsplan"</i> in Altinn, in the menu for <i>"Tilgang til
 programmeringsgrensesnitt - API"</i>.
+
+### 2. Configure a maskinporten-client
+
+In order to use the API, you need to have a Maskinporten client configured. Please refer to
+the [Maskinporten documentation](https://docs.digdir.no/docs/Maskinporten/maskinporten_guide_apikonsument).
+Please take note that this is a so called <i>Delegated API</i>, which means that you are acting on behalf of an
+employer. This must be configured in your client according to the Maskinporten documentation.
 
 ### 3. Retrieve a Maskinporten token on behalf of the employer
 
@@ -65,9 +59,11 @@ note that you will need to provide a valid Maskinporten token in the Authorizati
 - Production API: `https://lps-oppfolgingsplan-mottak.nav.no/api/v1/followupplan/{uuid}/sendingstatus`
 
 ## 🧪 Testing
-We have a step-by-step guide on how to test a delegated API (in our test environment), providing a bit more detail than
+We have a step-by-step guide on how to retrieve a maskinporten-token for a delegated API (in our test environment), providing a bit more detail than
 the steps above. <br>
-- [Testing Guide](TestingGuide.pdf)
+- [How to retrieve a maskinporten test-token for the follow-up plan API](TestingGuide.pdf)
+- After retrieving the token, you can use the Swagger documentation or Postman to test the API
+
 
 ## 🎬 Demo
 
@@ -83,13 +79,6 @@ is therefore not included in the API. <br>
 
 - [Link to demo app](https://demo.ekstern.dev.nav.no/oppfolgingsplan-lps)
 - [Link to demo repository](https://github.com/navikt/oppfolgingsplan-lps-demo)
-
-## 🔄 Interchangeable terms and abbreviations in the project
-
-+ "oppfølgingsplan", "followup plan", "lps plan" means the same in terms of this project
-+ "general practitioner", "fastlege"  means the same in terms of this project
-+ LPS: "Lønn- og personalsystem", external software operating on behalf of employer (for example sending followup plan
-  to NAV)
 
 ## ✉️ Contact
 
