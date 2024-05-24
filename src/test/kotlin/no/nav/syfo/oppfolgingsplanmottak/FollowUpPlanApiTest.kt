@@ -123,12 +123,12 @@ class FollowUpPlanApiTest : DescribeSpec({
             }
         }
 
-        it("11 digits invalid date in employeeIdentificationNumber in follow-up plan should return bad request") {
+        it("11 digits contains invalid digit in employeeIdentificationNumber in follow-up plan should return bad request") {
             testApplication {
                 val (_, client) = configureTestApplication()
 
                 val followUpPlanDTO = randomFollowUpPlanMockDTO.copy(
-                    employeeIdentificationNumber = "12345678901"
+                    employeeIdentificationNumber = "12345678901q"
                 )
 
                 val response = client.post("/api/v1/followupplan") {
