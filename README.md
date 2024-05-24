@@ -59,11 +59,7 @@ note that you will need to provide a valid Maskinporten token in the Authorizati
 - Production API: `https://lps-oppfolgingsplan-mottak.nav.no/api/v1/followupplan/{uuid}/sendingstatus`
 
 ## 🧪 Testing
-We have a step-by-step guide on how to retrieve a maskinporten-token for a delegated API (in our test environment), providing a bit more detail than
-the steps above. <br>
-- [How to retrieve a maskinporten test-token for the follow-up plan API](TestingGuide.pdf)
-- After retrieving the token, you can use the Swagger documentation or Postman to test the API
-
+Please refer to [NAV's guide for testing delegable API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-delegerbart-api.md)
 
 ## 🎬 Demo
 
