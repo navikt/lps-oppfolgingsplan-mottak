@@ -83,6 +83,66 @@ class FollowUpPlanApiTest : DescribeSpec({
             }
         }
 
+        it("10 digits invalid employeeIdentificationNumber in follow-up plan should return bad request") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val followUpPlanDTO = randomFollowUpPlanMockDTO.copy(
+                    employeeIdentificationNumber = "1234567890"
+                )
+
+                val response = client.post("/api/v1/followupplan") {
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    contentType(ContentType.Application.Json)
+                    setBody(followUpPlanDTO)
+                }
+                val responseMessage = response.body<String>()
+
+                response shouldHaveStatus HttpStatusCode.BadRequest
+                responseMessage shouldContain "Invalid employee identification number"
+            }
+        }
+
+        it("12 digits invalid employeeIdentificationNumber in follow-up plan should return bad request") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val followUpPlanDTO = randomFollowUpPlanMockDTO.copy(
+                    employeeIdentificationNumber = "123456789012"
+                )
+
+                val response = client.post("/api/v1/followupplan") {
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    contentType(ContentType.Application.Json)
+                    setBody(followUpPlanDTO)
+                }
+                val responseMessage = response.body<String>()
+
+                response shouldHaveStatus HttpStatusCode.BadRequest
+                responseMessage shouldContain "Invalid employee identification number"
+            }
+        }
+
+        it("11 digits invalid date in employeeIdentificationNumber in follow-up plan should return bad request") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val followUpPlanDTO = randomFollowUpPlanMockDTO.copy(
+                    employeeIdentificationNumber = "12345678901"
+                )
+
+                val response = client.post("/api/v1/followupplan") {
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    contentType(ContentType.Application.Json)
+                    setBody(followUpPlanDTO)
+                }
+                val responseMessage = response.body<String>()
+
+                response shouldHaveStatus HttpStatusCode.BadRequest
+                responseMessage shouldContain "Invalid employee identification number"
+            }
+        }
+
         it("Fails when employee has not contributed, but description is missing") {
             testApplication {
                 val (_, client) = configureTestApplication()
