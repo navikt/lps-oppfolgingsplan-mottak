@@ -23,7 +23,6 @@ import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 fun Routing.registerFollowUpPlanApi(
@@ -43,8 +42,6 @@ fun Routing.registerFollowUpPlanApi(
                     val lpsOrgnumber = getLpsOrgnumberFromClaims()
 
                     log.info("Received follow up plan from ${followUpPlanDTO.lpsName}, LPS orgnr: $lpsOrgnumber")
-
-                    validateEmployeeIdentificationNumber(followUpPlanDTO.employeeIdentificationNumber)
 
                     database.storeFollowUpPlan(
                         uuid = planUuid,
@@ -124,9 +121,3 @@ fun Routing.registerFollowUpPlanApi(
 private fun ApplicationCall.uuid(): UUID =
     UUID.fromString(this.parameters["uuid"])
     ?: throw IllegalArgumentException("Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request")
-
-private fun validateEmployeeIdentificationNumber(employeeIdentificationNumber: String?) {
-    if (!employeeIdentificationNumber?.matches(Regex("\\d{11}"))!!){
-        throw BadRequestException("Invalid employee identification number")
-    }
-}
