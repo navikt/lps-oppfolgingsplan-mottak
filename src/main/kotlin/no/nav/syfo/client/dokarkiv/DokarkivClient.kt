@@ -113,7 +113,7 @@ class DokarkivClient(
             else -> {
                 log.error("Call to Dokarkiv failed with status: ${response.status}, : ${response.bodyAsText()}")
                 COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_FALSE.increment()
-                throw RuntimeException("Failed to call back system with status: ${response.status}, : ${response.bodyAsText()}")
+                throw RuntimeException("Failed to call the archive service.")
             }
         }
 
