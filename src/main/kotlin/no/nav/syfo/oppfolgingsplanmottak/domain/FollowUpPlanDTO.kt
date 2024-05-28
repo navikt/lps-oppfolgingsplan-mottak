@@ -1,5 +1,6 @@
 package no.nav.syfo.oppfolgingsplanmottak.domain
 
+import io.ktor.server.plugins.BadRequestException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import no.nav.syfo.client.oppdfgen.domain.LpsPlanPdfData
@@ -44,6 +45,9 @@ data class FollowUpPlanDTO(
         }
         require(contributionDescriptionUsedCorrectly()) {
             "employeeHasNotContributedToPlanDescription is mandatory if employeeHasContributedToPlan = false"
+        }
+        if (!employeeIdentificationNumber.matches(Regex("\\d{11}"))){
+            throw BadRequestException("Invalid employee identification number")
         }
     }
 

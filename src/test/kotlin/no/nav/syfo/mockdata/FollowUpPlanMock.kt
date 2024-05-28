@@ -81,5 +81,5 @@ fun createDefaultFollowUpPlanMockDTO(employeeIdentificationNumber: String): Foll
     return followUpPlanDTO
 }
 
-val randomFollowUpPlanDTO = createDefaultFollowUpPlan("123456789")
-val randomFollowUpPlanMockDTO = createDefaultFollowUpPlanMockDTO("123456789")
+val randomFollowUpPlanDTO = createDefaultFollowUpPlan("12345678901")
+val randomFollowUpPlanMockDTO = createDefaultFollowUpPlanMockDTO("12345678901")
