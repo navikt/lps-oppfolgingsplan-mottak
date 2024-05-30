@@ -4,26 +4,6 @@ info:
   description: "Maskinporten API for submitting follow-up plans to NAV and/or the employees general practitioner."
   version: "1.0.0"
 paths:
-  /api/test/token:
-    get:
-      description: "Fetching maskinporten-token for test environment"
-      tags:
-        - Token for testmiljø
-      security:
-        - basicAuth: [ ]
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-        "500":
-          description: "Internal Server Error"
-          content:
-            '*/*':
-              schema:
-                type: "string"
   /api/v1/followupplan:
     post:
       description: "Submit follow-up plan to NAV and/or general practitioner"
@@ -107,10 +87,6 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Token from maskinporten
-    basicAuth:
-      type: http
-      scheme: basic
-      description: "Kun til bruk for test-token"
 
   schemas:
     FollowUpPlanDTO:
