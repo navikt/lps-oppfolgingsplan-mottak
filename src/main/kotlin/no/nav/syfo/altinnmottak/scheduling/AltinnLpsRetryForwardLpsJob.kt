@@ -4,10 +4,15 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
 import no.nav.syfo.altinnmottak.AltinnLpsService
-import no.nav.syfo.altinnmottak.database.*
+import no.nav.syfo.altinnmottak.database.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv
+import no.nav.syfo.altinnmottak.database.getAltinnLpsOppfolgingsplanNotYetSentToFastlege
+import no.nav.syfo.altinnmottak.database.getAltinnLpsOppfolgingsplanNotYetSentToNav
+import no.nav.syfo.altinnmottak.database.updateJournalpostId
+import no.nav.syfo.altinnmottak.database.updateSendToFastlegeRetryCount
 import no.nav.syfo.altinnmottak.domain.isBehovForBistandFraNAV
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.environment.ToggleEnv
+import no.nav.syfo.application.exception.GpNotFoundException
 import no.nav.syfo.application.metric.COUNT_METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_VELLYKKET
 import no.nav.syfo.application.scheduling.DB_SHORTNAME
@@ -98,6 +103,9 @@ class AltinnLpsRetryForwardLpsJob : Job {
                     lps.lpsFnr,
                     lps.pdf!!
                 )
+            } catch (e: GpNotFoundException) {
+                log.error("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege due to missing fastlege", e)
+                false
             } catch (e: RuntimeException) {
                 log.error("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege", e)
                 false
@@ -125,7 +133,6 @@ class AltinnLpsRetryForwardLpsJob : Job {
                 null
             }
             journalpostId?.let { database.updateJournalpostId(lps.uuid, journalpostId) }
-
         }
     }
 

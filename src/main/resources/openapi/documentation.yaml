@@ -3,9 +3,15 @@ info:
   title: "LPS follow-up plan API"
   description: "Maskinporten API for submitting follow-up plans to NAV and/or the employees general practitioner."
   version: "1.0.0"
+servers:
+  - url: https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no
+    description: Test Server
+  - url: https://lps-oppfolgingsplan-mottak.nav.no
+    description: Production Server
 paths:
   /api/v1/followupplan:
     post:
+      summary: Submit follow-up plan
       description: "Submit follow-up plan to NAV and/or general practitioner"
       tags:
         - Followup-plan API
@@ -24,22 +30,35 @@ paths:
             'application/json':
               schema:
                 $ref: "#/components/schemas/FollowUpPlanResponse"
-        "400":
-          description: "Bad Request"
+        '400':
+          description: The follow-up plan DTO has validation errors. Please check message for the specific error.
           content:
-            'text/plain':
+            application/json:
               schema:
-                type: "string"
-                example: "Invalid request. Error message: <Some error message>, Error cause: <Some cause>"
-        "500":
-          description: "Internal Server Error"
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: The maskinporten-token is invalid. Please check message for the specific error.
           content:
-            'text/plain':
+            application/json:
               schema:
-                type: "string"
-                example: "Failed to retrieve follow-up plan: <Some error message>"
+                $ref: '#/components/schemas/AuthenticationError'
+        '404':
+          description: The GP or Employee was not found. Please check the error type for details.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/GeneralPractitionerNotFoundError'
+                  - $ref: '#/components/schemas/EmployeeNotFoundError'
+        '500':
+          description: An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
   /api/v1/followupplan/{uuid}/sendingstatus:
     get:
+      summary: Check sending status
       description: "Gets the sending status to NAV and general practitioner by follow up plan id"
       tags:
         - Followup-plan API
@@ -58,27 +77,64 @@ paths:
             'application/json':
               schema:
                 $ref: "#/components/schemas/FollowUpPlanResponse"
-        "400":
-          description: "Bad Request"
+        '401':
+          description: The maskinporten-token is invalid. Please check message for the specific error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticationError'
+        '404':
+          description: The follow-up plan was not found. Please ensure that the uuid is correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowupPlanNotFoundError'
+        '500':
+          description: An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+  /api/v1/followupplan/verify-integration:
+    post:
+      summary: Verify Integration
+      tags:
+        - Followup-plan API
+      description: Endpoint to verify if the integration is up and running.
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/VerifyIntegrationDTO"
+        required: true
+      responses:
+        '200':
+          description: "Integration is up and running"
           content:
             'text/plain':
               schema:
                 type: "string"
-                example: "Invalid request. Error message: <Some error message>, Error cause: <Some cause>"
-        "404":
-          description: "NotFound"
+                example: "Integration is up and running"
+        '400':
+          description: Validation errors related to employeeIdentificationNumber. Please check message for the specific error.
           content:
-            'text/plain':
+            application/json:
               schema:
-                type: "string"
-                example: "The follow-up plan with a given uuid was not found"
-        "500":
-          description: "Internal Server Error"
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: The maskinporten-token is invalid. Please check message for the specific error.
           content:
-            'text/plain':
+            application/json:
               schema:
-                type: "string"
-                example: "Failed to retrieve follow-up plan: <Some error message>"
+                $ref: '#/components/schemas/AuthenticationError'
+        '404':
+          description: The employee was not found. Please ensure that the employeeIdentificationNumber is correct.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeNotFoundError'
 
 components:
   securitySchemes:
@@ -184,20 +240,30 @@ components:
           description: "Name of the consumer system sending in this plan"
           example: "Empire HR System"
       required:
-      - "employeeIdentificationNumber"
-      - "typicalWorkday"
-      - "tasksThatCanStillBeDone"
-      - "tasksThatCanNotBeDone"
-      - "previousFacilitation"
-      - "plannedFacilitation"
-      - "followUp"
-      - "evaluationDate"
-      - "sendPlanToNav"
-      - "sendPlanToGeneralPractitioner"
-      - "contactPersonFullName"
-      - "contactPersonPhoneNumber"
-      - "contactPersonEmail"
-      - "employeeHasContributedToPlan"
+        - "employeeIdentificationNumber"
+        - "typicalWorkday"
+        - "tasksThatCanStillBeDone"
+        - "tasksThatCanNotBeDone"
+        - "previousFacilitation"
+        - "plannedFacilitation"
+        - "followUp"
+        - "evaluationDate"
+        - "sendPlanToNav"
+        - "sendPlanToGeneralPractitioner"
+        - "contactPersonFullName"
+        - "contactPersonPhoneNumber"
+        - "contactPersonEmail"
+        - "employeeHasContributedToPlan"
+
+    VerifyIntegrationDTO:
+      type: "object"
+      properties:
+        employeeIdentificationNumber:
+          type: "string"
+          description: "A Norwegian national identity number or D number."
+          example: "12345678901"
+      required:
+        - "employeeIdentificationNumber"
 
     FollowUpPlanResponse:
       type: "object"
@@ -211,3 +277,113 @@ components:
         isSentToNavStatus:
           type: "boolean"
           description: "Status for sending a plan to NAV, true or false"
+
+    ValidationError:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HttpStatusCode'
+        error:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: Invalid employee identification number
+      example:
+        status:
+          value: 400
+          description: Bad request
+        error: VALIDATION_ERROR
+        message: Invalid employee identification number
+    AuthenticationError:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HttpStatusCode'
+        error:
+          type: string
+          example: AUTHENTICATION_ERROR
+        message:
+          type: string
+          example: JWT is expired
+      example:
+        status:
+          value: 401
+          description: Unauthorized
+        error: AUTHENTICATION_ERROR
+        message: JWT is expired
+    GeneralPractitionerNotFoundError:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HttpStatusCode'
+        error:
+          type: string
+          example: GENERAL_PRACTITIONER_NOT_FOUND
+        message:
+          type: string
+          example: General practitioner was not found
+      example:
+        status:
+          value: 404
+          description: Not found
+        error: GENERAL_PRACTITIONER_NOT_FOUND
+        message: General practitioner was not found
+    EmployeeNotFoundError:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HttpStatusCode'
+        error:
+          type: string
+          example: EMPLOYEE_NOT_FOUND
+        message:
+          type: string
+          example: Could not find requested person in our systems
+      example:
+        status:
+          value: 404
+          description: Not found
+        error: EMPLOYEE_NOT_FOUND
+        message: Could not find requested person in our systems
+    FollowupPlanNotFoundError:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HttpStatusCode'
+        error:
+          type: string
+          example: FOLLOWUP_PLAN_NOT_FOUND
+        message:
+          type: string
+          example: The follow-up plan with a given uuid was not found
+      example:
+        status:
+          value: 404
+          description: Not found
+        error: FOLLOWUP_PLAN_NOT_FOUND
+        message: The follow-up plan with a given uuid was not found
+    InternalServerError:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HttpStatusCode'
+        error:
+          type: string
+          example: INTERNAL_SERVER_ERROR
+        message:
+          type: string
+          example: Internal server error
+      example:
+        status:
+          value: 500
+          description: Internal server error
+        error: INTERNAL_SERVER_ERROR
+        message: Internal server error
+    HttpStatusCode:
+      type: object
+      properties:
+        value:
+          type: integer
+        description:
+          type: string

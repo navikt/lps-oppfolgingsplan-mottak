@@ -1,10 +1,9 @@
 package no.nav.syfo.oppfolgingsplanmottak.domain
 
-import io.ktor.server.plugins.BadRequestException
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import no.nav.syfo.client.oppdfgen.domain.LpsPlanPdfData
 import no.nav.syfo.client.oppdfgen.domain.OppfolgingsplanOpPdfGenRequest
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 data class FollowUpPlanDTO(
     val employeeIdentificationNumber: String,
@@ -29,29 +28,12 @@ data class FollowUpPlanDTO(
     val employeeHasNotContributedToPlanDescription: String?,
     val lpsName: String,
 ) {
-    init {
-        fun contributionDescriptionUsedCorrectly(): Boolean {
-            if (employeeHasContributedToPlan) {
-                return employeeHasNotContributedToPlanDescription == null
-            }
-            return employeeHasNotContributedToPlanDescription != null
-        }
-
-        require(!(needsHelpFromNav == true && !sendPlanToNav)) {
-            "needsHelpFromNav cannot be true if sendPlanToNav is false"
-        }
-        require(needsHelpFromNav != true || !needsHelpFromNavDescription.isNullOrBlank()) {
-            "needsHelpFromNavDescription is obligatory if needsHelpFromNav is true"
-        }
-        require(contributionDescriptionUsedCorrectly()) {
-            "employeeHasNotContributedToPlanDescription is mandatory if employeeHasContributedToPlan = false"
-        }
-        if (!employeeIdentificationNumber.matches(Regex("\\d{11}"))){
-            throw BadRequestException("Invalid employee identification number")
-        }
-    }
-
-    fun toOppfolgingsplanOpPdfGenRequest(employeeName: String?, employeePhoneNumber: String?, employeeEmail:String?, employeeAddress:String?): OppfolgingsplanOpPdfGenRequest {
+    fun toOppfolgingsplanOpPdfGenRequest(
+        employeeName: String?,
+        employeePhoneNumber: String?,
+        employeeEmail: String?,
+        employeeAddress: String?
+    ): OppfolgingsplanOpPdfGenRequest {
         val sendPlanTo = getSendToString(this.sendPlanToNav, this.sendPlanToGeneralPractitioner)
         val evaluationDateFormatted = getEvaluationDateFormatted(this.evaluationDate)
 

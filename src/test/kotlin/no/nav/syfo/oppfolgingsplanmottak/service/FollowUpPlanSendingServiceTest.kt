@@ -1,13 +1,11 @@
 package no.nav.syfo.oppfolgingsplanmottak.service
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
-import java.util.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.dokarkiv.DokarkivClient
@@ -15,6 +13,7 @@ import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.mockdata.randomFollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
+import java.util.*
 
 class FollowUpPlanSendingServiceTest : DescribeSpec({
     val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)
@@ -34,7 +33,7 @@ class FollowUpPlanSendingServiceTest : DescribeSpec({
 
     describe("FollowUpPlanSendingService") {
         it(
-            "sends plan to general practitioner when sendPlanToGeneralPractitioner is true and sendLpsPlanToFastlegeToggle is enabled",
+            "sends plan to gp when sendPlanToGeneralPractitioner is true and sendLpsPlanToFastlegeToggle is enabled",
         ) {
             runBlocking {
                 val followUpPlanDTO = randomFollowUpPlanDTO.copy(sendPlanToGeneralPractitioner = true)
@@ -95,30 +94,6 @@ class FollowUpPlanSendingServiceTest : DescribeSpec({
 
                 verify(exactly = 1) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
                 response.isSentToNavStatus shouldBe true
-            }
-        }
-
-        it("if sendPlanToNav is false but needsHelpFromNav is true, it should throw and exception") {
-            runBlocking {
-                shouldThrow<IllegalArgumentException> {
-                    randomFollowUpPlanDTO.copy(
-                        sendPlanToNav = false,
-                        needsHelpFromNav = true,
-                        needsHelpFromNavDescription = "Needs help from NAV description",
-                    )
-                }
-            }
-        }
-
-        it("if needsHelpFromNav is true but needsHelpFromNavDescription is null, it should throw an exception") {
-            runBlocking {
-                shouldThrow<IllegalArgumentException> {
-                    randomFollowUpPlanDTO.copy(
-                        sendPlanToNav = true,
-                        needsHelpFromNav = true,
-                        needsHelpFromNavDescription = null,
-                    )
-                }
             }
         }
     }
