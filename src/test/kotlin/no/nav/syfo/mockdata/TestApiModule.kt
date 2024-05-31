@@ -1,6 +1,6 @@
 package no.nav.syfo.mockdata
 
-import io.ktor.server.application.Application
+import io.ktor.server.application.*
 import io.mockk.mockk
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.database.DatabaseInterface

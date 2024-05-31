@@ -26,8 +26,22 @@ fun validMaskinportenToken(consumerOrgnumber: String = "123456789", supplierOrgn
         issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
         scope = ExternalMockEnvironment.instance.environment.auth.maskinporten.scope,
         consumerOrgnumber = consumerOrgnumber,
-        supplierOrgnumber = supplierOrgnumber
+        supplierOrgnumber = supplierOrgnumber,
+        expiry = LocalDateTime.now().plusHours(1)
     )
+
+fun customMaskinportenToken(
+    consumerOrgnumber: String? = "123456789",
+    supplierOrgnumber: String? = "889640782",
+    scope: String = ExternalMockEnvironment.instance.environment.auth.maskinporten.scope,
+    expiry: LocalDateTime = LocalDateTime.now().plusHours(1)
+) = generateMaskinportenJWT(
+    issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
+    scope = scope,
+    consumerOrgnumber = consumerOrgnumber,
+    supplierOrgnumber = supplierOrgnumber,
+    expiry = expiry
+)
 
 const val KEY_ID = "localhost-signer"
 
@@ -57,30 +71,37 @@ fun generateAzureAdJWT(
 fun generateMaskinportenJWT(
     issuer: String,
     scope: String,
-    expiry: LocalDateTime? = LocalDateTime.now().plusHours(1),
-    consumerOrgnumber: String,
-    supplierOrgnumber: String
+    expiry: LocalDateTime?,
+    consumerOrgnumber: String?,
+    supplierOrgnumber: String?
 ): String {
     val now = Date()
     val key = getDefaultRSAKey()
     val alg = Algorithm.RSA256(key.toRSAPublicKey(), key.toRSAPrivateKey())
 
-    return JWT.create()
+    val jwtBuilder = JWT.create()
         .withKeyId(KEY_ID)
         .withIssuer(issuer)
         .withJWTId(UUID.randomUUID().toString())
         .withClaim("iat", now)
-        .withClaim("exp", Date.from(expiry?.atZone(ZoneId.systemDefault())?.toInstant()))
         .withClaim("scope", scope)
-        .withClaim(
+        .withExpiresAt(expiry?.let { Date.from(it.atZone(ZoneId.systemDefault()).toInstant()) })
+
+    if (!consumerOrgnumber.isNullOrEmpty()) {
+        jwtBuilder.withClaim(
             "consumer",
             mapOf("authority" to "iso6523-actorid-upis", "ID" to "0192:$consumerOrgnumber")
         )
-        .withClaim(
+    }
+
+    if (!supplierOrgnumber.isNullOrEmpty()) {
+        jwtBuilder.withClaim(
             "supplier",
             mapOf("authority" to "iso6523-actorid-upis", "ID" to "0192:$supplierOrgnumber")
         )
-        .sign(alg)
+    }
+
+    return jwtBuilder.sign(alg)
 }
 
 private fun getDefaultRSAKey(): RSAKey {

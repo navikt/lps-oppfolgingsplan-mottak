@@ -4,27 +4,25 @@ import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.ktor.client.call.body
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.server.testing.testApplication
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import io.mockk.clearAllMocks
-import java.util.*
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.util.configureTestApplication
+import no.nav.syfo.util.customMaskinportenToken
 import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
+import java.util.*
 
 class FollowUpPlanApiTest : DescribeSpec({
+    val employeeIdentificationNumber = "12345678912"
+    val employeeOrgnumber = "123456789"
 
     beforeSpec {
     }
@@ -34,9 +32,6 @@ class FollowUpPlanApiTest : DescribeSpec({
     }
 
     describe("Retrieval of oppfølgingsplaner") {
-        val employeeIdentificationNumber = "12345678912"
-        val employeeOrgnumber = "123456789"
-
         it("Submits and stores a follow-up plan") {
             testApplication {
                 val (embeddedDatabase, client) = configureTestApplication()
@@ -123,7 +118,9 @@ class FollowUpPlanApiTest : DescribeSpec({
             }
         }
 
-        it("11 digits contains invalid digit in employeeIdentificationNumber in follow-up plan should return bad request") {
+        it(
+            "11 digits contains invalid digit in employeeIdentificationNumber in follow-up plan should return bad request"
+        ) {
             testApplication {
                 val (_, client) = configureTestApplication()
 
@@ -200,7 +197,52 @@ class FollowUpPlanApiTest : DescribeSpec({
                 responseMessage shouldContain "The follow-up plan with a given uuid was not found"
             }
         }
+    }
 
+    describe("Verification of integration") {
+        it("Fails when consumer is missing") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val response = client.get("/api/v1/followupplan/verify-integration") {
+                    bearerAuth(customMaskinportenToken(consumerOrgnumber = null))
+                    contentType(ContentType.Application.Json)
+                }
+
+                response shouldHaveStatus HttpStatusCode.Unauthorized
+                val responseBody = response.body<String>()
+                responseBody shouldBe "Missing consumer claim in JWT"
+            }
+        }
+
+        it("Fails when supplier is missing") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val response = client.get("/api/v1/followupplan/verify-integration") {
+                    bearerAuth(customMaskinportenToken(supplierOrgnumber = null))
+                    contentType(ContentType.Application.Json)
+                }
+
+                response shouldHaveStatus HttpStatusCode.Unauthorized
+                val responseBody = response.body<String>()
+                responseBody shouldBe "Missing supplier claim in JWT"
+            }
+        }
+
+        it("Fails when scope is wrong") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val response = client.get("/api/v1/followupplan/verify-integration") {
+                    bearerAuth(customMaskinportenToken(scope = "hei"))
+                    contentType(ContentType.Application.Json)
+                }
+
+                response shouldHaveStatus HttpStatusCode.Unauthorized
+                val responseBody = response.body<String>()
+                responseBody shouldBe "Invalid scope in JWT"
+            }
+        }
     }
 })
-

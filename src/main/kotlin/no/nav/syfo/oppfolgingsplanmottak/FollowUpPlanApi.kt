@@ -1,17 +1,12 @@
 package no.nav.syfo.oppfolgingsplanmottak
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
-import io.ktor.server.auth.authenticate
-import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Routing
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
-import java.util.*
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.plugins.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET
@@ -24,6 +19,7 @@ import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
 import org.slf4j.LoggerFactory
+import java.util.*
 
 fun Routing.registerFollowUpPlanApi(
     database: DatabaseInterface,
@@ -89,7 +85,7 @@ fun Routing.registerFollowUpPlanApi(
             get("/{$uuid}/sendingstatus") {
                 try {
                     val sendingStatus = database.findSendingStatus(call.uuid())
-                    if (sendingStatus != null){
+                    if (sendingStatus != null) {
                         call.respond(sendingStatus)
                     } else {
                         call.respond(
@@ -114,10 +110,14 @@ fun Routing.registerFollowUpPlanApi(
                     )
                 }
             }
+
+            get("/verify-integration") {
+                call.respond(HttpStatusCode.OK, "Integration is up and running")
+            }
         }
     }
 }
 
 private fun ApplicationCall.uuid(): UUID =
     UUID.fromString(this.parameters["uuid"])
-    ?: throw IllegalArgumentException("Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request")
+        ?: throw IllegalArgumentException("Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request")
