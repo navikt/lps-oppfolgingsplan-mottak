@@ -31,6 +31,13 @@ paths:
               schema:
                 type: "string"
                 example: "Invalid request. Error message: <Some error message>, Error cause: <Some cause>"
+        "401":
+          description: "Unauthorized"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "Missing supplier claim in JWT"
         "500":
           description: "Internal Server Error"
           content:
@@ -65,6 +72,13 @@ paths:
               schema:
                 type: "string"
                 example: "Invalid request. Error message: <Some error message>, Error cause: <Some cause>"
+        "401":
+          description: "Unauthorized"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "Missing supplier claim in JWT"
         "404":
           description: "NotFound"
           content:
@@ -79,6 +93,25 @@ paths:
               schema:
                 type: "string"
                 example: "Failed to retrieve follow-up plan: <Some error message>"
+  /api/v1/followupplan/verify-integration:
+    get:
+      summary: Verify Integration
+      description: Endpoint to verify if the integration is up and running.
+      responses:
+        '200':
+          description: "Integration is up and running"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "Integration is up and running"
+        "401":
+          description: "Unauthorized"
+          content:
+            'text/plain':
+              schema:
+                type: "string"
+                example: "Missing supplier claim in JWT"
 
 components:
   securitySchemes:
