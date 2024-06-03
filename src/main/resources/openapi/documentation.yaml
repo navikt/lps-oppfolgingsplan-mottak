@@ -6,6 +6,7 @@ info:
 paths:
   /api/v1/followupplan:
     post:
+      summary: Submit follow-up plan
       description: "Submit follow-up plan to NAV and/or general practitioner"
       tags:
         - Followup-plan API
@@ -47,6 +48,7 @@ paths:
                 example: "Failed to retrieve follow-up plan: <Some error message>"
   /api/v1/followupplan/{uuid}/sendingstatus:
     get:
+      summary: Check sending status
       description: "Gets the sending status to NAV and general practitioner by follow up plan id"
       tags:
         - Followup-plan API
@@ -96,6 +98,8 @@ paths:
   /api/v1/followupplan/verify-integration:
     get:
       summary: Verify Integration
+      tags:
+        - Followup-plan API
       description: Endpoint to verify if the integration is up and running.
       responses:
         '200':
