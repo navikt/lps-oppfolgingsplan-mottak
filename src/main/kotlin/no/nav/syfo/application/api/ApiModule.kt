@@ -17,6 +17,7 @@ import no.nav.syfo.application.api.swagger.registerSwaggerApi
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.environment.isDev
 import no.nav.syfo.application.metric.registerPrometheusApi
+import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
@@ -33,6 +34,7 @@ fun Application.apiModule(
     wellKnownInternalAzureAD: WellKnown,
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
     followUpPlanSendingService: FollowUpPlanSendingService,
+    pdlClient: PdlClient,
 ) {
     installMetrics()
     installCallId()
@@ -68,7 +70,7 @@ fun Application.apiModule(
             database = database,
         )
         registerPrometheusApi()
-        registerFollowUpPlanApi(database, followUpPlanSendingService)
+        registerFollowUpPlanApi(database, followUpPlanSendingService, pdlClient)
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
             database = database,

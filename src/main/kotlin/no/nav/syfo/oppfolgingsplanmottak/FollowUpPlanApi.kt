@@ -15,6 +15,7 @@ import java.util.*
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET
+import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
 import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.database.updateSentAt
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory
 fun Routing.registerFollowUpPlanApi(
     database: DatabaseInterface,
     followUpPlanSendingService: FollowUpPlanSendingService,
+    pdlClient: PdlClient,
 ) {
     val log = LoggerFactory.getLogger("FollowUpPlanApi")
     val uuid = "uuid"
@@ -40,7 +42,13 @@ fun Routing.registerFollowUpPlanApi(
                     val planUuid = UUID.randomUUID()
                     val employerOrgnr = getOrgnumberFromClaims()
                     val lpsOrgnumber = getLpsOrgnumberFromClaims()
-
+                    if( pdlClient.getPersonInfo(followUpPlanDTO.employeeIdentificationNumber) == null){
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Could not find requested person in our systems"
+                        )
+                        return@post
+                    }
                     log.info("Received follow up plan from ${followUpPlanDTO.lpsName}, LPS orgnr: $lpsOrgnumber")
 
                     database.storeFollowUpPlan(

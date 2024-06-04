@@ -60,5 +60,10 @@ fun Application.testApiModule(
         wellKnownInternalAzureAD = externalMockEnvironment.wellKnownInternalAzureAD,
         veilederTilgangskontrollClient = veilederTilgangskontrollClient,
         followUpPlanSendingService = followUpPlanSendingService,
+        pdlClient = PdlClient(
+            externalMockEnvironment.environment.urls,
+            externalMockEnvironment.azureAdClient,
+            externalMockEnvironment.mockHttpClient
+        ),
     )
 }
