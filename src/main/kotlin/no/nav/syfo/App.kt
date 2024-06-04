@@ -131,6 +131,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
                 wellKnownInternalAzureAD,
                 veilederTilgangskontrollClient,
                 followUpPlanSendingService,
+                pdlClient,
             )
             kafkaModule(
                 appState,
