@@ -18,7 +18,6 @@ import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
 import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.database.updateSentAt
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
-import no.nav.syfo.oppfolgingsplanmottak.domain.VerifyIntegrationDTO
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
@@ -83,9 +82,7 @@ fun Routing.registerFollowUpPlanApi(
                 }
             }
 
-            post("/verify-integration") {
-                val dto = call.receive<VerifyIntegrationDTO>()
-                validator.validateEmployeeInformation(dto.employeeIdentificationNumber)
+            get("/verify-integration") {
                 call.respond(HttpStatusCode.OK, "Integration is up and running")
             }
         }

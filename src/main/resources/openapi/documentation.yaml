@@ -96,19 +96,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
   /api/v1/followupplan/verify-integration:
-    post:
+    get:
       summary: Verify Integration
       tags:
         - Followup-plan API
       description: Endpoint to verify if the integration is up and running.
       security:
         - bearerAuth: [ ]
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              $ref: "#/components/schemas/VerifyIntegrationDTO"
-        required: true
       responses:
         '200':
           description: "Integration is up and running"
@@ -117,24 +111,12 @@ paths:
               schema:
                 type: "string"
                 example: "Integration is up and running"
-        '400':
-          description: Validation errors related to employeeIdentificationNumber. Please check message for the specific error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
         '401':
           description: The maskinporten-token is invalid. Please check message for the specific error.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthenticationError'
-        '404':
-          description: The employee was not found. Please ensure that the employeeIdentificationNumber is correct.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EmployeeNotFoundError'
 
 components:
   securitySchemes:
@@ -254,16 +236,6 @@ components:
         - "contactPersonPhoneNumber"
         - "contactPersonEmail"
         - "employeeHasContributedToPlan"
-
-    VerifyIntegrationDTO:
-      type: "object"
-      properties:
-        employeeIdentificationNumber:
-          type: "string"
-          description: "A Norwegian national identity number or D number."
-          example: "12345678901"
-      required:
-        - "employeeIdentificationNumber"
 
     FollowUpPlanResponse:
       type: "object"

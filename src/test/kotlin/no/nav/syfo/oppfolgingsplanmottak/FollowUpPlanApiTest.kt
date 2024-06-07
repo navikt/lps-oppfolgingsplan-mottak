@@ -21,7 +21,6 @@ import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
-import no.nav.syfo.oppfolgingsplanmottak.domain.VerifyIntegrationDTO
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.customMaskinportenToken
 import no.nav.syfo.util.validMaskinportenToken
@@ -216,10 +215,9 @@ class FollowUpPlanApiTest : DescribeSpec({
             testApplication {
                 val (_, client) = configureTestApplication()
 
-                val response = client.post("/api/v1/followupplan/verify-integration") {
+                val response = client.get("/api/v1/followupplan/verify-integration") {
                     bearerAuth(customMaskinportenToken(consumerOrgnumber = null))
                     contentType(ContentType.Application.Json)
-                    setBody(VerifyIntegrationDTO(employeeIdentificationNumber))
                 }
 
                 response shouldHaveStatus HttpStatusCode.Unauthorized
@@ -232,10 +230,9 @@ class FollowUpPlanApiTest : DescribeSpec({
             testApplication {
                 val (_, client) = configureTestApplication()
 
-                val response = client.post("/api/v1/followupplan/verify-integration") {
+                val response = client.get("/api/v1/followupplan/verify-integration") {
                     bearerAuth(customMaskinportenToken(supplierOrgnumber = null))
                     contentType(ContentType.Application.Json)
-                    setBody(VerifyIntegrationDTO(employeeIdentificationNumber))
                 }
 
                 response shouldHaveStatus HttpStatusCode.Unauthorized
@@ -248,10 +245,9 @@ class FollowUpPlanApiTest : DescribeSpec({
             testApplication {
                 val (_, client) = configureTestApplication()
 
-                val response = client.post("/api/v1/followupplan/verify-integration") {
+                val response = client.get("/api/v1/followupplan/verify-integration") {
                     bearerAuth(customMaskinportenToken(scope = "hei"))
                     contentType(ContentType.Application.Json)
-                    setBody(VerifyIntegrationDTO(employeeIdentificationNumber))
                 }
 
                 response shouldHaveStatus HttpStatusCode.Unauthorized
@@ -264,10 +260,9 @@ class FollowUpPlanApiTest : DescribeSpec({
             testApplication {
                 val (_, client) = configureTestApplication()
 
-                val response = client.post("/api/v1/followupplan/verify-integration") {
+                val response = client.get("/api/v1/followupplan/verify-integration") {
                     bearerAuth(validMaskinportenToken())
                     contentType(ContentType.Application.Json)
-                    setBody(VerifyIntegrationDTO(employeeIdentificationNumber))
                 }
 
                 response shouldHaveStatus HttpStatusCode.OK
