@@ -59,7 +59,7 @@ note that you will need to provide a valid Maskinporten token in the Authorizati
 - Production API: `https://lps-oppfolgingsplan-mottak.nav.no/api/v1/followupplan/{uuid}/sendingstatus`
 
 ## 🧪 Testing
-Please refer to [NAV's guide for testing delegable API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-delegerbart-api.md)
+Please refer to [NAV's guide for testing delegable API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-delegerbart-api/teste-delegerbart-api.md)
 
 ## 🎬 Demo
 
