@@ -41,16 +41,11 @@ class FollowUpPlanSendingService(
         val sentToFastlegeStatus: Boolean =
             shouldSendToGeneralPractitioner && run {
                 if (pdf != null) {
-                    try {
-                        isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
-                            sykmeldtFnr,
-                            pdf
-                        )
-                        true
-                    } catch (e: Exception) {
-                        log.error("Could not send plan to general practitioner due  to exception: ", e)
-                        false
-                    }
+                    isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
+                        sykmeldtFnr,
+                        pdf
+                    )
+                    true
                 } else {
                     false
                 }
