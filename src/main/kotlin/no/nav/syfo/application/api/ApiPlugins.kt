@@ -1,19 +1,36 @@
 package no.nav.syfo.application.api
 
-import io.ktor.client.plugins.*
-import io.ktor.http.*
-import io.ktor.serialization.jackson.*
-import io.ktor.server.application.*
-import io.ktor.server.metrics.micrometer.*
-import io.ktor.server.plugins.callid.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.response.*
+import io.ktor.serialization.jackson.jackson
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.install
+import io.ktor.server.application.log
+import io.ktor.server.metrics.micrometer.MicrometerMetrics
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.plugins.NotFoundException
+import io.ktor.server.plugins.callid.CallId
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
-import no.nav.syfo.application.exception.ConflictException
+import no.nav.syfo.application.exception.ApiError
+import no.nav.syfo.application.exception.ApiError.BadRequestError
+import no.nav.syfo.application.exception.ApiError.EmployeeNotFoundError
+import no.nav.syfo.application.exception.ApiError.FollowUpPlanDTOValidationError
+import no.nav.syfo.application.exception.ApiError.ForbiddenAccessVeilederError
+import no.nav.syfo.application.exception.ApiError.GeneralPractitionerNotFoundError
+import no.nav.syfo.application.exception.ApiError.IllegalArgumentError
+import no.nav.syfo.application.exception.ApiError.InternalServerError
+import no.nav.syfo.application.exception.ApiError.NotFoundError
+import no.nav.syfo.application.exception.EmployeeNotFoundException
+import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.ForbiddenAccessVeilederException
+import no.nav.syfo.application.exception.GpNotFoundException
 import no.nav.syfo.application.metric.METRICS_REGISTRY
-import no.nav.syfo.util.*
+import no.nav.syfo.util.NAV_CALL_ID_HEADER
+import no.nav.syfo.util.configure
+import no.nav.syfo.util.getCallId
+import no.nav.syfo.util.getConsumerClientId
 import java.time.Duration
 import java.util.*
 
@@ -44,53 +61,39 @@ fun Application.installCallId() {
     }
 }
 
+private fun logException(call: ApplicationCall, cause: Throwable) {
+    val callId = call.getCallId()
+    val consumerClientId = call.getConsumerClientId()
+    val logExceptionMessage = "Caught exception, callId=$callId, consumerClientId=$consumerClientId"
+    val log = call.application.log
+    when (cause) {
+        is ForbiddenAccessVeilederException -> log.warn(logExceptionMessage, cause)
+        else -> log.error(logExceptionMessage, cause)
+    }
+}
+
+private fun determineApiError(cause: Throwable): ApiError {
+    return when (cause) {
+        is FollowUpPlanDTOValidationException -> FollowUpPlanDTOValidationError(
+            cause.message ?: "DTO validation failed"
+        )
+
+        is EmployeeNotFoundException -> EmployeeNotFoundError
+        is GpNotFoundException -> GeneralPractitionerNotFoundError
+        is ForbiddenAccessVeilederException -> ForbiddenAccessVeilederError
+        is BadRequestException -> BadRequestError(cause.message ?: "Bad request")
+        is IllegalArgumentException -> IllegalArgumentError(cause.message ?: "Illegal argument")
+        is NotFoundException -> NotFoundError(cause.message ?: "Not found")
+        else -> InternalServerError(cause.message ?: "Internal server error")
+    }
+}
+
 fun Application.installStatusPages() {
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            val callId = call.getCallId()
-            val consumerClientId = call.getConsumerClientId()
-            val logExceptionMessage = "Caught exception, callId=$callId, consumerClientId=$consumerClientId"
-            val log = call.application.log
-            when (cause) {
-                is ForbiddenAccessVeilederException -> {
-                    log.warn(logExceptionMessage, cause)
-                }
-
-                else -> {
-                    log.error(logExceptionMessage, cause)
-                }
-            }
-
-            var isUnexpectedException = false
-
-            val responseStatus: HttpStatusCode = when (cause) {
-                is ResponseException -> {
-                    cause.response.status
-                }
-
-                is IllegalArgumentException -> {
-                    HttpStatusCode.BadRequest
-                }
-
-                is ConflictException -> {
-                    HttpStatusCode.BadRequest
-                }
-
-                is ForbiddenAccessVeilederException -> {
-                    HttpStatusCode.Forbidden
-                }
-
-                else -> {
-                    isUnexpectedException = true
-                    HttpStatusCode.InternalServerError
-                }
-            }
-            val message = if (isUnexpectedException) {
-                "The server reported an unexpected error and cannot complete the request."
-            } else {
-                cause.message ?: "Unknown error"
-            }
-            call.respond(responseStatus, message)
+            logException(call, cause)
+            val apiError = determineApiError(cause)
+            call.respond(apiError.status, apiError)
         }
     }
 }

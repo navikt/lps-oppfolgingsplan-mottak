@@ -14,17 +14,22 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import io.mockk.clearAllMocks
-import java.util.*
+import no.nav.syfo.application.exception.ApiError.FollowUpPlanDTOValidationError
+import no.nav.syfo.application.exception.ErrorType
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import no.nav.syfo.util.configureTestApplication
+import no.nav.syfo.util.customMaskinportenToken
 import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
+import java.util.*
 
 class FollowUpPlanApiTest : DescribeSpec({
+    val employeeIdentificationNumber = "12345678912"
+    val employeeOrgnumber = "123456789"
 
     beforeSpec {
     }
@@ -34,9 +39,6 @@ class FollowUpPlanApiTest : DescribeSpec({
     }
 
     describe("Retrieval of oppfølgingsplaner") {
-        val employeeIdentificationNumber = "12345678912"
-        val employeeOrgnumber = "123456789"
-
         it("Submits and stores a follow-up plan") {
             testApplication {
                 val (embeddedDatabase, client) = configureTestApplication()
@@ -123,7 +125,9 @@ class FollowUpPlanApiTest : DescribeSpec({
             }
         }
 
-        it("11 digits contains invalid digit in employeeIdentificationNumber in follow-up plan should return bad request") {
+        it(
+            "employeeIdentificationNumber with letters returns bad request"
+        ) {
             testApplication {
                 val (_, client) = configureTestApplication()
 
@@ -157,10 +161,14 @@ class FollowUpPlanApiTest : DescribeSpec({
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
-                val responseMessage = response.body<String>()
+                val responseMessage = response.body<FollowUpPlanDTOValidationError>()
 
                 response shouldHaveStatus HttpStatusCode.BadRequest
-                responseMessage shouldContain "Failed to convert request body"
+                responseMessage.type shouldBe ErrorType.VALIDATION_ERROR
+                responseMessage.message shouldBe (
+                    "employeeHasNotContributedToPlanDescription is mandatory " +
+                        "if employeeHasContributedToPlan = false"
+                    )
             }
         }
 
@@ -182,7 +190,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 val responseMessage = response.body<String>()
 
                 response shouldHaveStatus HttpStatusCode.BadRequest
-                responseMessage shouldContain "Failed to convert request body"
+                responseMessage shouldContain "needsHelpFromNavDescription is obligatory if needsHelpFromNav is true"
             }
         }
 
@@ -200,7 +208,67 @@ class FollowUpPlanApiTest : DescribeSpec({
                 responseMessage shouldContain "The follow-up plan with a given uuid was not found"
             }
         }
+    }
 
+    describe("Verification of integration") {
+        it("Fails when consumer is missing") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val response = client.get("/api/v1/followupplan/verify-integration") {
+                    bearerAuth(customMaskinportenToken(consumerOrgnumber = null))
+                    contentType(ContentType.Application.Json)
+                }
+
+                response shouldHaveStatus HttpStatusCode.Unauthorized
+                val responseBody = response.body<String>()
+                responseBody shouldContain "Missing consumer claim in JWT"
+            }
+        }
+
+        it("Fails when supplier is missing") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val response = client.get("/api/v1/followupplan/verify-integration") {
+                    bearerAuth(customMaskinportenToken(supplierOrgnumber = null))
+                    contentType(ContentType.Application.Json)
+                }
+
+                response shouldHaveStatus HttpStatusCode.Unauthorized
+                val responseBody = response.body<String>()
+                responseBody shouldContain "Missing supplier claim in JWT"
+            }
+        }
+
+        it("Fails when scope is wrong") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val response = client.get("/api/v1/followupplan/verify-integration") {
+                    bearerAuth(customMaskinportenToken(scope = "hei"))
+                    contentType(ContentType.Application.Json)
+                }
+
+                response shouldHaveStatus HttpStatusCode.Unauthorized
+                val responseBody = response.body<String>()
+                responseBody shouldContain "Invalid scope in JWT"
+            }
+        }
+
+        it("Succeeds when everything is OK") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val response = client.get("/api/v1/followupplan/verify-integration") {
+                    bearerAuth(validMaskinportenToken())
+                    contentType(ContentType.Application.Json)
+                }
+
+                response shouldHaveStatus HttpStatusCode.OK
+                val responseBody = response.body<String>()
+                responseBody shouldBe "Integration is up and running"
+            }
+        }
     }
 })
-

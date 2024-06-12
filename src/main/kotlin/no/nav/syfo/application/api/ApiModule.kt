@@ -23,6 +23,7 @@ import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
 import no.nav.syfo.oppfolgingsplanmottak.registerFollowUpPlanApi
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
+import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
 import no.nav.syfo.veileder.registerVeilederApi
 
 @Suppress("LongParameterList")
@@ -70,7 +71,7 @@ fun Application.apiModule(
             database = database,
         )
         registerPrometheusApi()
-        registerFollowUpPlanApi(database, followUpPlanSendingService, pdlClient)
+        registerFollowUpPlanApi(database, followUpPlanSendingService, FollowUpPlanValidator(pdlClient))
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
             database = database,
