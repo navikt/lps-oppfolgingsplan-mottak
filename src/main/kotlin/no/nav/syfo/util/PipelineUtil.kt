@@ -8,7 +8,6 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.util.pipeline.PipelineContext
 import no.nav.syfo.application.exception.ConsumerClaimMissing
-import no.nav.syfo.application.exception.SupplierClaimMissing
 import no.nav.syfo.domain.PersonIdent
 
 const val JWT_CLAIM_AZP = "azp"
@@ -34,9 +33,8 @@ fun PipelineContext<Unit, ApplicationCall>.getOrgnumberFromClaims(): String {
     return maskinportenIdToOrgnumber(consumer["ID"] as String)
 }
 
-fun PipelineContext<Unit, ApplicationCall>.getLpsOrgnumberFromClaims(): String {
-    val supplier = call.principal<JWTPrincipal>()?.payload?.getClaim("supplier")?.asMap()
-        ?: throw SupplierClaimMissing()
+fun PipelineContext<Unit, ApplicationCall>.getLpsOrgnumberFromClaims(): String? {
+    val supplier = call.principal<JWTPrincipal>()?.payload?.getClaim("supplier")?.asMap() ?: return null
 
     return maskinportenIdToOrgnumber(supplier["ID"] as String)
 }
