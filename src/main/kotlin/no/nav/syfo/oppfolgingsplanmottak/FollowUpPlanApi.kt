@@ -23,7 +23,6 @@ import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
-import org.slf4j.LoggerFactory
 import java.util.*
 
 fun Routing.registerFollowUpPlanApi(
@@ -31,7 +30,6 @@ fun Routing.registerFollowUpPlanApi(
     followUpPlanSendingService: FollowUpPlanSendingService,
     validator: FollowUpPlanValidator,
 ) {
-    val log = LoggerFactory.getLogger("FollowUpPlanApi")
     val uuid = "uuid"
 
     route("/api/v1/followupplan") {
@@ -42,8 +40,9 @@ fun Routing.registerFollowUpPlanApi(
 
                 val planUuid = UUID.randomUUID()
                 val employerOrgnr = getOrgnumberFromClaims()
-                val lpsOrgnumber = getLpsOrgnumberFromClaims()
-                log.info("Received follow up plan from ${followUpPlanDTO.lpsName}, LPS orgnr: $lpsOrgnumber")
+                val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
+
+                // Add validation that the SSN is actually working for the emplyerOrgnr
 
                 database.storeFollowUpPlan(
                     uuid = planUuid,
