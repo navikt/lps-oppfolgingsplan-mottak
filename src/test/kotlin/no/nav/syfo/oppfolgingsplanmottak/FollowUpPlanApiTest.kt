@@ -226,7 +226,7 @@ class FollowUpPlanApiTest : DescribeSpec({
             }
         }
 
-        it("Fails when supplier is missing") {
+        it("Does not fail when supplier is missing") {
             testApplication {
                 val (_, client) = configureTestApplication()
 
@@ -235,9 +235,9 @@ class FollowUpPlanApiTest : DescribeSpec({
                     contentType(ContentType.Application.Json)
                 }
 
-                response shouldHaveStatus HttpStatusCode.Unauthorized
+                response shouldHaveStatus HttpStatusCode.OK
                 val responseBody = response.body<String>()
-                responseBody shouldContain "Missing supplier claim in JWT"
+                responseBody shouldContain "Integration is up and running"
             }
         }
 

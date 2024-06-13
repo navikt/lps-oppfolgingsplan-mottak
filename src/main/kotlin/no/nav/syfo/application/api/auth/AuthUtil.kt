@@ -28,7 +28,6 @@ fun claimsAreValid(credentials: JWTCredential, validIssuer: String, validScope: 
         issuedBeforeExpiry(credentials) &&
         validIssuer(credentials, validIssuer) &&
         validScope(credentials, validScope) &&
-        validSupplier(credentials) &&
         validConsumer(credentials)
 
 fun isNotExpired(credentials: JWTCredential) =
@@ -55,14 +54,6 @@ fun validIssuer(credentials: JWTCredential, validIssuer: String): Boolean {
 fun validScope(credentials: JWTCredential, validScope: String): Boolean {
     if (credentials.getClaim("scope", String::class) != validScope) {
         throw AuthenticationException("Invalid scope in JWT")
-    }
-    return true
-}
-
-fun validSupplier(credentials: JWTCredential): Boolean {
-    val supplierClaim = credentials.payload.getClaim("supplier")
-    if (supplierClaim?.asMap() == null) {
-        throw throw AuthenticationException("Missing supplier claim in JWT")
     }
     return true
 }

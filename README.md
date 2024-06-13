@@ -1,17 +1,17 @@
 # LPS follow-up plan API: Consumer guide
 
-This API allows for the submission of a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general practitioner on behalf of an employer.
-This is a <i>Delegated
-API</i>, which means that you as the API consumer are acting on behalf of another company/end-user. The API is secured
-with Maskinporten. NAV does not authorize the API consumer directly. Authorization to submit a plan is given to you as an API consumer by the end-user in Altinn.
+This API allows for the submission of a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general practitioner. This API supports <i>delegation</i>, 
+which means that you as the API consumer are acting on behalf of another company/end-user. The API also supports integration without <i>delegation</i>, which means
+that you are submitting a follow-up plan on behalf of your own company.
 
 ## 🎯 Target audience
 
 This README is primarily intended for "Lønns- og personalsystemer" (Payroll and HR Systems) that wants to integrate with NAV for submitting follow-up plans.
 
-## 🚀 Getting started
+## 🚀 Getting started: Production guide
 
-### 1. The employer must delegate rights to act on their behalf
+### 1. The employer must delegate rights to act on their behalf (optional)
+<i>This step is not neccessary if you are acting on behalf of your own company.</i>
 
 To submit a follow-up plan on behalf of an employer, the employer must delegate rights to the API (scope) to you as an
 LPS system. This is done
@@ -24,42 +24,41 @@ programmeringsgrensesnitt - API"</i>.
 
 In order to use the API, you need to have a Maskinporten client configured. Please refer to
 the [Maskinporten documentation](https://docs.digdir.no/docs/Maskinporten/maskinporten_guide_apikonsument).
-Please take note that this is a so called <i>Delegated API</i>, which means that you are acting on behalf of an
-employer. This must be configured in your client according to the Maskinporten documentation.
 
-### 3. Retrieve a Maskinporten token on behalf of the employer
+### 3. Retrieve a Maskinporten token
 
-To retrieve a Maskinporten token on behalf of the employer, you need to send a POST request to the Maskinporten token
+To retrieve a Maskinporten token, you need to send a POST request to the Maskinporten token
 endpoint. Please refer to
 the [Maskinporten documentation](https://docs.digdir.no/docs/Maskinporten/maskinporten_summary.html) for more
 information.
 <br>
 - Scope to be used when requesting token: `nav:oppfolgingsplan/lps.write`
 
-### 4. Submit a follow-up plan
+### 4. Verify integration (optional)
+
+If you want to verify that the integration works as expected, you can use the `verify-integration` endpoint. Please refer to
+the [Swagger documentation](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/swagger) for more information. Please
+note that you will need to provide a valid Maskinporten token in the Authorization header.
+
+### 5. Submit a follow-up plan
 
 To submit a follow-up plan, you need to send a POST request with the required payload. The API will return a unique
 uuid, which can be used later to check the sending status. Please refer to
 the [Swagger documentation](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/swagger) for more information. Please
 note that you will need to provide a valid Maskinporten token in the Authorization header.
-<br>
 
-- Test API: `https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/api/v1/followupplan`
-- Production API: `https://lps-oppfolgingsplan-mottak.nav.no/api/v1/followupplan`
-
-### 5. Check the sending status (optional)
+### 6. Check the sending status (optional)
 
 To check the sending status of a follow-up plan, you need to send a GET request with the uuid you received when
 submitting the follow-up plan. Please refer to
 the [Swagger documentation](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/swagger) for more information. Please
 note that you will need to provide a valid Maskinporten token in the Authorization header.
-<br>
 
-- Test API: `https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/api/v1/followupplan/{uuid}/sendingstatus`
-- Production API: `https://lps-oppfolgingsplan-mottak.nav.no/api/v1/followupplan/{uuid}/sendingstatus`
-
-## 🧪 Testing
+## 🧪 Testing guide for delegated setup
 Please refer to [NAV's guide for testing delegable API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-delegerbart-api/teste-delegerbart-api.md)
+
+## 🧪 Testing guide for non-delegated setup
+Please refer to [NAV's guide for testing API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-api/teste-api.md)
 
 ## Error Codes
 If you get an error, we will provide an ApiError object in the response body. 
