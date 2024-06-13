@@ -1,7 +1,7 @@
 # LPS follow-up plan API: Consumer guide
 
-This API allows for the submission of a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general practitioner. This API supports <i>delegation<i/>, 
-which means that you as the API consumer are acting on behalf of another company/end-user. The API also supports integration without <i>delegation<i/>, which means
+This API allows for the submission of a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general practitioner. This API supports <i>delegation</i>, 
+which means that you as the API consumer are acting on behalf of another company/end-user. The API also supports integration without <i>delegation</i>, which means
 that you are submitting a follow-up plan on behalf of your own company.
 
 ## 🎯 Target audience
