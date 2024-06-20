@@ -65,18 +65,18 @@ If you get an error, we will provide an ApiError object in the response body.
 An ApiError will contain the following fields:
 <pre>
 - status: HttpStatusCode
-- error: ErrorType
+- type: ErrorType
 - message: String
 </pre>
 
-| Status | Error | Example Message | Description                                                                                               |
-|--------|-------|---------------|-----------------------------------------------------------------------------------------------------------|
-| 400    | VALIDATION_ERROR | Invalid employee identification number | The follow-up plan DTO has validation errors. Please check message for the specific error.                |
-| 401    | AUTHENTICATION_ERROR | JWT is expired | The maskinporten-token is invalid. Please check message for the specific error.                           |
+| Status | Type                           | Example Message | Description                                                                                               |
+|--------|--------------------------------|---------------|-----------------------------------------------------------------------------------------------------------|
+| 400    | VALIDATION_ERROR               | Invalid employee identification number | The follow-up plan DTO has validation errors. Please check message for the specific error.                |
+| 401    | AUTHENTICATION_ERROR           | JWT is expired | The maskinporten-token is invalid. Please check message for the specific error.                           |
 | 404    | GENERAL_PRACTITIONER_NOT_FOUND | General practitioner was not found | The general practitioner was not found. Please ensure that it is correctly registered for the employee.   |
-| 404    | EMPLOYEE_NOT_FOUND | Could not find requested person in our systems | This employeeIdentificationNumber is not registered in NAV's systems.                                |
-| 404    | FOLLOWUP_PLAN_NOT_FOUND | The follow-up plan with a given uuid was not found | The follow-up plan with a given uuid was not found. Only relevant for the status-endpoint.                |
-| 500    | INTERNAL_SERVER_ERROR | Internal server error | An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists. |
+| 404    | EMPLOYEE_NOT_FOUND             | Could not find requested person in our systems | This employeeIdentificationNumber is not registered in NAV's systems.                                |
+| 404    | FOLLOWUP_PLAN_NOT_FOUND        | The follow-up plan with a given uuid was not found | The follow-up plan with a given uuid was not found. Only relevant for the status-endpoint.                |
+| 500    | INTERNAL_SERVER_ERROR          | Internal server error | An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists. |
 
 ## 🎬 Demo
 
