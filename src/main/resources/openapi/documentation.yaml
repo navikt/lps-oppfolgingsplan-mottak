@@ -255,7 +255,7 @@ components:
       properties:
         status:
           $ref: '#/components/schemas/HttpStatusCode'
-        error:
+        type:
           type: string
           example: VALIDATION_ERROR
         message:
@@ -265,14 +265,14 @@ components:
         status:
           value: 400
           description: Bad request
-        error: VALIDATION_ERROR
+        type: VALIDATION_ERROR
         message: Invalid employee identification number
     AuthenticationError:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/HttpStatusCode'
-        error:
+        type:
           type: string
           example: AUTHENTICATION_ERROR
         message:
@@ -282,14 +282,14 @@ components:
         status:
           value: 401
           description: Unauthorized
-        error: AUTHENTICATION_ERROR
+        type: AUTHENTICATION_ERROR
         message: JWT is expired
     GeneralPractitionerNotFoundError:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/HttpStatusCode'
-        error:
+        type:
           type: string
           example: GENERAL_PRACTITIONER_NOT_FOUND
         message:
@@ -299,14 +299,14 @@ components:
         status:
           value: 404
           description: Not found
-        error: GENERAL_PRACTITIONER_NOT_FOUND
+        type: GENERAL_PRACTITIONER_NOT_FOUND
         message: General practitioner was not found
     EmployeeNotFoundError:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/HttpStatusCode'
-        error:
+        type:
           type: string
           example: EMPLOYEE_NOT_FOUND
         message:
@@ -316,14 +316,14 @@ components:
         status:
           value: 404
           description: Not found
-        error: EMPLOYEE_NOT_FOUND
+        type: EMPLOYEE_NOT_FOUND
         message: Could not find requested person in our systems
     FollowupPlanNotFoundError:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/HttpStatusCode'
-        error:
+        type:
           type: string
           example: FOLLOWUP_PLAN_NOT_FOUND
         message:
@@ -333,14 +333,14 @@ components:
         status:
           value: 404
           description: Not found
-        error: FOLLOWUP_PLAN_NOT_FOUND
+        type: FOLLOWUP_PLAN_NOT_FOUND
         message: The follow-up plan with a given uuid was not found
     InternalServerError:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/HttpStatusCode'
-        error:
+        type:
           type: string
           example: INTERNAL_SERVER_ERROR
         message:
@@ -350,7 +350,7 @@ components:
         status:
           value: 500
           description: Internal server error
-        error: INTERNAL_SERVER_ERROR
+        type: INTERNAL_SERVER_ERROR
         message: Internal server error
     HttpStatusCode:
       type: object
