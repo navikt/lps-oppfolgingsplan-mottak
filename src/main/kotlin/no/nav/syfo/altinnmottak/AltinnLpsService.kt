@@ -2,8 +2,14 @@ package no.nav.syfo.altinnmottak
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
-import no.nav.syfo.altinnmottak.database.*
+import no.nav.helse.op2016.Skjemainnhold
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
+import no.nav.syfo.altinnmottak.database.getAltinnLpsOppfolgingsplanByUuid
+import no.nav.syfo.altinnmottak.database.setSentToFastlegeTrue
+import no.nav.syfo.altinnmottak.database.setSentToNavTrue
+import no.nav.syfo.altinnmottak.database.storeAltinnLpsOppfolgingsplan
+import no.nav.syfo.altinnmottak.database.storeFnr
+import no.nav.syfo.altinnmottak.database.storePdf
 import no.nav.syfo.altinnmottak.domain.isBehovForBistandFraNAV
 import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
 import no.nav.syfo.altinnmottak.kafka.domain.KAltinnOppfolgingsplan
@@ -24,7 +30,6 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.helse.op2016.Skjemainnhold
 
 @Suppress("LongParameterList")
 class AltinnLpsService(
@@ -80,7 +85,7 @@ class AltinnLpsService(
         if (mostRecentFnr == null) {
             log.warn(
                 "[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS " +
-                        "with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
+                    "with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
             )
             return
         }
@@ -94,7 +99,10 @@ class AltinnLpsService(
         )
         val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
         if (pdf == null) {
-            log.warn("[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}")
+            log.warn(
+                "[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with " +
+                    "UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
+            )
             return
         }
 

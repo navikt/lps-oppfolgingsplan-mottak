@@ -106,7 +106,10 @@ class OpPdfGenClient(
             }
 
             else -> {
-                log.error("Call to generate PDF failed with status: ${response.status}, response body: ${response.bodyAsText()}")
+                log.error(
+                    "Call to generate PDF failed with status: ${response.status}, " +
+                        "response body: ${response.bodyAsText()}"
+                )
                 null
             }
         }

@@ -4,6 +4,7 @@ import no.nav.altinnkanal.avro.ReceivedMessage
 import no.nav.syfo.altinnmottak.AltinnLpsService
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.environment.KafkaEnv
+import no.nav.syfo.application.kafka.KafkaListener
 import no.nav.syfo.application.kafka.consumerProperties
 import no.nav.syfo.application.kafka.pollDurationInMillis
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_VELLYKKET
@@ -18,7 +19,7 @@ const val ALTINNKANAL_TOPIC = "alf.aapen-altinn-oppfolgingsplan-mottatt-v2"
 class AltinnOppfolgingsplanConsumer(
     val env: KafkaEnv,
     private val altinnLPSService: AltinnLpsService
-) {
+) : KafkaListener {
     private val log: Logger = LoggerFactory.getLogger(AltinnOppfolgingsplanConsumer::class.qualifiedName)
     private val kafkaListener: KafkaConsumer<String, ReceivedMessage>
 
@@ -28,8 +29,8 @@ class AltinnOppfolgingsplanConsumer(
         kafkaListener.subscribe(listOf(ALTINNKANAL_TOPIC))
     }
 
-    suspend fun listen(appState: ApplicationState) {
-        while (appState.ready) {
+    override suspend fun listen(applicationState: ApplicationState) {
+        while (applicationState.ready) {
             kafkaListener.poll(pollDurationInMillis).forEach { record ->
                 try {
                     val storedLpsUuid = receiveAndPersistLpsFromAltinn(record)

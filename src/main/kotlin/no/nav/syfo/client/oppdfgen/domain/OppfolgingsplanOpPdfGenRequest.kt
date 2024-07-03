@@ -4,7 +4,7 @@ data class OppfolgingsplanOpPdfGenRequest(
     val lpsPlanData: LpsPlanPdfData,
 )
 
-class LpsPlanPdfData(
+data class LpsPlanPdfData(
     val employeeFnr: String,
     val employeeName: String?,
     val employeePhoneNumber: String?,

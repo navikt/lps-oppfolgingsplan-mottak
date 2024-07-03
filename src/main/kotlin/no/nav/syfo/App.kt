@@ -9,8 +9,6 @@ import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.engine.stop
 import io.ktor.server.netty.Netty
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.asCoroutineDispatcher
 import no.nav.syfo.altinnmottak.AltinnLpsService
 import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
@@ -33,7 +31,10 @@ import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.getWellKnown
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
+import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import org.slf4j.LoggerFactory
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
@@ -92,6 +93,8 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
         appEnv.toggles,
     )
 
+    val sykmeldingService = SendtSykmeldingService(database)
+
     val followupPlanProducer = FollowUpPlanProducer(appEnv.kafka)
 
     val followUpPlanSendingService = FollowUpPlanSendingService(
@@ -137,6 +140,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
                 appState,
                 backgroundTasksContext,
                 altinnLpsService,
+                sykmeldingService,
                 appEnv,
             )
             schedulerModule(

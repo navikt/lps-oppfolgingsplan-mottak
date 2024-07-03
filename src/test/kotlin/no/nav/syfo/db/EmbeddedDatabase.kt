@@ -35,6 +35,7 @@ class EmbeddedDatabase : DatabaseInterface {
     fun dropData() {
         val tables = listOf(
             "FOLLOW_UP_PLAN_LPS_V1",
+            "SYKMELDINGSPERIODE"
         )
 
         connection.use { connection ->

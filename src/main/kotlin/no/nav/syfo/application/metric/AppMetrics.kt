@@ -20,7 +20,8 @@ const val TAG_DELT = "delt"
 const val TAG_DELT_FOLLOWUP = "deltfollowup"
 
 const val METRIKK_PROSSESERING_VELLYKKET = "${METRICS_NS}_prosessering_av_lps_plan_vellykket"
-const val METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING = "${METRICS_NS}_lps_plan_delt_med_fastlege_etter_feilet_sending"
+const val METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING =
+    "${METRICS_NS}_lps_plan_delt_med_fastlege_etter_feilet_sending"
 const val METRIKK_DELT_MED_FASTLEGE = "${METRICS_NS}_lps_plan_delt_med_fastlege"
 const val METRIKK_BISTAND_FRA_NAV = "${METRICS_NS}_lps_plan_behov_for_bistand_fra_nav"
 const val METRIKK_DELT_MED_NAV = "${METRICS_NS}_lps_plan_delt_med_nav"
