@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import no.nav.syfo.db.EmbeddedDatabase
 import no.nav.syfo.sykmelding.domain.SykmeldingsperiodeAGDTO
-import no.nav.syfo.util.deleteData
 import java.time.LocalDate
 
 class SendtSykmeldingServiceTest : DescribeSpec({
@@ -15,7 +14,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
 
     beforeTest {
         clearAllMocks()
-        embeddedDatabase.deleteData()
+        embeddedDatabase.dropData()
     }
 
     describe("Sykmeldingperioder") {

@@ -3,7 +3,12 @@ package no.nav.syfo.altinnmottak
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.justRun
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.syfo.altinnmottak.database.getAltinnLpsOppfolgingsplanByUuid
 import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
 import no.nav.syfo.application.environment.getEnv
@@ -13,7 +18,6 @@ import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.db.EmbeddedDatabase
 import no.nav.syfo.util.LpsHelper
-import no.nav.syfo.util.deleteData
 
 class AltinnLpsServiceTest : DescribeSpec({
     val env = getEnv()
@@ -29,7 +33,6 @@ class AltinnLpsServiceTest : DescribeSpec({
     val (archiveReference2, arbeidstakerFnr2, lpsXml2) = lpsHelper.receiveLpsWithoutDelingSet()
     val pdfByteArray = "<MOCK PDF CONTENT>".toByteArray()
 
-
     val altinnLpsService = AltinnLpsService(
         pdlClient,
         opPdfGenClient,
@@ -43,7 +46,7 @@ class AltinnLpsServiceTest : DescribeSpec({
 
     beforeTest {
         clearAllMocks()
-        embeddedDatabase.deleteData()
+        embeddedDatabase.dropData()
         justRun { navLpsProducer.sendAltinnLpsToNav(any()) }
         coEvery { opPdfGenClient.generatedPdfResponse(any()) } returns pdfByteArray
         coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), pdfByteArray) } returns true

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
-import no.nav.syfo.application.database.DatabaseInterface
 
 const val AR_1 = "AR0000000"
 const val AR_2 = "AR0000001"
@@ -36,18 +35,5 @@ class LpsHelper {
         val payload = this::class.java.getResource(resourcePath).readText()
         val fnr = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(payload).skjemainnhold.sykmeldtArbeidstaker.fnr
         return Pair(fnr, payload)
-    }
-}
-
-fun DatabaseInterface.deleteData() {
-    val queryList = listOf(
-        "DELETE FROM ALTINN_LPS",
-        "DELETE FROM FOLLOW_UP_PLAN_LPS_V1"
-    )
-    this.connection.use { connection ->
-        queryList.forEach { query ->
-            connection.prepareStatement(query).execute()
-        }
-        connection.commit()
     }
 }
