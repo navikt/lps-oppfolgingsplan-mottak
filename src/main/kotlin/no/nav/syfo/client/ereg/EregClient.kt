@@ -25,7 +25,7 @@ class EregClient(
     private val appEnv: ApplicationEnv,
     private val azureAdClient: AzureAdClient,
 
-    ) {
+) {
     private val eregBaseUrl = urls.eregBaseUrl
     private val scope = urls.eregScope
     private val client = httpClientDefault()
@@ -33,7 +33,7 @@ class EregClient(
 
     private suspend fun getOrganisationInformation(orgnr: String): EregOrganisasjonResponse? {
         val response = try {
-            client.get("${eregBaseUrl}/ereg/api/v2/organisasjon/$orgnr") {
+            client.get("$eregBaseUrl/ereg/api/v2/organisasjon/$orgnr") {
                 val token = azureAdClient.getSystemToken(scope)?.accessToken
                     ?: throw RuntimeException("Failed to fetch organization name from EREG: No token was found")
                 headers {
@@ -53,7 +53,10 @@ class EregClient(
             }
 
             else -> {
-                log.error("Call to get name by virksomhetsnummer from EREG failed with status: ${response.status}, response body: ${response.bodyAsText()}")
+                log.error(
+                    "Call to get name by virksomhetsnummer from EREG failed with status:" +
+                        " ${response.status}, response body: ${response.bodyAsText()}"
+                )
                 null
             }
         }

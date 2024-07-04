@@ -17,7 +17,6 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.mockk.clearAllMocks
-import java.sql.Timestamp
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.altinnmottak.database.storeAltinnLpsOppfolgingsplan
 import no.nav.syfo.altinnmottak.database.storePdf
@@ -30,9 +29,9 @@ import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.configure
-import no.nav.syfo.util.deleteData
 import no.nav.syfo.util.validVeilederToken
 import no.nav.syfo.veileder.domain.OppfolgingsplanLPS
+import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -86,7 +85,7 @@ class VeilederApiTest : DescribeSpec({
 
     beforeTest {
         clearAllMocks()
-        embeddedDatabase.deleteData()
+        embeddedDatabase.dropData()
     }
 
     fun testConfiguredApplication(block: suspend ApplicationTestBuilder.(HttpClient) -> Unit) = testApplication {

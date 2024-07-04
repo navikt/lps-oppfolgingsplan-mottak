@@ -9,7 +9,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
-import java.util.*
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
@@ -28,6 +27,7 @@ import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.createBearerToken
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class DokarkivClient(
     urls: UrlEnv,
@@ -100,7 +100,6 @@ class DokarkivClient(
                 runBlocking {
                     response.body<JournalpostResponse>()
                 }
-
             }
 
             HttpStatusCode.Conflict -> {

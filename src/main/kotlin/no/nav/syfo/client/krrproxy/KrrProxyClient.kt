@@ -10,7 +10,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
-import java.util.*
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
@@ -19,6 +18,7 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.configuredJacksonMapper
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class KrrProxyClient(
     private val urlEnv: UrlEnv,
@@ -39,12 +39,10 @@ class KrrProxyClient(
                 }
             }
         } catch (e: Exception) {
-            log.error("Error while calling KRR-PROXY: ${e.message}, stacktrace ${e.printStackTrace()}", e)
+            log.error("Error while calling KRR-PROXY: ${e.message}", e)
 
             return null
         }
-
-
 
         when (response?.status) {
             HttpStatusCode.OK -> {
@@ -59,11 +57,12 @@ class KrrProxyClient(
 
             else -> {
                 log.error(
-                    "Call to get  kontaktinfo from KRR-PROXY failed with status: ${response?.status}, WWW-Authenticate header:${
-                        response?.headers?.get(
-                            "WWW-Authenticate"
-                        )
-                    }, response body: ${response?.bodyAsText()}"
+                    "Call to get  kontaktinfo from KRR-PROXY failed with status: ${response?.status}, " +
+                        "WWW-Authenticate header:${
+                            response?.headers?.get(
+                                "WWW-Authenticate"
+                            )
+                        }, response body: ${response?.bodyAsText()}"
                 )
                 return null
             }

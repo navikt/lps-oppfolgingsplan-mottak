@@ -22,7 +22,8 @@ class PdlUtils(private val pdlClient: PdlClient) {
             return if (vegadresse != null && !vegadresse.postnummer.isNullOrEmpty()) {
                 bosted = pdlClient.getPoststed(vegadresse.postnummer) ?: ""
 
-                "${vegadresse.adressenavn ?: ""} ${vegadresse.husnummer ?: ""}${vegadresse.husbokstav ?: ""} ${vegadresse.postnummer} $bosted"
+                "${vegadresse.adressenavn ?: ""} ${vegadresse.husnummer ?: ""}" +
+                    "${vegadresse.husbokstav ?: ""} ${vegadresse.postnummer} $bosted"
             } else {
                 log.info("Can not get person's address string due to vegadresse or postnummer are null")
                 null

@@ -1,17 +1,16 @@
 package no.nav.syfo.oppfolgingsplanmottak.database
 
+import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.application.database.toObject
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import java.sql.Date
 import java.sql.ResultSet
 import java.sql.SQLNonTransientException
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.application.database.toObject
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 
-@Suppress("MagicNumber", "LongMethod")
 fun DatabaseInterface.storeFollowUpPlan(
     uuid: UUID,
     followUpPlanDTO: FollowUpPlanDTO,
@@ -20,7 +19,6 @@ fun DatabaseInterface.storeFollowUpPlan(
     sentToGeneralPractitionerAt: Timestamp?,
     sentToNavAt: Timestamp?,
 ) {
-
     val insertStatement =
         """
             INSERT INTO FOLLOW_UP_PLAN_LPS_V1 (
@@ -121,11 +119,12 @@ fun DatabaseInterface.storeLpsPdf(
     }
 }
 
+@Suppress("SwallowedException")
 fun DatabaseInterface.findSendingStatus(uuid: UUID): FollowUpPlanResponse? {
-    try {
-        return this.findFollowUpPlanResponseById(uuid)
+    return try {
+        this.findFollowUpPlanResponseById(uuid)
     } catch (e: SQLNonTransientException) {
-        return null
+        null
     }
 }
 
@@ -176,4 +175,3 @@ fun ResultSet.toFollowUpPlanSendingStatus() =
         isSentToGeneralPractitionerStatus = getTimestamp("sent_to_general_practitioner_at") != null,
         isSentToNavStatus = getTimestamp("sent_to_nav_at") != null,
     )
-
