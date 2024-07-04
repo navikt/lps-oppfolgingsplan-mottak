@@ -100,7 +100,7 @@ fun ResultSet.toSykmeldingsperiode() = Sykmeldingsperiode(
     sykmeldingId = getString("sykmelding_id"),
     organizationNumber = getString("organization_number"),
     employeeIdentificationNumber = getString("employee_identification_number"),
-    fom = getTimestamp("fom").toLocalDateTime(),
-    tom = getTimestamp("tom").toLocalDateTime(),
+    fom = getTimestamp("fom").toLocalDateTime().toLocalDate(),
+    tom = getTimestamp("tom").toLocalDateTime().toLocalDate(),
     createdAt = getTimestamp("created_at").toLocalDateTime()
 )
