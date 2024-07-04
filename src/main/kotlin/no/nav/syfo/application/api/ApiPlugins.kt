@@ -21,11 +21,13 @@ import no.nav.syfo.application.exception.ApiError.ForbiddenAccessVeilederError
 import no.nav.syfo.application.exception.ApiError.GeneralPractitionerNotFoundError
 import no.nav.syfo.application.exception.ApiError.IllegalArgumentError
 import no.nav.syfo.application.exception.ApiError.InternalServerError
+import no.nav.syfo.application.exception.ApiError.NoActiveSentSykmeldingError
 import no.nav.syfo.application.exception.ApiError.NotFoundError
 import no.nav.syfo.application.exception.EmployeeNotFoundException
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.ForbiddenAccessVeilederException
 import no.nav.syfo.application.exception.GpNotFoundException
+import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
 import no.nav.syfo.application.metric.METRICS_REGISTRY
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.configure
@@ -80,6 +82,7 @@ private fun determineApiError(cause: Throwable): ApiError {
 
         is EmployeeNotFoundException -> EmployeeNotFoundError
         is GpNotFoundException -> GeneralPractitionerNotFoundError
+        is NoActiveSentSykmeldingException -> NoActiveSentSykmeldingError
         is ForbiddenAccessVeilederException -> ForbiddenAccessVeilederError
         is BadRequestException -> BadRequestError(cause.message ?: "Bad request")
         is IllegalArgumentException -> IllegalArgumentError(cause.message ?: "Illegal argument")

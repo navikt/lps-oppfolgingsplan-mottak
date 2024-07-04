@@ -135,6 +135,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
                 veilederTilgangskontrollClient,
                 followUpPlanSendingService,
                 pdlClient,
+                sykmeldingService
             )
             kafkaModule(
                 appState,

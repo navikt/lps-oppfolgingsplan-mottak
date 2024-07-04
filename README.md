@@ -1,16 +1,21 @@
 # LPS follow-up plan API: Consumer guide
 
-This API allows for the submission of a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general practitioner. This API supports <i>delegation</i>, 
-which means that you as the API consumer are acting on behalf of another company/end-user. The API also supports integration without <i>delegation</i>, which means
+This API allows for the submission of
+a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general
+practitioner. This API supports <i>delegation</i>,
+which means that you as the API consumer are acting on behalf of another company/end-user. The API also supports
+integration without <i>delegation</i>, which means
 that you are submitting a follow-up plan on behalf of your own company.
 
 ## 🎯 Target audience
 
-This README is primarily intended for "Lønns- og personalsystemer" (Payroll and HR Systems) that wants to integrate with NAV for submitting follow-up plans.
+This README is primarily intended for "Lønns- og personalsystemer" (Payroll and HR Systems) that wants to integrate with
+NAV for submitting follow-up plans.
 
 ## 🚀 Getting started: Production guide
 
 ### 1. The employer must delegate rights to act on their behalf (optional)
+
 <i>This step is not neccessary if you are acting on behalf of your own company.</i>
 
 To submit a follow-up plan on behalf of an employer, the employer must delegate rights to the API (scope) to you as an
@@ -32,11 +37,13 @@ endpoint. Please refer to
 the [Maskinporten documentation](https://docs.digdir.no/docs/Maskinporten/maskinporten_summary.html) for more
 information.
 <br>
+
 - Scope to be used when requesting token: `nav:oppfolgingsplan/lps.write`
 
 ### 4. Verify integration (optional)
 
-If you want to verify that the integration works as expected, you can use the `verify-integration` endpoint. Please refer to
+If you want to verify that the integration works as expected, you can use the `verify-integration` endpoint. Please
+refer to
 the [Swagger documentation](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/swagger) for more information. Please
 note that you will need to provide a valid Maskinporten token in the Authorization header.
 
@@ -55,13 +62,18 @@ the [Swagger documentation](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.n
 note that you will need to provide a valid Maskinporten token in the Authorization header.
 
 ## 🧪 Testing guide for delegated setup
-Please refer to [NAV's guide for testing delegable API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-delegerbart-api/teste-delegerbart-api.md)
+
+Please refer
+to [NAV's guide for testing delegable API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-delegerbart-api/teste-delegerbart-api.md)
 
 ## 🧪 Testing guide for non-delegated setup
-Please refer to [NAV's guide for testing API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-api/teste-api.md)
+
+Please refer
+to [NAV's guide for testing API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-api/teste-api.md)
 
 ## Error Codes
-If you get an error, we will provide an ApiError object in the response body. 
+
+If you get an error, we will provide an ApiError object in the response body.
 An ApiError will contain the following fields:
 <pre>
 - status: HttpStatusCode
@@ -69,14 +81,15 @@ An ApiError will contain the following fields:
 - message: String
 </pre>
 
-| Status | Type                           | Example Message | Description                                                                                               |
-|--------|--------------------------------|---------------|-----------------------------------------------------------------------------------------------------------|
-| 400    | VALIDATION_ERROR               | Invalid employee identification number | The follow-up plan DTO has validation errors. Please check message for the specific error.                |
-| 401    | AUTHENTICATION_ERROR           | JWT is expired | The maskinporten-token is invalid. Please check message for the specific error.                           |
-| 404    | GENERAL_PRACTITIONER_NOT_FOUND | General practitioner was not found | The general practitioner was not found. Please ensure that it is correctly registered for the employee.   |
-| 404    | EMPLOYEE_NOT_FOUND             | Could not find requested person in our systems | This employeeIdentificationNumber is not registered in NAV's systems.                                |
-| 404    | FOLLOWUP_PLAN_NOT_FOUND        | The follow-up plan with a given uuid was not found | The follow-up plan with a given uuid was not found. Only relevant for the status-endpoint.                |
-| 500    | INTERNAL_SERVER_ERROR          | Internal server error | An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists. |
+| Status | Type                           | Example Message                                    | Description                                                                                                |
+|--------|--------------------------------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| 400    | VALIDATION_ERROR               | Invalid employee identification number             | The follow-up plan DTO has validation errors. Please check message for the specific error.                 |
+| 401    | AUTHENTICATION_ERROR           | JWT is expired                                     | The maskinporten-token is invalid. Please check message for the specific error.                            |
+| 403    | NO_ACTIVE_SENT_SYKMELDING      | No active sykmelding sent to employer              | There is no active sykmelding, or the sykmelding is not sent to the employer                               |
+| 404    | GENERAL_PRACTITIONER_NOT_FOUND | General practitioner was not found                 | The general practitioner was not found. Please ensure that it is correctly registered for the employee.    |
+| 404    | EMPLOYEE_NOT_FOUND             | Could not find requested person in our systems     | This employeeIdentificationNumber is not registered in NAV's systems.                                      |
+| 404    | FOLLOWUP_PLAN_NOT_FOUND        | The follow-up plan with a given uuid was not found | The follow-up plan with a given uuid was not found. Only relevant for the status-endpoint.                 |
+| 500    | INTERNAL_SERVER_ERROR          | Internal server error                              | An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists. |
 
 ## 🎬 Demo
 
@@ -106,22 +119,21 @@ Questions about maskinporten or Altinn must be directed to Digdir/Altinn.
 
 <hr>
 
-### 🚀 Initial setup
+### 🚀 Setup
 
-- Install and configure the [Detect IDEA plugin](https://plugins.jetbrains.com/plugin/10761-detekt) for live code
-  analysis
-- Install the [Kotest IDEA plugin](https://plugins.jetbrains.com/plugin/14080-kotest) to enable test-runs in IDEA
--
+- Installer og konfigurer [Detect IDEA plugin](https://plugins.jetbrains.com/plugin/10761-detekt) for live kodeanalyse
+- Installer [Kotest IDEA plugin](https://plugins.jetbrains.com/plugin/14080-kotest) for å kjøre tester
+- Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings) til 19
 
-Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings)
-to 19
+### 🛠️ Hvordan sette opp sendt sykmelding for en ansatt
+1. Gå til dolly: https://dolly.ekstern.dev.nav.no/
+2. Lag en ny bruker med arbeidsforhold til det du satte opp for sluttbruker-org
+3. Gå til sykmeldingmock: https://teamsykmelding-mock.ansatt.dev.nav.no/sykmelding/opprett?was-old=true
+4. Mock en sykmelding for den ansatte du lagde i dolly
+5. Gå til ditt sykefravær: https://www.ekstern.dev.nav.no/syk/sykefravaer
+6. Send inn sykmeldingen til arbeidsgiver
 
-### 🤖 Maskinporten
-
-You will need to configure [Maskinporten](https://docs.digdir.no/docs/Maskinporten/maskinporten_summary.html)
-in order to be able to operate on behalf of employer. <br>
-
-### 🗺️ Documentation and useful links
+### 🗺️ Div dokumentasjon
 
 | Description          | Url                                                                |
 |----------------------|--------------------------------------------------------------------|

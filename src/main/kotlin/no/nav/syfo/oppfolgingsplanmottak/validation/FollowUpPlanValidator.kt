@@ -2,13 +2,16 @@ package no.nav.syfo.oppfolgingsplanmottak.validation
 
 import no.nav.syfo.application.exception.EmployeeNotFoundException
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
+import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 
 class FollowUpPlanValidator(
-    private val pdlClient: PdlClient
+    private val pdlClient: PdlClient,
+    private val sykmeldingService: SendtSykmeldingService
 ) {
-    suspend fun validateFollowUpPlanDTO(followUpPlanDTO: FollowUpPlanDTO) {
+    suspend fun validateFollowUpPlanDTO(followUpPlanDTO: FollowUpPlanDTO, employerOrgnr: String) {
         if (followUpPlanDTO.needsHelpFromNav == true && !followUpPlanDTO.sendPlanToNav) {
             throw FollowUpPlanDTOValidationException("needsHelpFromNav cannot be true if sendPlanToNav is false")
         }
@@ -32,12 +35,22 @@ class FollowUpPlanValidator(
             )
         }
 
-        validateEmployeeInformation(followUpPlanDTO.employeeIdentificationNumber)
+        val hasActiveSendtSykmelding =
+            sykmeldingService.hasActiveSentSykmelding(employerOrgnr, followUpPlanDTO.employeeIdentificationNumber)
+
+        validateEmployeeInformation(followUpPlanDTO.employeeIdentificationNumber, hasActiveSendtSykmelding)
     }
 
-    suspend fun validateEmployeeInformation(employeeIdentificationNumber: String) {
+    private suspend fun validateEmployeeInformation(
+        employeeIdentificationNumber: String,
+        hasActiveSendtSykmelding: Boolean,
+    ) {
         if (!employeeIdentificationNumber.matches(Regex("\\d{11}"))) {
             throw FollowUpPlanDTOValidationException("Invalid employee identification number")
+        }
+
+        if (!hasActiveSendtSykmelding) {
+            throw NoActiveSentSykmeldingException("No active sykmelding sent to employer")
         }
 
         if (pdlClient.getPersonInfo(employeeIdentificationNumber) == null) {
