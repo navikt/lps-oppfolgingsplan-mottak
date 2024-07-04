@@ -13,6 +13,7 @@ enum class ErrorType {
     FORBIDDEN_ACCESS_VEILEDER,
     GENERAL_PRACTITIONER_NOT_FOUND,
     EMPLOYEE_NOT_FOUND,
+    NO_ACTIVE_SENT_SYKMELDING,
 }
 
 sealed class ApiError(val status: HttpStatusCode, val type: ErrorType, open val message: String) {
@@ -39,6 +40,13 @@ sealed class ApiError(val status: HttpStatusCode, val type: ErrorType, open val 
             HttpStatusCode.NotFound,
             ErrorType.GENERAL_PRACTITIONER_NOT_FOUND,
             "General practitioner was not found"
+        )
+
+    data object NoActiveSentSykmeldingError :
+        ApiError(
+            HttpStatusCode.Forbidden,
+            ErrorType.NO_ACTIVE_SENT_SYKMELDING,
+            "No active sykmelding sent to employer"
         )
 
     data object EmployeeNotFoundError :

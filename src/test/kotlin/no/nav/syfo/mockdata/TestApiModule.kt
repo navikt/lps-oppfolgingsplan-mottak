@@ -1,6 +1,6 @@
 package no.nav.syfo.mockdata
 
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
 import io.mockk.mockk
 import no.nav.syfo.application.api.apiModule
 import no.nav.syfo.application.database.DatabaseInterface
@@ -12,6 +12,7 @@ import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
+import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,
@@ -52,6 +53,8 @@ fun Application.testApiModule(
         toggles = externalMockEnvironment.environment.toggles,
     )
 
+    val sykmeldingService = SendtSykmeldingService(database)
+
     this.apiModule(
         applicationState = externalMockEnvironment.applicationState,
         database = database,
@@ -65,5 +68,6 @@ fun Application.testApiModule(
             externalMockEnvironment.azureAdClient,
             externalMockEnvironment.mockHttpClient
         ),
+        sykmeldingService = sykmeldingService
     )
 }

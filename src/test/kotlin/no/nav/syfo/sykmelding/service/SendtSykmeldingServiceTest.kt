@@ -80,5 +80,53 @@ class SendtSykmeldingServiceTest : DescribeSpec({
 
             storedSykmeldingsperioderAfterDelete.size shouldBe 0
         }
+
+        it("Should return true for active sendt sykmelding if period exists between fom and tom") {
+            val sykmeldingId = "123"
+            val orgnumber = "456"
+            val employeeIdentificationNumber = "789"
+            val sykmeldingsperioder = listOf(
+                SykmeldingsperiodeAGDTO(
+                    fom = LocalDate.now().minusWeeks(10),
+                    tom = LocalDate.now().plusWeeks(10),
+                ),
+            )
+
+            sendtSykmeldingService.persistSykmeldingperioder(
+                sykmeldingId = sykmeldingId,
+                orgnumber = orgnumber,
+                employeeIdentificationNumber = employeeIdentificationNumber,
+                sykmeldingsperioder = sykmeldingsperioder
+            )
+
+            val hasActiveSentSykmelding =
+                sendtSykmeldingService.hasActiveSentSykmelding(orgnumber, employeeIdentificationNumber)
+
+            hasActiveSentSykmelding shouldBe true
+        }
+
+        it("Should return false for active sendt sykmelding if period does not exist between fom and tom") {
+            val sykmeldingId = "123"
+            val orgnumber = "456"
+            val employeeIdentificationNumber = "789"
+            val sykmeldingsperioder = listOf(
+                SykmeldingsperiodeAGDTO(
+                    fom = LocalDate.now().minusWeeks(10),
+                    tom = LocalDate.now().minusWeeks(4),
+                ),
+            )
+
+            sendtSykmeldingService.persistSykmeldingperioder(
+                sykmeldingId = sykmeldingId,
+                orgnumber = orgnumber,
+                employeeIdentificationNumber = employeeIdentificationNumber,
+                sykmeldingsperioder = sykmeldingsperioder
+            )
+
+            val hasActiveSentSykmelding =
+                sendtSykmeldingService.hasActiveSentSykmelding(orgnumber, employeeIdentificationNumber)
+
+            hasActiveSentSykmelding shouldBe false
+        }
     }
 })

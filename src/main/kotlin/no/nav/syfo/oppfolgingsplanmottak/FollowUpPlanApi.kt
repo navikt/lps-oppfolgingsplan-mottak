@@ -36,13 +36,11 @@ fun Routing.registerFollowUpPlanApi(
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post {
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
-                validator.validateFollowUpPlanDTO(followUpPlanDTO)
-
                 val planUuid = UUID.randomUUID()
                 val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
 
-                // Add validation that the SSN is actually working for the emplyerOrgnr
+                validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr)
 
                 database.storeFollowUpPlan(
                     uuid = planUuid,

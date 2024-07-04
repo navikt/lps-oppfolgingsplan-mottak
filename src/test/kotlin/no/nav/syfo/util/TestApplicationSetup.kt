@@ -15,6 +15,7 @@ data class TestApplicationSetup(val embeddedDatabase: EmbeddedDatabase, val http
 
 fun ApplicationTestBuilder.configureTestApplication(): TestApplicationSetup {
     val embeddedDatabase = EmbeddedDatabase()
+    embeddedDatabase.dropData()
 
     application {
         testApiModule(ExternalMockEnvironment.instance, embeddedDatabase)

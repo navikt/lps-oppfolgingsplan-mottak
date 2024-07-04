@@ -42,6 +42,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthenticationError'
+        '403':
+          description: No active sykmelding, or the sykmelding is not sent to the employer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoActiveSentSykmeldingError'
         '404':
           description: The GP or Employee was not found. Please check the error type for details.
           content:
@@ -284,6 +290,23 @@ components:
           description: Unauthorized
         type: AUTHENTICATION_ERROR
         message: JWT is expired
+    NoActiveSentSykmeldingError:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HttpStatusCode'
+        type:
+          type: string
+          example: NO_ACTIVE_SENT_SYKMELDING
+        message:
+          type: string
+          example: No active sykmelding sent to employer
+      example:
+        status:
+          value: 403
+          description: Forbidden
+        type: NO_ACTIVE_SENT_SYKMELDING
+        message: No active sykmelding sent to employer
     GeneralPractitionerNotFoundError:
       type: object
       properties:

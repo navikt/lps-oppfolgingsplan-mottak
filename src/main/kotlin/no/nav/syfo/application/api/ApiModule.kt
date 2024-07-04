@@ -24,6 +24,7 @@ import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
 import no.nav.syfo.oppfolgingsplanmottak.registerFollowUpPlanApi
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
+import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import no.nav.syfo.veileder.registerVeilederApi
 
 @Suppress("LongParameterList")
@@ -36,6 +37,7 @@ fun Application.apiModule(
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
     followUpPlanSendingService: FollowUpPlanSendingService,
     pdlClient: PdlClient,
+    sykmeldingService: SendtSykmeldingService
 ) {
     installMetrics()
     installCallId()
@@ -71,7 +73,11 @@ fun Application.apiModule(
             database = database,
         )
         registerPrometheusApi()
-        registerFollowUpPlanApi(database, followUpPlanSendingService, FollowUpPlanValidator(pdlClient))
+        registerFollowUpPlanApi(
+            database,
+            followUpPlanSendingService,
+            FollowUpPlanValidator(pdlClient, sykmeldingService)
+        )
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
             database = database,

@@ -95,6 +95,27 @@ fun DatabaseInterface.getSykmeldingperioder(
     }
 }
 
+fun DatabaseInterface.hasActiveSentSykmelding(
+    orgnumber: String,
+    employeeIdentificationNumber: String,
+): Boolean {
+    val today = Timestamp.valueOf(LocalDateTime.now())
+    val selectStatement = """
+        SELECT *
+        FROM SYKMELDINGSPERIODE
+        WHERE organization_number = ? AND employee_identification_number = ? AND ? BETWEEN fom AND tom
+    """.trimIndent()
+
+    return connection.use { connection ->
+        connection.prepareStatement(selectStatement).use {
+            it.setString(1, orgnumber)
+            it.setString(2, employeeIdentificationNumber)
+            it.setObject(3, today)
+            it.executeQuery().next()
+        }
+    }
+}
+
 fun ResultSet.toSykmeldingsperiode() = Sykmeldingsperiode(
     uuid = UUID.fromString(getString("uuid")),
     sykmeldingId = getString("sykmelding_id"),

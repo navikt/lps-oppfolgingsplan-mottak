@@ -21,10 +21,12 @@ import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
+import no.nav.syfo.sykmelding.database.persistSykmeldingperiode
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.customMaskinportenToken
 import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
+import java.time.LocalDate
 import java.util.*
 
 class FollowUpPlanApiTest : DescribeSpec({
@@ -42,6 +44,13 @@ class FollowUpPlanApiTest : DescribeSpec({
         it("Submits and stores a follow-up plan") {
             testApplication {
                 val (embeddedDatabase, client) = configureTestApplication()
+                embeddedDatabase.persistSykmeldingperiode(
+                    sykmeldingId = "12345",
+                    orgnummer = employeeOrgnumber,
+                    employeeIdentificationNumber = employeeIdentificationNumber,
+                    fom = LocalDate.now().minusWeeks(1),
+                    tom = LocalDate.now().plusWeeks(1)
+                )
 
                 val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(employeeIdentificationNumber)
 
@@ -62,6 +71,25 @@ class FollowUpPlanApiTest : DescribeSpec({
                 storedMetaData[0].virksomhetsnummer shouldBe employeeOrgnumber
 
                 response shouldHaveStatus HttpStatusCode.OK
+            }
+        }
+
+        it("Missing active sendt sykmelding should return forbidden") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(employeeIdentificationNumber)
+
+                val response = client.post("/api/v1/followupplan") {
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    contentType(ContentType.Application.Json)
+                    setBody(followUpPlanDTO)
+                }
+
+                val responseMessage = response.body<String>()
+
+                response shouldHaveStatus HttpStatusCode.Forbidden
+                responseMessage shouldContain "No active sykmelding sent to employer"
             }
         }
 
