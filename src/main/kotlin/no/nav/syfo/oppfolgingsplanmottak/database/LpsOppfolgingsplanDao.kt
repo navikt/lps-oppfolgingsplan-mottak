@@ -11,7 +11,6 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 
-@Suppress("MagicNumber", "LongMethod")
 fun DatabaseInterface.storeFollowUpPlan(
     uuid: UUID,
     followUpPlanDTO: FollowUpPlanDTO,
