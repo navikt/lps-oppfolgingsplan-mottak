@@ -10,14 +10,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-fun DatabaseInterface.persistSykmeldingperioder(
+fun DatabaseInterface.persistSykmeldingsperioder(
     sykmeldingId: String,
     orgnumber: String,
     employeeIdentificationNumber: String,
     sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>
 ) {
     sykmeldingsperioder.forEach { sykmeldingsperiode ->
-        persistSykmeldingperiode(
+        persistSykmeldingsperiode(
             sykmeldingId,
             orgnumber,
             employeeIdentificationNumber,
@@ -27,7 +27,7 @@ fun DatabaseInterface.persistSykmeldingperioder(
     }
 }
 
-fun DatabaseInterface.persistSykmeldingperiode(
+fun DatabaseInterface.persistSykmeldingsperiode(
     sykmeldingId: String,
     orgnummer: String,
     employeeIdentificationNumber: String,
@@ -61,7 +61,7 @@ fun DatabaseInterface.persistSykmeldingperiode(
     }
 }
 
-fun DatabaseInterface.deleteSykmeldingperioder(sykmeldingId: String) {
+fun DatabaseInterface.deleteSykmeldingsperioder(sykmeldingId: String) {
     val deleteStatement = """
         DELETE FROM SYKMELDINGSPERIODE
         WHERE sykmelding_id = ?
@@ -76,7 +76,7 @@ fun DatabaseInterface.deleteSykmeldingperioder(sykmeldingId: String) {
     }
 }
 
-fun DatabaseInterface.getSykmeldingperioder(
+fun DatabaseInterface.getSykmeldingsperioder(
     orgnumber: String,
     employeeIdentificationNumber: String,
 ): List<Sykmeldingsperiode> {

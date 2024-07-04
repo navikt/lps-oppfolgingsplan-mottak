@@ -1,21 +1,21 @@
 package no.nav.syfo.sykmelding.service
 
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.sykmelding.database.deleteSykmeldingperioder
-import no.nav.syfo.sykmelding.database.getSykmeldingperioder
+import no.nav.syfo.sykmelding.database.deleteSykmeldingsperioder
+import no.nav.syfo.sykmelding.database.getSykmeldingsperioder
 import no.nav.syfo.sykmelding.database.hasActiveSentSykmelding
-import no.nav.syfo.sykmelding.database.persistSykmeldingperioder
+import no.nav.syfo.sykmelding.database.persistSykmeldingsperioder
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.domain.SykmeldingsperiodeAGDTO
 
 class SendtSykmeldingService(private val database: DatabaseInterface) {
-    fun persistSykmeldingperioder(
+    fun persistSykmeldingsperioder(
         sykmeldingId: String,
         orgnumber: String,
         employeeIdentificationNumber: String,
         sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>
     ) {
-        database.persistSykmeldingperioder(
+        database.persistSykmeldingsperioder(
             sykmeldingId = sykmeldingId,
             orgnumber = orgnumber,
             employeeIdentificationNumber = employeeIdentificationNumber,
@@ -23,15 +23,15 @@ class SendtSykmeldingService(private val database: DatabaseInterface) {
         )
     }
 
-    fun deleteSykmeldingperioder(sykmeldingId: String) {
-        database.deleteSykmeldingperioder(sykmeldingId)
+    fun deleteSykmeldingsperioder(sykmeldingId: String) {
+        database.deleteSykmeldingsperioder(sykmeldingId)
     }
 
-    fun getSykmeldingperioder(
+    fun getSykmeldingsperioder(
         orgnumber: String,
         employeeIdentificationNumber: String,
     ): List<Sykmeldingsperiode> {
-        return database.getSykmeldingperioder(orgnumber, employeeIdentificationNumber)
+        return database.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
     }
 
     fun hasActiveSentSykmelding(

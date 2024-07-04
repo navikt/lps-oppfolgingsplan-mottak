@@ -21,7 +21,7 @@ import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
-import no.nav.syfo.sykmelding.database.persistSykmeldingperiode
+import no.nav.syfo.sykmelding.database.persistSykmeldingsperiode
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.customMaskinportenToken
 import no.nav.syfo.util.validMaskinportenToken
@@ -44,7 +44,7 @@ class FollowUpPlanApiTest : DescribeSpec({
         it("Submits and stores a follow-up plan") {
             testApplication {
                 val (embeddedDatabase, client) = configureTestApplication()
-                embeddedDatabase.persistSykmeldingperiode(
+                embeddedDatabase.persistSykmeldingsperiode(
                     sykmeldingId = "12345",
                     orgnummer = employeeOrgnumber,
                     employeeIdentificationNumber = employeeIdentificationNumber,

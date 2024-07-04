@@ -17,8 +17,8 @@ class SendtSykmeldingServiceTest : DescribeSpec({
         embeddedDatabase.dropData()
     }
 
-    describe("Sykmeldingperioder") {
-        it("Should persist sykmeldingperioder") {
+    describe("Sykmeldingsperioder") {
+        it("Should persist sykmeldingsperioder") {
             val sykmeldingId = "123"
             val orgnumber = "456"
             val employeeIdentificationNumber = "789"
@@ -33,7 +33,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
                 )
             )
 
-            sendtSykmeldingService.persistSykmeldingperioder(
+            sendtSykmeldingService.persistSykmeldingsperioder(
                 sykmeldingId = sykmeldingId,
                 orgnumber = orgnumber,
                 employeeIdentificationNumber = employeeIdentificationNumber,
@@ -41,7 +41,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
             )
 
             val storedSykmeldingsperioder =
-                sendtSykmeldingService.getSykmeldingperioder(orgnumber, employeeIdentificationNumber)
+                sendtSykmeldingService.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
 
             storedSykmeldingsperioder.size shouldBe 2
         }
@@ -61,7 +61,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
                 )
             )
 
-            sendtSykmeldingService.persistSykmeldingperioder(
+            sendtSykmeldingService.persistSykmeldingsperioder(
                 sykmeldingId = sykmeldingId,
                 orgnumber = orgnumber,
                 employeeIdentificationNumber = employeeIdentificationNumber,
@@ -69,14 +69,14 @@ class SendtSykmeldingServiceTest : DescribeSpec({
             )
 
             val storedSykmeldingsperioder =
-                sendtSykmeldingService.getSykmeldingperioder(orgnumber, employeeIdentificationNumber)
+                sendtSykmeldingService.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
 
             storedSykmeldingsperioder.size shouldBe 2
 
-            sendtSykmeldingService.deleteSykmeldingperioder(sykmeldingId)
+            sendtSykmeldingService.deleteSykmeldingsperioder(sykmeldingId)
 
             val storedSykmeldingsperioderAfterDelete =
-                sendtSykmeldingService.getSykmeldingperioder(orgnumber, employeeIdentificationNumber)
+                sendtSykmeldingService.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
 
             storedSykmeldingsperioderAfterDelete.size shouldBe 0
         }
@@ -92,7 +92,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
                 ),
             )
 
-            sendtSykmeldingService.persistSykmeldingperioder(
+            sendtSykmeldingService.persistSykmeldingsperioder(
                 sykmeldingId = sykmeldingId,
                 orgnumber = orgnumber,
                 employeeIdentificationNumber = employeeIdentificationNumber,
@@ -116,7 +116,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
                 ),
             )
 
-            sendtSykmeldingService.persistSykmeldingperioder(
+            sendtSykmeldingService.persistSykmeldingsperioder(
                 sykmeldingId = sykmeldingId,
                 orgnumber = orgnumber,
                 employeeIdentificationNumber = employeeIdentificationNumber,

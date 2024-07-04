@@ -56,9 +56,9 @@ class SendtSykmeldingAivenConsumer(
             val sykmeldingId = record.key()
 
             if (sykmeldingKafkaMessage == null) {
-                sykmeldingService.deleteSykmeldingperioder(sykmeldingId)
+                sykmeldingService.deleteSykmeldingsperioder(sykmeldingId)
             } else {
-                sykmeldingService.persistSykmeldingperioder(
+                sykmeldingService.persistSykmeldingsperioder(
                     sykmeldingId = sykmeldingId,
                     employeeIdentificationNumber = sykmeldingKafkaMessage.kafkaMetadata.fnr,
                     orgnumber = sykmeldingKafkaMessage.event.arbeidsgiver.orgnummer,
