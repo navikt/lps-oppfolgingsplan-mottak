@@ -119,22 +119,21 @@ Questions about maskinporten or Altinn must be directed to Digdir/Altinn.
 
 <hr>
 
-### 🚀 Initial setup
+### 🚀 Setup
 
-- Install and configure the [Detect IDEA plugin](https://plugins.jetbrains.com/plugin/10761-detekt) for live code
-  analysis
-- Install the [Kotest IDEA plugin](https://plugins.jetbrains.com/plugin/14080-kotest) to enable test-runs in IDEA
--
+- Installer og konfigurer [Detect IDEA plugin](https://plugins.jetbrains.com/plugin/10761-detekt) for live kodeanalyse
+- Installer [Kotest IDEA plugin](https://plugins.jetbrains.com/plugin/14080-kotest) for å kjøre tester
+- Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings) til 19
 
-Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings)
-to 19
+### 🛠️ Hvordan sette opp sendt sykmelding for en ansatt
+1. Gå til dolly: https://dolly.ekstern.dev.nav.no/
+2. Lag en ny bruker med arbeidsforhold til det du satte opp for sluttbruker-org
+3. Gå til sykmeldingmock: https://teamsykmelding-mock.ansatt.dev.nav.no/sykmelding/opprett?was-old=true
+4. Mock en sykmelding for den ansatte du lagde i dolly
+5. Gå til ditt sykefravær: https://www.ekstern.dev.nav.no/syk/sykefravaer
+6. Send inn sykmeldingen til arbeidsgiver
 
-### 🤖 Maskinporten
-
-You will need to configure [Maskinporten](https://docs.digdir.no/docs/Maskinporten/maskinporten_summary.html)
-in order to be able to operate on behalf of employer. <br>
-
-### 🗺️ Documentation and useful links
+### 🗺️ Div dokumentasjon
 
 | Description          | Url                                                                |
 |----------------------|--------------------------------------------------------------------|
