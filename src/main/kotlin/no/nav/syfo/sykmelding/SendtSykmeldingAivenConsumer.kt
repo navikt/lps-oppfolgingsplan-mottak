@@ -14,6 +14,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 
 const val SENDT_SYKMELDING_TOPIC = "teamsykmelding.syfo-sendt-sykmelding"
 
@@ -37,6 +38,7 @@ class SendtSykmeldingAivenConsumer(
                 "org.apache.kafka.common.serialization.StringDeserializer"
             )
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+            put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
         }
         kafkaListener = KafkaConsumer(kafkaConfig)
         kafkaListener.subscribe(listOf(SENDT_SYKMELDING_TOPIC))
@@ -65,7 +67,11 @@ class SendtSykmeldingAivenConsumer(
                     sykmeldingId = sykmeldingId,
                     employeeIdentificationNumber = sykmeldingKafkaMessage.kafkaMetadata.fnr,
                     orgnumber = sykmeldingKafkaMessage.event.arbeidsgiver.orgnummer,
-                    sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                    sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
+                        !it.tom.isBefore(
+                            LocalDate.now()
+                        )
+                    }
                 )
             }
             log.info("Committing offset")
