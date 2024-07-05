@@ -4,9 +4,10 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.sykmelding.database.deleteSykmeldingsperioder
 import no.nav.syfo.sykmelding.database.getSykmeldingsperioder
 import no.nav.syfo.sykmelding.database.hasActiveSentSykmelding
-import no.nav.syfo.sykmelding.database.persistSykmeldingsperioder
+import no.nav.syfo.sykmelding.database.persistSykmeldingsperiode
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.domain.SykmeldingsperiodeAGDTO
+import java.time.LocalDate
 
 class SendtSykmeldingService(private val database: DatabaseInterface) {
     fun persistSykmeldingsperioder(
@@ -15,12 +16,20 @@ class SendtSykmeldingService(private val database: DatabaseInterface) {
         employeeIdentificationNumber: String,
         sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>
     ) {
-        database.persistSykmeldingsperioder(
-            sykmeldingId = sykmeldingId,
-            orgnumber = orgnumber,
-            employeeIdentificationNumber = employeeIdentificationNumber,
-            sykmeldingsperioder = sykmeldingsperioder
-        )
+        val activeSykmeldingsPerioder = sykmeldingsperioder.filter {
+            !it.tom.isBefore(
+                LocalDate.now()
+            )
+        }
+        activeSykmeldingsPerioder.forEach { sykmeldingsperiode ->
+            database.persistSykmeldingsperiode(
+                sykmeldingId = sykmeldingId,
+                orgnummer = orgnumber,
+                employeeIdentificationNumber = employeeIdentificationNumber,
+                fom = sykmeldingsperiode.fom,
+                tom = sykmeldingsperiode.tom
+            )
+        }
     }
 
     fun deleteSykmeldingsperioder(sykmeldingId: String) {

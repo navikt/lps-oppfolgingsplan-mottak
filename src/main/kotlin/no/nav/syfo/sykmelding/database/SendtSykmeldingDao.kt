@@ -3,29 +3,11 @@ package no.nav.syfo.sykmelding.database
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.toList
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
-import no.nav.syfo.sykmelding.domain.SykmeldingsperiodeAGDTO
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-
-fun DatabaseInterface.persistSykmeldingsperioder(
-    sykmeldingId: String,
-    orgnumber: String,
-    employeeIdentificationNumber: String,
-    sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>
-) {
-    sykmeldingsperioder.forEach { sykmeldingsperiode ->
-        persistSykmeldingsperiode(
-            sykmeldingId,
-            orgnumber,
-            employeeIdentificationNumber,
-            sykmeldingsperiode.fom,
-            sykmeldingsperiode.tom
-        )
-    }
-}
 
 fun DatabaseInterface.persistSykmeldingsperiode(
     sykmeldingId: String,

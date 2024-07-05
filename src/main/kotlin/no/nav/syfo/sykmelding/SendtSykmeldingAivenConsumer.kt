@@ -14,7 +14,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 
 const val SENDT_SYKMELDING_TOPIC = "teamsykmelding.syfo-sendt-sykmelding"
 
@@ -67,11 +66,7 @@ class SendtSykmeldingAivenConsumer(
                     sykmeldingId = sykmeldingId,
                     employeeIdentificationNumber = sykmeldingKafkaMessage.kafkaMetadata.fnr,
                     orgnumber = sykmeldingKafkaMessage.event.arbeidsgiver.orgnummer,
-                    sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder.filter {
-                        !it.tom.isBefore(
-                            LocalDate.now()
-                        )
-                    }
+                    sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
                 )
             }
             log.info("Committing offset")
