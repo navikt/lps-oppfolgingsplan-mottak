@@ -45,6 +45,7 @@ class SendtSykmeldingAivenConsumer(
     override suspend fun listen(applicationState: ApplicationState) {
         while (applicationState.ready) {
             kafkaListener.poll(pollDurationInMillis).forEach { record: ConsumerRecord<String, String> ->
+                log.info("Received record with key: ${record.key()}")
                 processRecord(record)
             }
         }
@@ -56,16 +57,19 @@ class SendtSykmeldingAivenConsumer(
             val sykmeldingId = record.key()
 
             if (sykmeldingKafkaMessage == null) {
+                log.info("Received tombstone record for sykmeldingId: $sykmeldingId ..deleting")
                 sykmeldingService.deleteSykmeldingsperioder(sykmeldingId)
             } else {
+                log.info("Storing sykmeldingsperioder for sykmeldingId: $sykmeldingId")
                 sykmeldingService.persistSykmeldingsperioder(
                     sykmeldingId = sykmeldingId,
                     employeeIdentificationNumber = sykmeldingKafkaMessage.kafkaMetadata.fnr,
                     orgnumber = sykmeldingKafkaMessage.event.arbeidsgiver.orgnummer,
                     sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
                 )
-                kafkaListener.commitSync()
             }
+            log.info("Committing offset")
+            kafkaListener.commitSync()
         } catch (e: Exception) {
             log.error("Error encountered while processing sykmelding: ${e.message}", e)
         }
