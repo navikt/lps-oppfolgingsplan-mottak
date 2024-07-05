@@ -37,6 +37,7 @@ class SendtSykmeldingAivenConsumer(
                 "org.apache.kafka.common.serialization.StringDeserializer"
             )
             put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+            put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
         }
         kafkaListener = KafkaConsumer(kafkaConfig)
         kafkaListener.subscribe(listOf(SENDT_SYKMELDING_TOPIC))

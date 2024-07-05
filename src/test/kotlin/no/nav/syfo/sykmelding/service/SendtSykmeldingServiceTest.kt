@@ -18,14 +18,17 @@ class SendtSykmeldingServiceTest : DescribeSpec({
     }
 
     describe("Sykmeldingsperioder") {
-        it("Should persist sykmeldingsperioder") {
+        it("Should persist active sykmeldingsperioder") {
             val sykmeldingId = "123"
             val orgnumber = "456"
             val employeeIdentificationNumber = "789"
+            val activeSykmeldingFom = LocalDate.now().minusWeeks(10)
+            val activeSykmeldingTom = LocalDate.now().plusWeeks(10)
+
             val sykmeldingsperioder = listOf(
                 SykmeldingsperiodeAGDTO(
-                    fom = LocalDate.now().minusWeeks(10),
-                    tom = LocalDate.now().plusDays(10),
+                    fom = activeSykmeldingFom,
+                    tom = activeSykmeldingTom,
                 ),
                 SykmeldingsperiodeAGDTO(
                     fom = LocalDate.now().minusWeeks(20),
@@ -43,7 +46,9 @@ class SendtSykmeldingServiceTest : DescribeSpec({
             val storedSykmeldingsperioder =
                 sendtSykmeldingService.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
 
-            storedSykmeldingsperioder.size shouldBe 2
+            storedSykmeldingsperioder.size shouldBe 1
+            storedSykmeldingsperioder[0].fom shouldBe activeSykmeldingFom
+            storedSykmeldingsperioder[0].tom shouldBe activeSykmeldingTom
         }
 
         it("Should delete tombstone records") {
@@ -71,7 +76,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
             val storedSykmeldingsperioder =
                 sendtSykmeldingService.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
 
-            storedSykmeldingsperioder.size shouldBe 2
+            storedSykmeldingsperioder.size shouldBe 1
 
             sendtSykmeldingService.deleteSykmeldingsperioder(sykmeldingId)
 
