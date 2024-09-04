@@ -3,9 +3,9 @@ package no.nav.syfo.client.azuread
 import java.time.LocalDateTime
 @Suppress("ConstructorParameterNaming")
 data class AzureAdTokenResponse(
-    val access_token: String,
+    val access_token: String?,
     val expires_in: Long,
-    val token_type: String,
+    val token_type: String?,
 )
 
 fun AzureAdTokenResponse.toAzureAdToken(): AzureAdToken {

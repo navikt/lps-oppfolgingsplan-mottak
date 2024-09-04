@@ -105,7 +105,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
             )
 
             val hasActiveSentSykmelding =
-                sendtSykmeldingService.hasActiveSentSykmelding(orgnumber, employeeIdentificationNumber)
+                sendtSykmeldingService.hasActiveSentSykmelding(orgnumber, employeeIdentificationNumber, false)
 
             hasActiveSentSykmelding shouldBe true
         }
@@ -129,7 +129,7 @@ class SendtSykmeldingServiceTest : DescribeSpec({
             )
 
             val hasActiveSentSykmelding =
-                sendtSykmeldingService.hasActiveSentSykmelding(orgnumber, employeeIdentificationNumber)
+                sendtSykmeldingService.hasActiveSentSykmelding(orgnumber, employeeIdentificationNumber, false)
 
             hasActiveSentSykmelding shouldBe false
         }

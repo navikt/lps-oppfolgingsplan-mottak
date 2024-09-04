@@ -20,7 +20,7 @@ import no.nav.syfo.client.httpClientDefault
 import java.util.*
 
 private const val TWO_MINUTES_IN_SECONDS = 120
-private const val CONSUMER_ORG = "310069590"
+private const val CONSUMER_ORG = "889640782"
 private val httpClient = httpClientDefault()
 
 fun Routing.registerMaskinportenTokenApi(

@@ -85,6 +85,7 @@ class OpPdfGenClient(
         val requestBody = mapper.writeValueAsString(request)
 
         val response = try {
+            log.info("Calling PdfGen")
             client.post(requestUrl) {
                 headers {
                     append(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -101,6 +102,7 @@ class OpPdfGenClient(
         return when (response.status) {
             HttpStatusCode.OK -> {
                 runBlocking {
+                    log.info("Successfully generated PDF for LPS-plan")
                     response.body<ByteArray>()
                 }
             }
