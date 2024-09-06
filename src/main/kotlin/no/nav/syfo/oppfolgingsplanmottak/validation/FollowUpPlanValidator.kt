@@ -11,7 +11,7 @@ class FollowUpPlanValidator(
     private val pdlClient: PdlClient,
     private val sykmeldingService: SendtSykmeldingService
 ) {
-    suspend fun validateFollowUpPlanDTO(followUpPlanDTO: FollowUpPlanDTO, employerOrgnr: String) {
+    suspend fun validateFollowUpPlanDTO(followUpPlanDTO: FollowUpPlanDTO, employerOrgnr: String, isDev: Boolean) {
         if (followUpPlanDTO.needsHelpFromNav == true && !followUpPlanDTO.sendPlanToNav) {
             throw FollowUpPlanDTOValidationException("needsHelpFromNav cannot be true if sendPlanToNav is false")
         }
@@ -36,7 +36,11 @@ class FollowUpPlanValidator(
         }
 
         val hasActiveSendtSykmelding =
-            sykmeldingService.hasActiveSentSykmelding(employerOrgnr, followUpPlanDTO.employeeIdentificationNumber)
+            sykmeldingService.hasActiveSentSykmelding(
+                employerOrgnr,
+                followUpPlanDTO.employeeIdentificationNumber,
+                isDev
+            )
 
         validateEmployeeInformation(followUpPlanDTO.employeeIdentificationNumber, hasActiveSendtSykmelding)
     }

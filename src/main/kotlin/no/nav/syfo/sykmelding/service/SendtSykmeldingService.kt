@@ -46,7 +46,12 @@ class SendtSykmeldingService(private val database: DatabaseInterface) {
     fun hasActiveSentSykmelding(
         orgnumber: String,
         employeeIdentificationNumber: String,
+        isDev: Boolean,
     ): Boolean {
+        if (isDev) {
+            return true
+        }
+
         return database.hasActiveSentSykmelding(
             orgnumber,
             employeeIdentificationNumber

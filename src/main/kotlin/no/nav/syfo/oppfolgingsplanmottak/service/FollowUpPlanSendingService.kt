@@ -1,7 +1,5 @@
 package no.nav.syfo.oppfolgingsplanmottak.service
 
-import java.time.LocalDate
-import java.util.*
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_FALSE
 import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE
@@ -14,6 +12,8 @@ import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
+import java.util.*
 
 class FollowUpPlanSendingService(
     private val isdialogmeldingClient: IsdialogmeldingClient,
@@ -30,13 +30,12 @@ class FollowUpPlanSendingService(
         employerOrgnr: String,
     ): FollowUpPlan {
         val sykmeldtFnr = followUpPlanDTO.employeeIdentificationNumber
-        var pdf: ByteArray? = null
         val shouldSendToNav = shouldSendToNav(followUpPlanDTO)
         val shouldSendToGeneralPractitioner = shouldSendToGeneralPractitioner(toggles, followUpPlanDTO)
+        val pdf: ByteArray? = opPdfGenClient.getLpsPdf(followUpPlanDTO)
 
-        if (shouldSendToGeneralPractitioner || shouldSendToNav) {
-            pdf = opPdfGenClient.getLpsPdf(followUpPlanDTO)
-        }
+        log.info("Should send to NAV: $shouldSendToNav")
+        log.info("Should send to GP: $shouldSendToGeneralPractitioner")
 
         val sentToFastlegeStatus: Boolean =
             shouldSendToGeneralPractitioner && run {
@@ -52,6 +51,7 @@ class FollowUpPlanSendingService(
             }
 
         if (shouldSendToNav) {
+            log.info("Sending follow-up plan with uuid $uuid to NAV")
             val planToSendToNav = KFollowUpPlan(
                 uuid.toString(),
                 followUpPlanDTO.employeeIdentificationNumber,
@@ -60,15 +60,16 @@ class FollowUpPlanSendingService(
                 LocalDate.now().toEpochDay().toInt(),
             )
             followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
+
+            if (pdf != null) {
+                log.info("Sending follow-up plan with uuid $uuid to dokarkiv")
+                dokarkivClient.journalforLps(followUpPlanDTO, employerOrgnr, pdf, uuid)
+            } else {
+                log.warn("Could not send LPS-plan with uuid $uuid to NAV because PDF is null")
+            }
             COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE.increment()
         } else {
             COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_FALSE.increment()
-        }
-
-        if (pdf != null && followUpPlanDTO.sendPlanToNav) {
-            dokarkivClient.journalforLps(followUpPlanDTO, employerOrgnr, pdf, uuid)
-        } else {
-            log.warn("Could not send LPS-plan with uuid $uuid to NAV because PDF is null")
         }
 
         return FollowUpPlan(

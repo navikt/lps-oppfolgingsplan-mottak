@@ -10,10 +10,10 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.Parameters
-import java.util.concurrent.ConcurrentHashMap
 import no.nav.syfo.application.environment.AuthEnv
 import no.nav.syfo.client.httpClientProxy
 import org.slf4j.LoggerFactory
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.collections.set
 
 @Suppress("ThrowsCount")
