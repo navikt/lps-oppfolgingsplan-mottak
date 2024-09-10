@@ -5,7 +5,7 @@ version = "1.0"
 
 val ktorVersion = "2.3.12"
 val prometheusVersion = "0.16.0"
-val micrometerVersion = "1.12.6"
+val micrometerVersion = "1.13.4"
 val slf4jVersion = "2.0.16"
 val logbackVersion = "1.5.8"
 val javaxVersion = "2.1.1"
