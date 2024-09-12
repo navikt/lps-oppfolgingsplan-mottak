@@ -25,6 +25,7 @@ import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
+import org.slf4j.LoggerFactory
 import java.util.*
 
 fun Routing.registerFollowUpPlanApi(
@@ -33,17 +34,20 @@ fun Routing.registerFollowUpPlanApi(
     validator: FollowUpPlanValidator,
     environment: ApplicationEnvironment,
 ) {
+    val log = LoggerFactory.getLogger("FollowUpPlanApi")
     val uuid = "uuid"
 
     route("/api/v1/followupplan") {
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post {
+                log.info("Received follow-up plan")
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val planUuid = UUID.randomUUID()
                 val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
 
                 validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr, environment.isDev())
+                log.info("Follow-up plan is valid. Attempting to store plan.")
 
                 database.storeFollowUpPlan(
                     uuid = planUuid,
@@ -53,6 +57,9 @@ fun Routing.registerFollowUpPlanApi(
                     sentToGeneralPractitionerAt = null,
                     sentToNavAt = null,
                 )
+
+                log.info("Follow-up plan stored successfully. Attempting to send follow-up plan.")
+
                 val followUpPlan =
                     followUpPlanSendingService.sendFollowUpPlan(followUpPlanDTO, planUuid, employerOrgnr)
 
@@ -68,6 +75,7 @@ fun Routing.registerFollowUpPlanApi(
                     pdf = pdf
                 )
 
+                log.info("Follow-up plan received and sent successfully.")
                 call.respond(followUpPlan.toFollowUpPlanResponse())
 
                 COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET.increment()
