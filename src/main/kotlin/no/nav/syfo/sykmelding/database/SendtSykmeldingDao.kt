@@ -90,9 +90,8 @@ fun DatabaseInterface.hasActiveSentSykmelding(
 
     return connection.use { connection ->
         connection.prepareStatement(selectStatement).use {
-            it.setString(1, orgnumber)
-            it.setString(2, employeeIdentificationNumber)
-            it.setObject(3, today)
+            it.setString(1, employeeIdentificationNumber)
+            it.setObject(2, today)
             it.executeQuery().next()
         }
     }
