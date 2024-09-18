@@ -85,14 +85,13 @@ fun DatabaseInterface.hasActiveSentSykmelding(
     val selectStatement = """
         SELECT *
         FROM SYKMELDINGSPERIODE
-        WHERE organization_number = ? AND employee_identification_number = ? AND ? BETWEEN fom AND tom
+        WHERE employee_identification_number = ? AND ? BETWEEN fom AND tom
     """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(selectStatement).use {
-            it.setString(1, orgnumber)
-            it.setString(2, employeeIdentificationNumber)
-            it.setObject(3, today)
+            it.setString(1, employeeIdentificationNumber)
+            it.setObject(2, today)
             it.executeQuery().next()
         }
     }
