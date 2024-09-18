@@ -59,7 +59,9 @@
     "krrProxyUrl": "localhost.krr.url",
     "krrProxyScope": "localhost.krr.scope",
     "eregBaseUrl": "localhost.eregBaseUrl",
-    "eregScope": "eregScope"
+    "eregScope": "eregScope",
+    "aaregBaseUrl": "localhost.aaregBaseUrl",
+    "aaregScope": "aaregScope"
   },
   "altinnLps": {
     "sendToFastlegeRetryThreshold": 6

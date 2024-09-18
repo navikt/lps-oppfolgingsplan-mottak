@@ -20,6 +20,7 @@ import no.nav.syfo.application.database.grantAccessToIAMUsers
 import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.application.kafka.kafkaModule
 import no.nav.syfo.application.scheduling.schedulerModule
+import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.ereg.EregClient
@@ -81,6 +82,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
     val pdfGenClient = OpPdfGenClient(appEnv.urls, appEnv.application, pdlClient, krrProxyClient)
     val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
     val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient, eregClient)
+    val arbeidsforholdOversiktClient = ArbeidsforholdOversiktClient(azureAdClient, appEnv.urls)
 
     val altinnLpsService = AltinnLpsService(
         pdlClient,
@@ -134,7 +136,8 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
                 veilederTilgangskontrollClient,
                 followUpPlanSendingService,
                 pdlClient,
-                sykmeldingService
+                sykmeldingService,
+                arbeidsforholdOversiktClient
             )
             kafkaModule(
                 appState,

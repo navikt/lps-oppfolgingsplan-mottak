@@ -104,10 +104,11 @@ class SendtSykmeldingServiceTest : DescribeSpec({
                 sykmeldingsperioder = sykmeldingsperioder
             )
 
-            val hasActiveSentSykmelding =
-                sendtSykmeldingService.hasActiveSentSykmelding(orgnumber, employeeIdentificationNumber, false)
+            val activeSykmeldingsperioder =
+                sendtSykmeldingService.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
 
-            hasActiveSentSykmelding shouldBe true
+            activeSykmeldingsperioder.size shouldBe 1
+            activeSykmeldingsperioder[0].employeeIdentificationNumber shouldBe employeeIdentificationNumber
         }
 
         it("Should return false for active sendt sykmelding if period does not exist between fom and tom") {
@@ -128,10 +129,10 @@ class SendtSykmeldingServiceTest : DescribeSpec({
                 sykmeldingsperioder = sykmeldingsperioder
             )
 
-            val hasActiveSentSykmelding =
-                sendtSykmeldingService.hasActiveSentSykmelding(orgnumber, employeeIdentificationNumber, false)
+            val activeSykmeldingsperioder =
+                sendtSykmeldingService.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
 
-            hasActiveSentSykmelding shouldBe false
+            activeSykmeldingsperioder shouldBe emptyList()
         }
     }
 })
