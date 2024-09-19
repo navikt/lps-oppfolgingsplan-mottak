@@ -30,7 +30,7 @@ class ArbeidsforholdOversiktClient(
     suspend fun getArbeidsforhold(personIdent: String): AaregArbeidsforholdOversikt? =
         try {
             val token = azureAdClient.getSystemToken(urlEnv.aaregScope)?.accessToken
-                ?: throw RuntimeException("Failed to getArbeidsforhold: No token was found")
+                ?: throw RuntimeException("Failed to get Arbeidsforhold: No token was found")
 
             httpClient.post(arbeidsforholdOversiktPath) {
                 header(HttpHeaders.Authorization, createBearerToken(token))
