@@ -22,8 +22,8 @@ data class SokAdresseVariables(
 )
 
 data class Paging(
-    val pageNumber: String? = "1",
-    val resultsPerPage: String? = "1",
+    val pageNumber: Int? = 1,
+    val resultsPerPage: Int? = 1,
 )
 
 data class SearchRule(
