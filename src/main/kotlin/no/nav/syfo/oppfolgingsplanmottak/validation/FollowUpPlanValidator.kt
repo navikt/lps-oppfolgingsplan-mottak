@@ -13,12 +13,13 @@ import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 class FollowUpPlanValidator(
     private val pdlClient: PdlClient,
     private val sykmeldingService: SendtSykmeldingService,
-    private val arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient
+    private val arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient,
+    private val isDev: Boolean,
 ) {
     suspend fun validateFollowUpPlanDTO(followUpPlanDTO: FollowUpPlanDTO, employerOrgnr: String) {
         validatePlan(followUpPlanDTO)
 
-        validateEmployeeInformation(followUpPlanDTO, employerOrgnr)
+        validateEmployeeInformation(followUpPlanDTO, employerOrgnr, isDev)
     }
 
     private fun validatePlan(followUpPlanDTO: FollowUpPlanDTO) {
@@ -48,10 +49,15 @@ class FollowUpPlanValidator(
 
     private suspend fun validateEmployeeInformation(
         followUpPlanDTO: FollowUpPlanDTO,
-        employerOrgnr: String
+        employerOrgnr: String,
+        isDev: Boolean
     ) {
         if (!followUpPlanDTO.employeeIdentificationNumber.matches(Regex("\\d{11}"))) {
             throw FollowUpPlanDTOValidationException("Invalid employee identification number")
+        }
+
+        if (isDev && followUpPlanDTO.employeeIdentificationNumber == "01898299631") {
+            return
         }
 
         val validOrgnumbers = validateArbeidsforhold(followUpPlanDTO, employerOrgnr)

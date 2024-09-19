@@ -78,7 +78,7 @@ fun Application.apiModule(
         registerFollowUpPlanApi(
             database,
             followUpPlanSendingService,
-            FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient),
+            FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, environment.isDev()),
         )
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
