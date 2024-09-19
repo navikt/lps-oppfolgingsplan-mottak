@@ -50,7 +50,6 @@ fun Application.testApiModule(
         followupPlanProducer = followupPlanProducer,
         opPdfGenClient = opPdfGenClient,
         dokarkivClient = dokarkivClient,
-        toggles = externalMockEnvironment.environment.toggles,
     )
 
     val sykmeldingService = SendtSykmeldingService(database)

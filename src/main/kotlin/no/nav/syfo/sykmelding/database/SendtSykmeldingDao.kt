@@ -77,6 +77,7 @@ fun DatabaseInterface.getSykmeldingsperioder(
     }
 }
 
+@Suppress("UnusedParameter")
 fun DatabaseInterface.hasActiveSentSykmelding(
     orgnumber: String,
     employeeIdentificationNumber: String,

@@ -67,8 +67,6 @@
   "toggles": {
      "sendAltinnLpsPlanToFastlegeToggle": true,
      "sendAltinnLpsPlanToNavToggle": true,
-     "journalforAltinnLpsPlanToggle": true,
-     "sendLpsPlanToFastlegeToggle": true,
-     "journalforLpsPlanToggle": true
+     "journalforAltinnLpsPlanToggle": true
   }
 }
