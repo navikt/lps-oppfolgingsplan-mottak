@@ -18,6 +18,7 @@ import no.nav.syfo.application.database.Database
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.database.grantAccessToIAMUsers
 import no.nav.syfo.application.environment.getEnv
+import no.nav.syfo.application.environment.isDev
 import no.nav.syfo.application.kafka.kafkaModule
 import no.nav.syfo.application.scheduling.schedulerModule
 import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
@@ -104,6 +105,7 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
         followupPlanProducer,
         pdfGenClient,
         dokarkivClient,
+        appEnv.isDev(),
     )
 
     val wellKnownInternalAzureAD = getWellKnown(

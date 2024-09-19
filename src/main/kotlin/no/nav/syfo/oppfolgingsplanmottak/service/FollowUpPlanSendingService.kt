@@ -19,6 +19,7 @@ class FollowUpPlanSendingService(
     private val followupPlanProducer: FollowUpPlanProducer,
     private val opPdfGenClient: OpPdfGenClient,
     private val dokarkivClient: DokarkivClient,
+    private val isDev: Boolean,
 ) {
     val log: Logger = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
 
@@ -30,7 +31,7 @@ class FollowUpPlanSendingService(
         val sykmeldtFnr = followUpPlanDTO.employeeIdentificationNumber
         val shouldSendToNav = followUpPlanDTO.sendPlanToNav
         val needsHelpFromNav = followUpPlanDTO.needsHelpFromNav
-        val shouldSendToGeneralPractitioner = followUpPlanDTO.sendPlanToGeneralPractitioner
+        val shouldSendToGeneralPractitioner = if (!isDev) followUpPlanDTO.sendPlanToGeneralPractitioner else false
         val pdf: ByteArray? = opPdfGenClient.getLpsPdf(followUpPlanDTO)
 
         log.info("Should send to NAV: $shouldSendToNav")

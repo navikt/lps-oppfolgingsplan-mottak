@@ -64,6 +64,7 @@ fun Application.testApiModule(
         followupPlanProducer = followupPlanProducer,
         opPdfGenClient = opPdfGenClient,
         dokarkivClient = dokarkivClient,
+        isDev = false
     )
 
     val sykmeldingService = SendtSykmeldingService(database)
