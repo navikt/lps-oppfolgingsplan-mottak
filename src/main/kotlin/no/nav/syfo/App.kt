@@ -102,7 +102,6 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
         followupPlanProducer,
         pdfGenClient,
         dokarkivClient,
-        appEnv.toggles
     )
 
     val wellKnownInternalAzureAD = getWellKnown(

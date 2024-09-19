@@ -1,6 +1,5 @@
 package no.nav.syfo.oppfolgingsplanmottak.service
 
-import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_FALSE
 import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE
 import no.nav.syfo.client.dokarkiv.DokarkivClient
@@ -20,7 +19,6 @@ class FollowUpPlanSendingService(
     private val followupPlanProducer: FollowUpPlanProducer,
     private val opPdfGenClient: OpPdfGenClient,
     private val dokarkivClient: DokarkivClient,
-    private val toggles: ToggleEnv,
 ) {
     val log: Logger = LoggerFactory.getLogger(FollowUpPlanSendingService::class.qualifiedName)
 
@@ -32,7 +30,7 @@ class FollowUpPlanSendingService(
         val sykmeldtFnr = followUpPlanDTO.employeeIdentificationNumber
         val shouldSendToNav = followUpPlanDTO.sendPlanToNav
         val needsHelpFromNav = followUpPlanDTO.needsHelpFromNav
-        val shouldSendToGeneralPractitioner = shouldSendToGeneralPractitioner(toggles, followUpPlanDTO)
+        val shouldSendToGeneralPractitioner = followUpPlanDTO.sendPlanToGeneralPractitioner
         val pdf: ByteArray? = opPdfGenClient.getLpsPdf(followUpPlanDTO)
 
         log.info("Should send to NAV: $shouldSendToNav")
@@ -82,9 +80,5 @@ class FollowUpPlanSendingService(
             isSentToNavStatus = followUpPlanDTO.sendPlanToNav,
             pdf = pdf
         )
-    }
-
-    private fun shouldSendToGeneralPractitioner(toggles: ToggleEnv, followUpPlanDTO: FollowUpPlanDTO): Boolean {
-        return toggles.sendLpsPlanToFastlegeToggle && followUpPlanDTO.sendPlanToGeneralPractitioner
     }
 }
