@@ -76,8 +76,6 @@ class FollowUpPlanSendingService(
             }
         }
 
-
-
         return FollowUpPlan(
             uuid = uuid.toString(),
             isSentToGeneralPractitionerStatus = sentToFastlegeStatus,
