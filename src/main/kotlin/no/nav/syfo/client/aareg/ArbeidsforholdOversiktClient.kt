@@ -43,7 +43,7 @@ class ArbeidsforholdOversiktClient(
             }.body()
         } catch (e: ClientRequestException) {
             if (e.response.status == HttpStatusCode.NotFound) {
-                logger.error("Fant ikke arbeidstaker", e)
+                logger.error("Fant ikke arbeidsforhold for bruker", e)
                 null
             } else {
                 logger.error("Noe gikk galt ved henting av arbeidsforhold", e)
