@@ -24,9 +24,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-const val employerUnderenhetOrgnr = "123456789"
-const val employerHovedenhetOrgnr = "987654321"
-const val employeeIdentificationNumber = "12345678901"
+const val UNDERENHET_ORGNUMBER = "123456789"
+const val HOVEDENHET_ORGNUMBER = "987654321"
+const val EMPLOYEE_SSN = "12345678901"
 
 class FollowUpPlanValidatorTest : DescribeSpec({
     val pdlClient = mockk<PdlClient>()
@@ -39,14 +39,14 @@ class FollowUpPlanValidatorTest : DescribeSpec({
             it("should throw exception if needsHelpFromNav is true and sendPlanToNav is false") {
                 val followUpPlanDTO = createFollowUpPlanDTO(needsHelpFromNav = true, sendPlanToNav = false)
                 shouldThrow<FollowUpPlanDTOValidationException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, employerHovedenhetOrgnr)
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
 
             it("should throw exception if needsHelpFromNav is true and needsHelpFromNavDescription is null") {
                 val followUpPlanDTO = createFollowUpPlanDTO(needsHelpFromNav = true, needsHelpFromNavDescription = null)
                 shouldThrow<FollowUpPlanDTOValidationException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, employerHovedenhetOrgnr)
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
 
@@ -59,7 +59,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                     employeeHasNotContributedToPlanDescription = null
                 )
                 shouldThrow<FollowUpPlanDTOValidationException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, employerHovedenhetOrgnr)
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
 
@@ -72,7 +72,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                     employeeHasNotContributedToPlanDescription = "Some description"
                 )
                 shouldThrow<FollowUpPlanDTOValidationException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, employerHovedenhetOrgnr)
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
 
@@ -80,17 +80,19 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 val followUpPlanDTO = createFollowUpPlanDTO(employeeIdentificationNumber = "invalid")
                 coEvery { pdlClient.getPersonInfo(any()) } returns null
                 shouldThrow<FollowUpPlanDTOValidationException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, employerHovedenhetOrgnr)
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
 
             it("should throw exception if no active sykmelding is found") {
                 val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery { arbeidsforholdOversiktClient.getArbeidsforhold(any()) } returns createValidAaregArbeidsforholdOversiktDTO()
+                coEvery {
+                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                } returns createValidAaregArbeidsforholdOversiktDTO()
                 coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns emptyList()
                 coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
                 shouldThrow<NoActiveSentSykmeldingException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, employerHovedenhetOrgnr)
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
 
@@ -100,16 +102,25 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 coEvery { arbeidsforholdOversiktClient.getArbeidsforhold(any()) } returns null
                 coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
                 shouldThrow<NoActiveArbeidsforholdException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, employerHovedenhetOrgnr)
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
 
             it("should pass validation for valid FollowUpPlanDTO") {
                 val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns createValidSykmeldingsperioder()
-                coEvery { arbeidsforholdOversiktClient.getArbeidsforhold(any()) } returns createValidAaregArbeidsforholdOversiktDTO()
-                coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
-                validator.validateFollowUpPlanDTO(followUpPlanDTO, employerHovedenhetOrgnr)
+                coEvery {
+                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                } returns createValidSykmeldingsperioder()
+
+                coEvery {
+                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                } returns createValidAaregArbeidsforholdOversiktDTO()
+
+                coEvery {
+                    pdlClient.getPersonInfo(any())
+                } returns mockk()
+
+                validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
             }
         }
     }
@@ -155,13 +166,13 @@ fun createValidAaregArbeidsforholdOversiktDTO(): AaregArbeidsforholdOversikt {
                 arbeidssted = Arbeidssted(
                     type = ArbeidsstedType.Underenhet,
                     identer = listOf(
-                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = employerUnderenhetOrgnr, gjeldende = true)
+                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = UNDERENHET_ORGNUMBER, gjeldende = true)
                     )
                 ),
                 opplysningspliktig = Opplysningspliktig(
                     type = OpplysningspliktigType.Hovedenhet,
                     identer = listOf(
-                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = employerHovedenhetOrgnr, gjeldende = true)
+                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = HOVEDENHET_ORGNUMBER, gjeldende = true)
                     )
                 )
             )
@@ -174,8 +185,8 @@ fun createValidSykmeldingsperioder(): List<Sykmeldingsperiode> {
         Sykmeldingsperiode(
             uuid = UUID.randomUUID(),
             sykmeldingId = "sykmelding123",
-            organizationNumber = employerUnderenhetOrgnr,
-            employeeIdentificationNumber = employeeIdentificationNumber,
+            organizationNumber = UNDERENHET_ORGNUMBER,
+            employeeIdentificationNumber = EMPLOYEE_SSN,
             fom = LocalDate.now().minusDays(10),
             tom = LocalDate.now().plusDays(10),
             createdAt = LocalDateTime.now()
