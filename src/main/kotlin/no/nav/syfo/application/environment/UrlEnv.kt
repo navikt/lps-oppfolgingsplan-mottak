@@ -14,4 +14,6 @@ data class UrlEnv(
     val krrProxyScope: String,
     val eregBaseUrl: String,
     val eregScope: String,
+    val aaregBaseUrl: String,
+    val aaregScope: String,
 )

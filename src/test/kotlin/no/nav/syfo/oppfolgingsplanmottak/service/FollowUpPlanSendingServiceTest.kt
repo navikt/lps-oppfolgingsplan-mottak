@@ -20,7 +20,7 @@ class FollowUpPlanSendingServiceTest : DescribeSpec({
     val opPdfGenClient = mockk<OpPdfGenClient>(relaxed = true)
     val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
     val service =
-        FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, opPdfGenClient, dokarkivClient)
+        FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, opPdfGenClient, dokarkivClient, false)
     val pdfByteArray = "<MOCK PDF CONTENT>".toByteArray()
 
     beforeSpec {

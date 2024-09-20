@@ -10,10 +10,8 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.syfo.application.ApplicationEnvironment
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.application.environment.isDev
 import no.nav.syfo.application.exception.ApiError.FollowupPlanNotFoundError
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET
 import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
@@ -26,13 +24,12 @@ import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 fun Routing.registerFollowUpPlanApi(
     database: DatabaseInterface,
     followUpPlanSendingService: FollowUpPlanSendingService,
     validator: FollowUpPlanValidator,
-    environment: ApplicationEnvironment,
 ) {
     val log = LoggerFactory.getLogger("FollowUpPlanApi")
     val uuid = "uuid"
@@ -46,7 +43,7 @@ fun Routing.registerFollowUpPlanApi(
                 val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
 
-                validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr, environment.isDev())
+                validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr)
                 log.info("Follow-up plan is valid. Attempting to store plan.")
 
                 database.storeFollowUpPlan(

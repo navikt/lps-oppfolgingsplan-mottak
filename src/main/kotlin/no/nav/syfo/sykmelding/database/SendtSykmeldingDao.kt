@@ -77,11 +77,9 @@ fun DatabaseInterface.getSykmeldingsperioder(
     }
 }
 
-@Suppress("UnusedParameter")
-fun DatabaseInterface.hasActiveSentSykmelding(
-    orgnumber: String,
+fun DatabaseInterface.getActiveSendtSykmeldingsperioder(
     employeeIdentificationNumber: String,
-): Boolean {
+): List<Sykmeldingsperiode> {
     val today = Timestamp.valueOf(LocalDateTime.now())
     val selectStatement = """
         SELECT *
@@ -93,7 +91,7 @@ fun DatabaseInterface.hasActiveSentSykmelding(
         connection.prepareStatement(selectStatement).use {
             it.setString(1, employeeIdentificationNumber)
             it.setObject(2, today)
-            it.executeQuery().next()
+            it.executeQuery().toList { toSykmeldingsperiode() }
         }
     }
 }

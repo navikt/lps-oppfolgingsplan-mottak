@@ -14,6 +14,7 @@ enum class ErrorType {
     GENERAL_PRACTITIONER_NOT_FOUND,
     EMPLOYEE_NOT_FOUND,
     NO_ACTIVE_SENT_SYKMELDING,
+    NO_ACTIVE_EMPLOYMENT,
 }
 
 sealed class ApiError(val status: HttpStatusCode, val type: ErrorType, open val message: String) {
@@ -47,6 +48,13 @@ sealed class ApiError(val status: HttpStatusCode, val type: ErrorType, open val 
             HttpStatusCode.Forbidden,
             ErrorType.NO_ACTIVE_SENT_SYKMELDING,
             "No active sykmelding sent to employer"
+        )
+
+    data object NoActiveEmploymentError :
+        ApiError(
+            HttpStatusCode.Forbidden,
+            ErrorType.NO_ACTIVE_EMPLOYMENT,
+            "No active employment relationship found for given orgnumber"
         )
 
     data object EmployeeNotFoundError :
