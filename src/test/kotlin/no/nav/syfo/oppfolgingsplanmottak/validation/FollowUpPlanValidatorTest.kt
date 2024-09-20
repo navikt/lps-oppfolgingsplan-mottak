@@ -26,6 +26,8 @@ import java.util.*
 
 const val UNDERENHET_ORGNUMBER = "123456789"
 const val HOVEDENHET_ORGNUMBER = "987654321"
+const val OTHER_COMPANY_UNDERENHET_ORGNUMBER = "234567890"
+const val OTHER_COMPANY_HOVEDENHET_ORGNUMBER = "876543219"
 const val EMPLOYEE_SSN = "12345678901"
 
 class FollowUpPlanValidatorTest : DescribeSpec({
@@ -88,7 +90,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 val followUpPlanDTO = createFollowUpPlanDTO()
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createValidAaregArbeidsforholdOversiktDTO()
+                } returns createValidAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
                 coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns emptyList()
                 coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
                 shouldThrow<NoActiveSentSykmeldingException> {
@@ -106,7 +108,24 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 }
             }
 
-            it("should pass validation for valid FollowUpPlanDTO") {
+            it("should throw exception if works in another company") {
+                val followUpPlanDTO = createFollowUpPlanDTO()
+                coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns listOf(mockk())
+                coEvery {
+                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                } returns createValidAaregArbeidsforholdOversiktDTO(
+                    OTHER_COMPANY_HOVEDENHET_ORGNUMBER, OTHER_COMPANY_UNDERENHET_ORGNUMBER
+                )
+                coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
+                shouldThrow<NoActiveArbeidsforholdException> {
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                }
+            }
+
+            it(
+                "should pass validation for valid FollowUpPlanDTO, sykmelding and " +
+                    "arbeidsforhold if logged in with related hovedenhet"
+            ) {
                 val followUpPlanDTO = createFollowUpPlanDTO()
                 coEvery {
                     sykmeldingService.getActiveSendtSykmeldingsperioder(any())
@@ -114,13 +133,55 @@ class FollowUpPlanValidatorTest : DescribeSpec({
 
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createValidAaregArbeidsforholdOversiktDTO()
+                } returns createValidAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
 
                 coEvery {
                     pdlClient.getPersonInfo(any())
                 } returns mockk()
 
                 validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+            }
+
+            it(
+                "should pass validation for valid FollowUpPlanDTO, sykmelding and " +
+                    "arbeidsforhold if logged in with related underenhet"
+            ) {
+                val followUpPlanDTO = createFollowUpPlanDTO()
+                coEvery {
+                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                } returns createValidSykmeldingsperioder()
+
+                coEvery {
+                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                } returns createValidAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+
+                coEvery {
+                    pdlClient.getPersonInfo(any())
+                } returns mockk()
+
+                validator.validateFollowUpPlanDTO(followUpPlanDTO, UNDERENHET_ORGNUMBER)
+            }
+
+            it(
+                "should not pass validation for valid FollowUpPlanDTO, sykmelding and " +
+                    "arbeidsforhold if logged in with some other company"
+            ) {
+                val followUpPlanDTO = createFollowUpPlanDTO()
+                coEvery {
+                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                } returns createValidSykmeldingsperioder()
+
+                coEvery {
+                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                } returns createValidAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+
+                coEvery {
+                    pdlClient.getPersonInfo(any())
+                } returns mockk()
+
+                shouldThrow<NoActiveArbeidsforholdException> {
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, OTHER_COMPANY_HOVEDENHET_ORGNUMBER)
+                }
             }
         }
     }
@@ -159,20 +220,23 @@ fun createFollowUpPlanDTO(
     )
 }
 
-fun createValidAaregArbeidsforholdOversiktDTO(): AaregArbeidsforholdOversikt {
+fun createValidAaregArbeidsforholdOversiktDTO(
+    hovedEnhetOrgNr: String,
+    underenhetOrgNr: String
+): AaregArbeidsforholdOversikt {
     return AaregArbeidsforholdOversikt(
         listOf(
             Arbeidsforholdoversikt(
                 arbeidssted = Arbeidssted(
                     type = ArbeidsstedType.Underenhet,
                     identer = listOf(
-                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = UNDERENHET_ORGNUMBER, gjeldende = true)
+                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = underenhetOrgNr, gjeldende = true)
                     )
                 ),
                 opplysningspliktig = Opplysningspliktig(
                     type = OpplysningspliktigType.Hovedenhet,
                     identer = listOf(
-                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = HOVEDENHET_ORGNUMBER, gjeldende = true)
+                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = hovedEnhetOrgNr, gjeldende = true)
                     )
                 )
             )
