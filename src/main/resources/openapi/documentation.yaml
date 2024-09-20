@@ -43,11 +43,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthenticationError'
         '403':
-          description: No active sykmelding, or the sykmelding is not sent to the employer.
+          description: No active, sent sykmelding, or no active arbeidsforhold found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NoActiveSentSykmeldingError'
+                oneOf:
+                  - $ref: '#/components/schemas/NoActiveSentSykmeldingError'
+                  - $ref: '#/components/schemas/NoActiveArbeidsforholdError'
         '404':
           description: The GP or Employee was not found. Please check the error type for details.
           content:
@@ -307,6 +309,23 @@ components:
           description: Forbidden
         type: NO_ACTIVE_SENT_SYKMELDING
         message: No active sykmelding sent to employer
+    NoActiveArbeidsforholdError:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HttpStatusCode'
+        type:
+          type: string
+          example: NO_ACTIVE_ARBEIDSFORHOLD
+        message:
+          type: string
+          example: No active arbeidsforhold found for given orgnumber
+      example:
+        status:
+          value: 403
+          description: Forbidden
+        type: NO_ACTIVE_ARBEIDSFORHOLD
+        message: No active arbeidsforhold found for given orgnumber
     GeneralPractitionerNotFoundError:
       type: object
       properties:
