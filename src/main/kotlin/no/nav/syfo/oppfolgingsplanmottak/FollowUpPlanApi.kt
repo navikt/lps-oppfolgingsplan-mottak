@@ -24,7 +24,7 @@ import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 fun Routing.registerFollowUpPlanApi(
     database: DatabaseInterface,

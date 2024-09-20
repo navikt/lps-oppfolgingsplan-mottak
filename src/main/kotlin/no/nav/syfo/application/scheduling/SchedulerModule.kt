@@ -1,11 +1,11 @@
 package no.nav.syfo.application.scheduling
 
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
 import kotlinx.coroutines.launch
-import no.nav.syfo.application.ApplicationEnvironment
-import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.altinnmottak.AltinnLpsService
 import no.nav.syfo.altinnmottak.scheduling.AltinnLpsScheduler
+import no.nav.syfo.application.ApplicationEnvironment
+import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.util.LeaderElection
 import kotlin.coroutines.CoroutineContext
 

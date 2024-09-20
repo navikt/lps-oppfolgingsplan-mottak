@@ -1,7 +1,19 @@
 package no.nav.syfo.util
 
 import no.nav.helse.op2016.Skjemainnhold
-import no.nav.syfo.altinnmottak.domain.*
+import no.nav.syfo.altinnmottak.domain.ArbeidstakersDeltakelse
+import no.nav.syfo.altinnmottak.domain.BehovForBistandFraAndre
+import no.nav.syfo.altinnmottak.domain.BehovForBistandFraNav
+import no.nav.syfo.altinnmottak.domain.Fagmelding
+import no.nav.syfo.altinnmottak.domain.FornavnEtternavn
+import no.nav.syfo.altinnmottak.domain.Nokkelopplysninger
+import no.nav.syfo.altinnmottak.domain.Oppfolgingsplan
+import no.nav.syfo.altinnmottak.domain.OpplysingerOmSykefravaeret
+import no.nav.syfo.altinnmottak.domain.OpplysningerOmArbeidstakeren
+import no.nav.syfo.altinnmottak.domain.Tiltak
+import no.nav.syfo.altinnmottak.domain.TiltaketGjennonforesIPerioden
+import no.nav.syfo.altinnmottak.domain.Underskift
+import no.nav.syfo.altinnmottak.domain.VurderingEffektAvTiltak
 
 fun mapFormdataToFagmelding(
     fnr: String,
@@ -18,7 +30,7 @@ fun mapFormdataToFagmelding(
         opplysingerOmSykefravaeret = opplysingerOmSykefravaeret(
             skjemainnhold
         ),
-        tiltak =  tiltak(
+        tiltak = tiltak(
             skjemainnhold
         ),
         arbeidstakersDeltakelse = arbeidstakersDeltakelse(
@@ -51,11 +63,14 @@ fun opplysningerOmArbeidstakeren(
     fnr: String,
     skjemainnhold: Skjemainnhold,
 ) = OpplysningerOmArbeidstakeren(
-    arbeidstakerenFornavnEtternavn = if (skjemainnhold.arbeidstakerHasNoName()) null
-    else FornavnEtternavn(
-        fornavn = skjemainnhold.sykmeldtArbeidstaker.fornavn,
-        etternavn = skjemainnhold.sykmeldtArbeidstaker.etternavn
-    ),
+    arbeidstakerenFornavnEtternavn = if (skjemainnhold.arbeidstakerHasNoName()) {
+        null
+    } else {
+        FornavnEtternavn(
+            fornavn = skjemainnhold.sykmeldtArbeidstaker.fornavn,
+            etternavn = skjemainnhold.sykmeldtArbeidstaker.etternavn
+        )
+    },
     fodselsnummer = fnr,
     tlf = skjemainnhold.sykmeldtArbeidstaker.tlf,
     stillingAvdeling = skjemainnhold.sykmeldtArbeidstaker.stillingAvdeling,
@@ -65,15 +80,19 @@ fun opplysningerOmArbeidstakeren(
 fun opplysingerOmSykefravaeret(
     skjemainnhold: Skjemainnhold
 ) = if (
-    skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.foersteFravaersdag == null
-    && skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.sykmeldingsdato == null
-    && skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.sykmeldingsprosentVedSykmeldingsDato == null
-) null else OpplysingerOmSykefravaeret(
-    forsteFravearsdag = skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.foersteFravaersdag,
-    sykmeldingsDato = skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.sykmeldingsdato,
-    sykmeldingsProsentVedSykmeldDato = skjemainnhold.sykefravaerForSykmeldtArbeidstaker
-        ?.sykmeldingsprosentVedSykmeldingsDato
-)
+    skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.foersteFravaersdag == null &&
+    skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.sykmeldingsdato == null &&
+    skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.sykmeldingsprosentVedSykmeldingsDato == null
+) {
+    null
+} else {
+    OpplysingerOmSykefravaeret(
+        forsteFravearsdag = skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.foersteFravaersdag,
+        sykmeldingsDato = skjemainnhold.sykefravaerForSykmeldtArbeidstaker?.sykmeldingsdato,
+        sykmeldingsProsentVedSykmeldDato = skjemainnhold.sykefravaerForSykmeldtArbeidstaker
+            ?.sykmeldingsprosentVedSykmeldingsDato
+    )
+}
 
 fun tiltak(
     skjemainnhold: Skjemainnhold
@@ -99,25 +118,33 @@ fun tiltak(
                 it.isBistandHjelpemidler,
                 it.bistandHjelpemidlerBeskrivelse,
             ).any { behov -> behov == null }
-        ) null else BehovForBistandFraNav(
-            raadOgVeiledning = it.isBistandRaadOgVeiledning,
-            raadOgVeiledningBeskrivelse = it.bistandRaadOgVeiledningBeskrivelse,
-            dialogmoteMed = it.isBistandDialogMoeteMedNav,
-            dialogmoteMedBeskrivelse = it.bistandDialogMoeteMedNavBeskrivelse,
-            arbeidsrettedeTiltak = it.isBistandArbeidsrettedeTiltakOgVirkemidler,
-            arbeidsrettedeTiltakBeskrivelse = it.bistandArbeidsrettedeTiltakOgVirkemidlerBeskrivelse,
-            hjelpemidler = it.isBistandHjelpemidler,
-            hjelpemidlerBeskrivelse = it.bistandHjelpemidlerBeskrivelse
-        ),
+        ) {
+            null
+        } else {
+            BehovForBistandFraNav(
+                raadOgVeiledning = it.isBistandRaadOgVeiledning,
+                raadOgVeiledningBeskrivelse = it.bistandRaadOgVeiledningBeskrivelse,
+                dialogmoteMed = it.isBistandDialogMoeteMedNav,
+                dialogmoteMedBeskrivelse = it.bistandDialogMoeteMedNavBeskrivelse,
+                arbeidsrettedeTiltak = it.isBistandArbeidsrettedeTiltakOgVirkemidler,
+                arbeidsrettedeTiltakBeskrivelse = it.bistandArbeidsrettedeTiltakOgVirkemidlerBeskrivelse,
+                hjelpemidler = it.isBistandHjelpemidler,
+                hjelpemidlerBeskrivelse = it.bistandHjelpemidlerBeskrivelse
+            )
+        },
         behovForBistandFraAndre = if (
+            it.isBistandBedriftshelsetjenesten == null &&
+            it.isBistandAndre == null &&
             it.isBistandBedriftshelsetjenesten == null
-            && it.isBistandAndre == null
-            && it.isBistandBedriftshelsetjenesten == null
-        ) null else BehovForBistandFraAndre(
-            bedriftsHelsetjenesten = it.isBistandBedriftshelsetjenesten,
-            andre = it.isBistandAndre,
-            andreFritekst = it.bistandAndreBeskrivelse
-        ),
+        ) {
+            null
+        } else {
+            BehovForBistandFraAndre(
+                bedriftsHelsetjenesten = it.isBistandBedriftshelsetjenesten,
+                andre = it.isBistandAndre,
+                andreFritekst = it.bistandAndreBeskrivelse
+            )
+        },
         behovForAvklaringMedLegeSykmelder = it.behovForAvklaringLegeSykmelder,
         vurderingEffektAvTiltak = VurderingEffektAvTiltak(
             behovForNyeTiltak = it.isBehovForNyeTiltak,

@@ -7,14 +7,18 @@ import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import io.ktor.client.call.*
-import io.ktor.client.request.forms.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.client.call.body
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.parameters
+import io.ktor.server.application.call
+import io.ktor.server.application.log
+import io.ktor.server.auth.authenticate
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+import io.ktor.server.routing.route
 import no.nav.syfo.application.ApplicationEnvironment
 import no.nav.syfo.client.httpClientDefault
 import java.util.*
@@ -95,7 +99,6 @@ private fun jwtClaimSet(
         .issueTime(now)
         .expirationTime(setExpirationTimeTwoMinutesAhead(now))
         .build()
-
 }
 
 private fun setExpirationTimeTwoMinutesAhead(issuedAt: Date): Date {
