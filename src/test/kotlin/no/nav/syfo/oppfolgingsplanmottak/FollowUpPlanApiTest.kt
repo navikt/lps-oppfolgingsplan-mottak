@@ -108,7 +108,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 val responseMessage = response.body<String>()
 
                 response shouldHaveStatus HttpStatusCode.Forbidden
-                responseMessage shouldContain "No active arbeidsforhold found for given orgnumber"
+                responseMessage shouldContain "No active employment relationship found for given orgnumber"
             }
         }
 

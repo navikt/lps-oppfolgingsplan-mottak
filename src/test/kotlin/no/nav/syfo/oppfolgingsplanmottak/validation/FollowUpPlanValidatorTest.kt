@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
-import no.nav.syfo.application.exception.NoActiveArbeidsforholdException
+import no.nav.syfo.application.exception.NoActiveEmploymentException
 import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
 import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
 import no.nav.syfo.client.aareg.domain.AaregArbeidsforholdOversikt
@@ -98,12 +98,12 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 }
             }
 
-            it("should throw exception if no active arbeidsforhold is found") {
+            it("should throw exception if no active employment relationship is found") {
                 val followUpPlanDTO = createFollowUpPlanDTO()
                 coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns listOf(mockk())
                 coEvery { arbeidsforholdOversiktClient.getArbeidsforhold(any()) } returns null
                 coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
-                shouldThrow<NoActiveArbeidsforholdException> {
+                shouldThrow<NoActiveEmploymentException> {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
@@ -117,7 +117,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                     OTHER_COMPANY_HOVEDENHET_ORGNUMBER, OTHER_COMPANY_UNDERENHET_ORGNUMBER
                 )
                 coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
-                shouldThrow<NoActiveArbeidsforholdException> {
+                shouldThrow<NoActiveEmploymentException> {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
@@ -179,7 +179,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                     pdlClient.getPersonInfo(any())
                 } returns mockk()
 
-                shouldThrow<NoActiveArbeidsforholdException> {
+                shouldThrow<NoActiveEmploymentException> {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, OTHER_COMPANY_HOVEDENHET_ORGNUMBER)
                 }
             }

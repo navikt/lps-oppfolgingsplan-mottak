@@ -81,16 +81,16 @@ An ApiError will contain the following fields:
 - message: String
 </pre>
 
-| Status | Type                           | Example Message                                    | Description                                                                                                |
-|--------|--------------------------------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| 400    | VALIDATION_ERROR               | Invalid employee identification number             | The follow-up plan DTO has validation errors. Please check message for the specific error.                 |
-| 401    | AUTHENTICATION_ERROR           | JWT is expired                                     | The maskinporten-token is invalid. Please check message for the specific error.                            |
-| 403    | NO_ACTIVE_SENT_SYKMELDING      | No active sykmelding sent to employer              | There is no active sykmelding, or the sykmelding is not sent to the employer                               |
-| 403    | NO_ACTIVE_ARBEIDSFORHOLD       | No active arbeidsforhold found for given orgnumber | We could not find arbeidsforhold for the orgnumber provided by maskinporten                                |
-| 404    | GENERAL_PRACTITIONER_NOT_FOUND | General practitioner was not found                 | The general practitioner was not found. Please ensure that it is correctly registered for the employee.    |
-| 404    | EMPLOYEE_NOT_FOUND             | Could not find requested person in our systems     | This employeeIdentificationNumber is not registered in NAV's systems.                                      |
-| 404    | FOLLOWUP_PLAN_NOT_FOUND        | The follow-up plan with a given uuid was not found | The follow-up plan with a given uuid was not found. Only relevant for the status-endpoint.                 |
-| 500    | INTERNAL_SERVER_ERROR          | Internal server error                              | An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists. |
+| Status | Type                           | Example Message                                             | Description                                                                                                |
+|--------|--------------------------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| 400    | VALIDATION_ERROR               | Invalid employee identification number                      | The follow-up plan DTO has validation errors. Please check message for the specific error.                 |
+| 401    | AUTHENTICATION_ERROR           | JWT is expired                                              | The maskinporten-token is invalid. Please check message for the specific error.                            |
+| 403    | NO_ACTIVE_SENT_SYKMELDING      | No active sykmelding sent to employer                       | There is no active sykmelding, or the sykmelding is not sent to the employer                               |
+| 403    | NO_ACTIVE_EMPLOYMENT           | No active employment relationship found for given orgnumber | We could not find arbeidsforhold for the orgnumber provided by maskinporten                                |
+| 404    | GENERAL_PRACTITIONER_NOT_FOUND | General practitioner was not found                          | The general practitioner was not found. Please ensure that it is correctly registered for the employee.    |
+| 404    | EMPLOYEE_NOT_FOUND             | Could not find requested person in our systems              | This employeeIdentificationNumber is not registered in NAV's systems.                                      |
+| 404    | FOLLOWUP_PLAN_NOT_FOUND        | The follow-up plan with a given uuid was not found          | The follow-up plan with a given uuid was not found. Only relevant for the status-endpoint.                 |
+| 500    | INTERNAL_SERVER_ERROR          | Internal server error                                       | An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists. |
 
 ## 🎬 Demo
 
@@ -125,6 +125,7 @@ Questions about maskinporten or Altinn must be directed to Digdir/Altinn.
 - Installer og konfigurer [Detect IDEA plugin](https://plugins.jetbrains.com/plugin/10761-detekt) for live kodeanalyse
 - Installer [Kotest IDEA plugin](https://plugins.jetbrains.com/plugin/14080-kotest) for å kjøre tester
 -
+
 Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings)
 til 19
 

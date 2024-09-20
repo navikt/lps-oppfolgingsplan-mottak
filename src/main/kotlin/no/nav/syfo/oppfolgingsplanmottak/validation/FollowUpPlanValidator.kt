@@ -2,7 +2,7 @@ package no.nav.syfo.oppfolgingsplanmottak.validation
 
 import no.nav.syfo.application.exception.EmployeeNotFoundException
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
-import no.nav.syfo.application.exception.NoActiveArbeidsforholdException
+import no.nav.syfo.application.exception.NoActiveEmploymentException
 import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
 import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
 import no.nav.syfo.client.pdl.PdlClient
@@ -96,7 +96,7 @@ class FollowUpPlanValidator(
         }
 
         if (activeArbeidsforhold == null) {
-            throw NoActiveArbeidsforholdException("No active arbeidsforhold found for given orgnumber")
+            throw NoActiveEmploymentException("No active employment relationship found for given orgnumber")
         }
 
         val validOrgnumbers = listOf(
