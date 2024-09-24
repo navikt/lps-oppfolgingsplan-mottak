@@ -22,7 +22,6 @@ val mockkVersion = "1.13.12"
 val postgresVersion = "42.7.4"
 val hikariVersion = "5.1.0"
 val flywayVersion = "10.18.0"
-val h2Version = "2.3.232"
 val gsonVersion = "2.11.0"
 val kafkaVersion = "3.7.0"
 val altinnKanalSchemasVersion = "2.0.0"
@@ -31,6 +30,8 @@ val confluentVersion = "7.7.1"
 val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
 val helseXmlVersion = "1.0.4"
 val quartzSchedulerVersion = "2.3.2"
+val kotestTestContainersExtensionVersion = "2.0.2"
+val testcontainersVersion = "1.20.1"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -141,8 +142,10 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-assertions-ktor:$kotestExtensionsVersion")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
-    testImplementation("com.h2database:h2:$h2Version")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:$kotestTestContainersExtensionVersion")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 
 detekt {
@@ -181,4 +184,3 @@ tasks {
         useJUnitPlatform()
     }
 }
-

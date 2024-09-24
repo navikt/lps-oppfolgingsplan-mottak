@@ -14,7 +14,7 @@ import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.exception.ApiError.FollowupPlanNotFoundError
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET
-import no.nav.syfo.oppfolgingsplanmottak.database.findSendingStatus
+import no.nav.syfo.oppfolgingsplanmottak.database.findFollowUpPlanResponseById
 import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.database.updateSentAt
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
@@ -69,7 +69,7 @@ fun Routing.registerFollowUpPlanApi(
                     planUuid,
                     sentToGeneralPractitionerAt = sentToGeneralPractitionerAt,
                     sentToNavAt = sentToNavAt,
-                    pdf = pdf
+                    pdf = pdf,
                 )
 
                 log.info("Follow-up plan received and sent successfully.")
@@ -79,7 +79,7 @@ fun Routing.registerFollowUpPlanApi(
             }
 
             get("/{$uuid}/sendingstatus") {
-                val sendingStatus = database.findSendingStatus(call.uuid())
+                val sendingStatus = database.findFollowUpPlanResponseById(call.uuid())
                 if (sendingStatus != null) {
                     call.respond(sendingStatus)
                 } else {
@@ -97,5 +97,5 @@ fun Routing.registerFollowUpPlanApi(
 private fun ApplicationCall.uuid(): UUID =
     UUID.fromString(this.parameters["uuid"])
         ?: throw IllegalArgumentException(
-            "Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request"
+            "Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request",
         )
