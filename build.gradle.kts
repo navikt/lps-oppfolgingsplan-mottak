@@ -31,7 +31,7 @@ val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
 val helseXmlVersion = "1.0.4"
 val quartzSchedulerVersion = "2.3.2"
 val kotestTestContainersExtensionVersion = "2.0.2"
-val testcontainersVersion = "1.20.1"
+val testcontainersVersion = "1.20.2"
 
 val githubUser: String by project
 val githubPassword: String by project
