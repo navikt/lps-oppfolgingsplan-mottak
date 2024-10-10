@@ -10,6 +10,8 @@ import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 
+val TEST_FNR_LIST = listOf("05908399546", "01898299631")
+
 class FollowUpPlanValidator(
     private val pdlClient: PdlClient,
     private val sykmeldingService: SendtSykmeldingService,
@@ -56,7 +58,7 @@ class FollowUpPlanValidator(
             throw FollowUpPlanDTOValidationException("Invalid employee identification number")
         }
 
-        if (isDev && followUpPlanDTO.employeeIdentificationNumber == "01898299631") {
+        if (isDev && TEST_FNR_LIST.contains(followUpPlanDTO.employeeIdentificationNumber)) {
             return
         }
 
