@@ -81,16 +81,19 @@ An ApiError will contain the following fields:
 - message: String
 </pre>
 
-| Status | Type                           | Example Message                                             | Description                                                                                                |
-|--------|--------------------------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| 400    | VALIDATION_ERROR               | Invalid employee identification number                      | The follow-up plan DTO has validation errors. Please check message for the specific error.                 |
-| 401    | AUTHENTICATION_ERROR           | JWT is expired                                              | The maskinporten-token is invalid. Please check message for the specific error.                            |
-| 403    | NO_ACTIVE_SENT_SYKMELDING      | No active sykmelding sent to employer                       | There is no active sykmelding, or the sykmelding is not sent to the employer                               |
-| 403    | NO_ACTIVE_EMPLOYMENT           | No active employment relationship found for given orgnumber | We could not find arbeidsforhold for the orgnumber provided by maskinporten                                |
-| 404    | GENERAL_PRACTITIONER_NOT_FOUND | General practitioner was not found                          | The general practitioner was not found. Please ensure that it is correctly registered for the employee.    |
-| 404    | EMPLOYEE_NOT_FOUND             | Could not find requested person in our systems              | This employeeIdentificationNumber is not registered in NAV's systems.                                      |
-| 404    | FOLLOWUP_PLAN_NOT_FOUND        | The follow-up plan with a given uuid was not found          | The follow-up plan with a given uuid was not found. Only relevant for the status-endpoint.                 |
-| 500    | INTERNAL_SERVER_ERROR          | Internal server error                                       | An unexpected error occurred on the server. Please contact the NAV developer team if the problem persists. |
+| Status | Type                           | Example Message                                                                                     | Description                                                                                             |
+|--------|--------------------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| 400    | VALIDATION_ERROR               | Invalid employee identification number                                                              | The employeeIdentificationNumber field does not match the required format (11 digits).                  |
+| 400    | VALIDATION_ERROR               | needsHelpFromNav cannot be true if sendPlanToNav is false                                           | If you are not sending the plan to NAV, then you cannot ask from help from NAV                          |
+| 400    | VALIDATION_ERROR               | needsHelpFromNavDescription is obligatory if needsHelpFromNav is true                               | If you need help from NAV, then a description of what you need help with is mandatory.                  |
+| 400    | VALIDATION_ERROR               | employeeHasNotContributedToPlanDescription is mandatory if employeeHasContributedToPlan = false     | If the employee has not contributed to the plan, then a description of why not is mandatory.            |
+| 400    | VALIDATION_ERROR               | employeeHasNotContributedToPlanDescription should not be set if employeeHasContributedToPlan = true | If the employee has not contributed to the plan, then a description of why not should not be sent       |
+| 401    | AUTHENTICATION_ERROR           | JWT is expired                                                                                      | The maskinporten-token is invalid. Please check message for the specific error.                         |
+| 403    | NO_ACTIVE_SENT_SYKMELDING      | No active sykmelding sent to employer                                                               | There is no active sykmelding, or the sykmelding is not sent to the employer                            |
+| 403    | NO_ACTIVE_EMPLOYMENT           | No active employment relationship found for given orgnumber                                         | We could not find arbeidsforhold for the orgnumber provided by maskinporten                             |
+| 404    | GENERAL_PRACTITIONER_NOT_FOUND | General practitioner was not found                                                                  | The general practitioner was not found. Please ensure that it is correctly registered for the employee. |
+| 404    | EMPLOYEE_NOT_FOUND             | Could not find requested person in our systems                                                      | This employeeIdentificationNumber is not registered in NAV's systems.                                   |
+| 404    | FOLLOWUP_PLAN_NOT_FOUND        | The follow-up plan with a given uuid was not found                                                  | The follow-up plan with a given uuid was not found. Only relevant for the status-endpoint.              |
 
 ## 🎬 Demo
 
