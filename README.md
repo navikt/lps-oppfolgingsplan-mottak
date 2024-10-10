@@ -83,7 +83,8 @@ An ApiError will contain the following fields:
 
 | Status | Type                           | Example Message                                             | Description                                                                                                |
 |--------|--------------------------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| 400    | VALIDATION_ERROR               | Invalid employee identification number                      | The follow-up plan DTO has validation errors. Please check message for the specific error.                 |
+| 400    | VALIDATION_ERROR               | Invalid employee identification number                      | The employeeIdentificationNumber field does not match the required format (11 digits).                     |
+| 400    | VALIDATION_ERROR               | needsHelpFromNav cannot be true if sendPlanToNav is false   | The employeeIdentificationNumber field does not match the required format (11 digits).                     |
 | 401    | AUTHENTICATION_ERROR           | JWT is expired                                              | The maskinporten-token is invalid. Please check message for the specific error.                            |
 | 403    | NO_ACTIVE_SENT_SYKMELDING      | No active sykmelding sent to employer                       | There is no active sykmelding, or the sykmelding is not sent to the employer                               |
 | 403    | NO_ACTIVE_EMPLOYMENT           | No active employment relationship found for given orgnumber | We could not find arbeidsforhold for the orgnumber provided by maskinporten                                |

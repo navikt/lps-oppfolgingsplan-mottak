@@ -1,7 +1,7 @@
 package no.nav.syfo.client.aareg.domain
 
 data class AaregArbeidsforholdOversikt(
-    val arbeidsforholdoversikter: List<Arbeidsforholdoversikt> = emptyList()
+    val arbeidsforholdoversikter: List<Arbeidsforholdoversikt> = emptyList(),
 )
 
 data class Arbeidsforholdoversikt(
