@@ -104,7 +104,7 @@ class AltinnLpsRetryForwardLpsJob : Job {
                     lps.pdf!!
                 )
             } catch (e: GpNotFoundException) {
-                log.error("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege due to missing fastlege", e)
+                log.warn("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege due to missing fastlege", e)
                 false
             } catch (e: RuntimeException) {
                 log.error("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege", e)

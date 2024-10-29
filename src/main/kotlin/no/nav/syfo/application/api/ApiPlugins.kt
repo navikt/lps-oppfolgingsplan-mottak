@@ -71,6 +71,7 @@ private fun logException(call: ApplicationCall, cause: Throwable) {
     val log = call.application.log
     when (cause) {
         is ForbiddenAccessVeilederException -> log.warn(logExceptionMessage, cause)
+        is GpNotFoundException -> log.warn(logExceptionMessage, cause)
         else -> log.error(logExceptionMessage, cause)
     }
 }
