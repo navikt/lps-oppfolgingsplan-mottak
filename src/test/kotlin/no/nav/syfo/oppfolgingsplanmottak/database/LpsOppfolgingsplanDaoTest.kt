@@ -42,5 +42,19 @@ class LpsOppfolgingsplanDaoTest :
                 val fetchedPlan = testDb.findFollowUpPlanResponseById(UUID.randomUUID())
                 fetchedPlan shouldBe null
             }
+
+            it("should return only unsent plans") {
+                testDb.storeFollowUpPlan(
+                    uuid = uuid,
+                    lpsOrgnumber = "123",
+                    organizationNumber = "456",
+                    followUpPlanDTO = createDefaultFollowUpPlan("12121212121"),
+                    sentToNavAt = null,
+                    sentToGeneralPractitionerAt = null,
+                )
+                val fetchedPlans = testDb.findUnsentFollowUpPlan()
+
+                fetchedPlans?.size shouldBe 1
+            }
         }
     })

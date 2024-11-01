@@ -1,6 +1,7 @@
 package no.nav.syfo.oppfolgingsplanmottak.database
 
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.application.database.toList
 import no.nav.syfo.application.database.toNullableObject
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
@@ -130,6 +131,22 @@ fun DatabaseInterface.findFollowUpPlanResponseById(uuid: UUID): FollowUpPlanResp
         connection.prepareStatement(queryStatement).use {
             it.setObject(1, uuid)
             it.executeQuery().toNullableObject { toFollowUpPlanSendingStatus() }
+        }
+    }
+}
+
+fun DatabaseInterface.findUnsentFollowUpPlan(): List<FollowUpPlanResponse>? {
+    val queryStatement =
+        """
+        SELECT *
+        FROM FOLLOW_UP_PLAN_LPS_V1
+        WHERE sent_to_general_practitioner_at is null or sent_to_nav_at is null 
+        or pdf is null
+        """.trimIndent()
+
+    return connection.use { connection ->
+        connection.prepareStatement(queryStatement).use {
+            it.executeQuery().toList { toFollowUpPlanSendingStatus() }
         }
     }
 }
