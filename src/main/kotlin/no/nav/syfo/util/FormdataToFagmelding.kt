@@ -117,7 +117,7 @@ fun tiltak(
                 it.bistandArbeidsrettedeTiltakOgVirkemidlerBeskrivelse,
                 it.isBistandHjelpemidler,
                 it.bistandHjelpemidlerBeskrivelse
-            ).any { behovFraNAV -> behovFraNAV != null }
+            ).any { bistandFraNAV -> bistandFraNAV != null }
         ) {
             BehovForBistandFraNav(
                 raadOgVeiledning = it.isBistandRaadOgVeiledning,
