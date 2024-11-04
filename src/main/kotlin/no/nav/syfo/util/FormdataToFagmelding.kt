@@ -108,7 +108,7 @@ fun tiltak(
         tilrettelagtArbeidIkkeMulig = it.tilrettelagtArbeidIkkeMulig,
         sykmeldingsprosendIPerioden = it.sykmeldingsprosentIPerioden,
         behovForBistandFraNav = if (
-            listOf<Any?>(
+            listOf(
                 it.isBistandRaadOgVeiledning,
                 it.bistandRaadOgVeiledningBeskrivelse,
                 it.isBistandDialogMoeteMedNav,
@@ -116,11 +116,9 @@ fun tiltak(
                 it.isBistandArbeidsrettedeTiltakOgVirkemidler,
                 it.bistandArbeidsrettedeTiltakOgVirkemidlerBeskrivelse,
                 it.isBistandHjelpemidler,
-                it.bistandHjelpemidlerBeskrivelse,
-            ).any { behov -> behov == null }
+                it.bistandHjelpemidlerBeskrivelse
+            ).any { behovFraNAV -> behovFraNAV != null }
         ) {
-            null
-        } else {
             BehovForBistandFraNav(
                 raadOgVeiledning = it.isBistandRaadOgVeiledning,
                 raadOgVeiledningBeskrivelse = it.bistandRaadOgVeiledningBeskrivelse,
@@ -131,6 +129,8 @@ fun tiltak(
                 hjelpemidler = it.isBistandHjelpemidler,
                 hjelpemidlerBeskrivelse = it.bistandHjelpemidlerBeskrivelse
             )
+        } else {
+            null
         },
         behovForBistandFraAndre = if (
             it.isBistandBedriftshelsetjenesten == null &&
