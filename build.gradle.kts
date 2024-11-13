@@ -29,7 +29,7 @@ val avroVersion = "1.12.0"
 val confluentVersion = "7.7.1"
 val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
 val helseXmlVersion = "1.0.4"
-val quartzSchedulerVersion = "2.3.2"
+val quartzSchedulerVersion = "2.5.0"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val testcontainersVersion = "1.20.3"
 
