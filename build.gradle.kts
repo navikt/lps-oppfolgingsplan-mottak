@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0"
 
-val ktorVersion = "2.3.12"
+val ktorVersion = "3.0.3"
 val prometheusVersion = "0.16.0"
 val micrometerVersion = "1.12.6"
 val slf4jVersion = "2.0.16"
