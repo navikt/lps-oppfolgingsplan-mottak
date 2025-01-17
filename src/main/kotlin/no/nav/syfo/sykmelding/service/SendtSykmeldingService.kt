@@ -2,8 +2,8 @@ package no.nav.syfo.sykmelding.service
 
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.sykmelding.database.deleteSykmeldingsperioder
+import no.nav.syfo.sykmelding.database.getActiveSendtSykmeldingsperioder
 import no.nav.syfo.sykmelding.database.getSykmeldingsperioder
-import no.nav.syfo.sykmelding.database.hasActiveSentSykmelding
 import no.nav.syfo.sykmelding.database.persistSykmeldingsperiode
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.domain.SykmeldingsperiodeAGDTO
@@ -43,13 +43,9 @@ class SendtSykmeldingService(private val database: DatabaseInterface) {
         return database.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
     }
 
-    fun hasActiveSentSykmelding(
-        orgnumber: String,
+    fun getActiveSendtSykmeldingsperioder(
         employeeIdentificationNumber: String,
-    ): Boolean {
-        return database.hasActiveSentSykmelding(
-            orgnumber,
-            employeeIdentificationNumber
-        )
+    ): List<Sykmeldingsperiode> {
+        return database.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
     }
 }

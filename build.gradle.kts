@@ -6,31 +6,32 @@ version = "1.0"
 val ktorVersion = "2.3.12"
 val prometheusVersion = "0.16.0"
 val micrometerVersion = "1.12.6"
-val slf4jVersion = "2.0.13"
-val logbackVersion = "1.5.6"
+val slf4jVersion = "2.0.16"
+val logbackVersion = "1.5.15"
 val javaxVersion = "2.1.1"
 val logstashEncoderVersion = "8.0"
-val jacksonVersion = "2.17.2"
+val jacksonVersion = "2.18.2"
 val jacksonDatabindVersion = "2.13.2.2"
 val javaJwtVersion = "4.4.0"
-val nimbusVersion = "9.40"
+val nimbusVersion = "9.48"
 val detektVersion = "1.23.0"
 val kotestVersion = "5.9.1"
 val kotestExtensionsVersion = "2.0.0"
 val kotlinVersion = "1.9.24"
-val mockkVersion = "1.13.12"
-val postgresVersion = "42.7.3"
+val mockkVersion = "1.13.14"
+val postgresVersion = "42.7.4"
 val hikariVersion = "5.1.0"
-val flywayVersion = "10.17.0"
-val h2Version = "2.3.230"
+val flywayVersion = "10.21.0"
 val gsonVersion = "2.11.0"
 val kafkaVersion = "3.7.0"
 val altinnKanalSchemasVersion = "2.0.0"
 val avroVersion = "1.12.0"
-val confluentVersion = "7.7.0"
+val confluentVersion = "7.8.0"
 val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
 val helseXmlVersion = "1.0.4"
-val quartzSchedulerVersion = "2.3.2"
+val quartzSchedulerVersion = "2.5.0"
+val kotestTestContainersExtensionVersion = "2.0.2"
+val testcontainersVersion = "1.20.4"
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -40,7 +41,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen") version "1.9.24"
     id("com.diffplug.spotless") version "6.25.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.7"
 }
 
 allOpen {
@@ -141,8 +142,10 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-property:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-assertions-ktor:$kotestExtensionsVersion")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
-    testImplementation("com.h2database:h2:$h2Version")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:$kotestTestContainersExtensionVersion")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 
 detekt {
@@ -181,4 +184,3 @@ tasks {
         useJUnitPlatform()
     }
 }
-

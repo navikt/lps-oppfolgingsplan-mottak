@@ -7,7 +7,6 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
@@ -20,13 +19,11 @@ class FollowUpPlanSendingServiceTest : DescribeSpec({
     val followupPlanProducer = mockk<FollowUpPlanProducer>(relaxed = true)
     val opPdfGenClient = mockk<OpPdfGenClient>(relaxed = true)
     val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
-    val toggles = mockk<ToggleEnv>()
     val service =
-        FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, opPdfGenClient, dokarkivClient, toggles)
+        FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, opPdfGenClient, dokarkivClient, false)
     val pdfByteArray = "<MOCK PDF CONTENT>".toByteArray()
 
     beforeSpec {
-        coEvery { toggles.sendLpsPlanToFastlegeToggle } returns true
         coEvery { opPdfGenClient.getLpsPdf(any()) } returns pdfByteArray
         coEvery { dokarkivClient.journalforLps(any(), any(), any(), any()) } returns "id123"
     }

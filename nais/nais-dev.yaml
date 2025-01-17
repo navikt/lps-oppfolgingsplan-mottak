@@ -82,6 +82,7 @@ spec:
         - host: syfooppdfgen.intern.dev.nav.no
         - host: dokarkiv.dev-fss-pub.nais.io
         - host: ereg-services-q1.dev-fss-pub.nais.io
+        - host: aareg-services-q2.dev-fss-pub.nais.io
       rules:
         - application: digdir-krr-proxy
           namespace: team-rocket
@@ -119,21 +120,15 @@ spec:
     - name: ISDIALOGMELDING_CLIENT_ID
       value: dev-gcp.teamsykefravr.isdialogmelding
     - name: DOKARKIV_URL
-      value: https://dokarkiv.dev-fss-pub.nais.io
+      value: https://dokarkiv-q2.dev-fss-pub.nais.io
     - name: DOKARKIV_SCOPE
-      value: dev-fss.teamdokumenthandtering.dokarkiv-q1
+      value: dev-fss.teamdokumenthandtering.dokarkiv
     - name: ISTILGANGSKONTROLL_URL
       value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: dev-gcp.teamsykefravr.istilgangskontroll
     - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
       value: "6"
-    - name: TOGGLE_SEND_LPS_PLAN_TO_NAV
-      value: "true"
-    - name: TOGGLE_SEND_LPS_PLAN_TO_FASTLEGE
-      value: "false"
-    - name: TOGGLE_JOURNALFOR_LPS_PLAN
-      value: "false"
     - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV
       value: "true"
     - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_FASTLEGE
@@ -150,3 +145,7 @@ spec:
       value: https://ereg-services-q1.dev-fss-pub.nais.io
     - name: EREG_SCOPE
       value: dev-fss.arbeidsforhold.ereg-services-q1
+    - name: AAREG_URL
+      value: https://aareg-services-q2.dev-fss-pub.nais.io
+    - name: AAREG_SCOPE
+      value: dev-fss.arbeidsforhold.aareg-services-nais

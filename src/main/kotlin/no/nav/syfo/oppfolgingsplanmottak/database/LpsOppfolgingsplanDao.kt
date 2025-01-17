@@ -1,12 +1,11 @@
 package no.nav.syfo.oppfolgingsplanmottak.database
 
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.application.database.toObject
+import no.nav.syfo.application.database.toNullableObject
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
 import java.sql.Date
 import java.sql.ResultSet
-import java.sql.SQLNonTransientException
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
@@ -119,15 +118,6 @@ fun DatabaseInterface.storeLpsPdf(
     }
 }
 
-@Suppress("SwallowedException")
-fun DatabaseInterface.findSendingStatus(uuid: UUID): FollowUpPlanResponse? {
-    return try {
-        this.findFollowUpPlanResponseById(uuid)
-    } catch (e: SQLNonTransientException) {
-        null
-    }
-}
-
 fun DatabaseInterface.findFollowUpPlanResponseById(uuid: UUID): FollowUpPlanResponse? {
     val queryStatement =
         """
@@ -139,7 +129,7 @@ fun DatabaseInterface.findFollowUpPlanResponseById(uuid: UUID): FollowUpPlanResp
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
             it.setObject(1, uuid)
-            it.executeQuery().toObject { toFollowUpPlanSendingStatus() }
+            it.executeQuery().toNullableObject { toFollowUpPlanSendingStatus() }
         }
     }
 }
@@ -150,20 +140,22 @@ fun DatabaseInterface.updateSentAt(
     sentToNavAt: Timestamp?,
     pdf: ByteArray?,
 ): Int {
-    val updateStatement = """
+    val updateStatement =
+        """
         UPDATE FOLLOW_UP_PLAN_LPS_V1
         SET sent_to_general_practitioner_at = ?, sent_to_nav_at = ?, pdf = ?
         WHERE uuid = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
-        val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setTimestamp(1, sentToGeneralPractitionerAt)
-            it.setTimestamp(2, sentToNavAt)
-            it.setBytes(3, pdf)
-            it.setObject(4, uuid)
-            it.executeUpdate()
-        }
+        val rowsUpdated =
+            connection.prepareStatement(updateStatement).use {
+                it.setTimestamp(1, sentToGeneralPractitionerAt)
+                it.setTimestamp(2, sentToNavAt)
+                it.setBytes(3, pdf)
+                it.setObject(4, uuid)
+                it.executeUpdate()
+            }
         connection.commit()
         rowsUpdated
     }

@@ -17,6 +17,9 @@ import io.mockk.clearAllMocks
 import no.nav.syfo.application.exception.ApiError.FollowUpPlanDTOValidationError
 import no.nav.syfo.application.exception.ErrorType
 import no.nav.syfo.domain.PersonIdent
+import no.nav.syfo.mockdata.UserConstants.ARBEIDSTAKER_FNR
+import no.nav.syfo.mockdata.UserConstants.ARBEIDSTAKER_FNR_NO_ARBEIDSFORHOLD
+import no.nav.syfo.mockdata.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
@@ -30,9 +33,6 @@ import java.time.LocalDate
 import java.util.*
 
 class FollowUpPlanApiTest : DescribeSpec({
-    val employeeIdentificationNumber = "12345678912"
-    val employeeOrgnumber = "123456789"
-
     beforeSpec {
     }
 
@@ -46,16 +46,16 @@ class FollowUpPlanApiTest : DescribeSpec({
                 val (embeddedDatabase, client) = configureTestApplication()
                 embeddedDatabase.persistSykmeldingsperiode(
                     sykmeldingId = "12345",
-                    orgnummer = employeeOrgnumber,
-                    employeeIdentificationNumber = employeeIdentificationNumber,
+                    orgnummer = VIRKSOMHETSNUMMER,
+                    employeeIdentificationNumber = ARBEIDSTAKER_FNR,
                     fom = LocalDate.now().minusWeeks(1),
                     tom = LocalDate.now().plusWeeks(1)
                 )
 
-                val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(employeeIdentificationNumber)
+                val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(ARBEIDSTAKER_FNR)
 
                 val response = client.post("/api/v1/followupplan") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
@@ -64,11 +64,11 @@ class FollowUpPlanApiTest : DescribeSpec({
                 embeddedDatabase.storeLpsPdf(UUID.fromString(responseBody.uuid), byteArrayOf(0x2E, 0x38))
 
                 val storedMetaData =
-                    embeddedDatabase.getOppfolgingsplanerMetadataForVeileder(PersonIdent(employeeIdentificationNumber))
+                    embeddedDatabase.getOppfolgingsplanerMetadataForVeileder(PersonIdent(ARBEIDSTAKER_FNR))
 
                 storedMetaData.size shouldBe 1
-                storedMetaData[0].fnr shouldBe employeeIdentificationNumber
-                storedMetaData[0].virksomhetsnummer shouldBe employeeOrgnumber
+                storedMetaData[0].fnr shouldBe ARBEIDSTAKER_FNR
+                storedMetaData[0].virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
 
                 response shouldHaveStatus HttpStatusCode.OK
             }
@@ -78,10 +78,10 @@ class FollowUpPlanApiTest : DescribeSpec({
             testApplication {
                 val (_, client) = configureTestApplication()
 
-                val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(employeeIdentificationNumber)
+                val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(ARBEIDSTAKER_FNR)
 
                 val response = client.post("/api/v1/followupplan") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
@@ -90,6 +90,25 @@ class FollowUpPlanApiTest : DescribeSpec({
 
                 response shouldHaveStatus HttpStatusCode.Forbidden
                 responseMessage shouldContain "No active sykmelding sent to employer"
+            }
+        }
+
+        it("Missing arbeidsforhold should return forbidden") {
+            testApplication {
+                val (_, client) = configureTestApplication()
+
+                val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(ARBEIDSTAKER_FNR_NO_ARBEIDSFORHOLD)
+
+                val response = client.post("/api/v1/followupplan") {
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
+                    contentType(ContentType.Application.Json)
+                    setBody(followUpPlanDTO)
+                }
+
+                val responseMessage = response.body<String>()
+
+                response shouldHaveStatus HttpStatusCode.Forbidden
+                responseMessage shouldContain "No active employment relationship found for given orgnumber"
             }
         }
 
@@ -102,7 +121,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 )
 
                 val response = client.post("/api/v1/followupplan") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
@@ -122,7 +141,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 )
 
                 val response = client.post("/api/v1/followupplan") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
@@ -142,7 +161,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 )
 
                 val response = client.post("/api/v1/followupplan") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
@@ -164,7 +183,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 )
 
                 val response = client.post("/api/v1/followupplan") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
@@ -185,7 +204,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 )
 
                 val response = client.post("/api/v1/followupplan") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
@@ -211,7 +230,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 )
 
                 val response = client.post("/api/v1/followupplan") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                     setBody(followUpPlanDTO)
                 }
@@ -227,7 +246,7 @@ class FollowUpPlanApiTest : DescribeSpec({
                 val (_, client) = configureTestApplication()
                 val uuid = UUID.randomUUID()
                 val response = client.get("/api/v1/followupplan/$uuid/sendingstatus") {
-                    bearerAuth(validMaskinportenToken(consumerOrgnumber = employeeOrgnumber))
+                    bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                     contentType(ContentType.Application.Json)
                 }
                 val responseMessage = response.body<String>()
