@@ -16,16 +16,24 @@ fun AuthenticationConfig.configureMaskinportenJwt(
 ) {
     val defaultErrorMessage = "Authentication failed. Please check your token"
     val log = LoggerFactory.getLogger(AuthenticationConfig::class.java)
-    log.info("Validating JWT with issuer: ${jwtIssuer.jwtIssuerType.name}")
+    log.info("Starting JWT configuration for issuer: ${jwtIssuer.jwtIssuerType.name}")
 
     jwt(name = jwtIssuer.jwtIssuerType.name) {
+        log.info("Inside JWT block for issuer: ${jwtIssuer.jwtIssuerType.name}")
         authHeader {
-            val token = it.getToken() ?: return@authHeader null
+            val token = it.getToken()
+            if (token == null) {
+                log.warn("No token found in the request")
+                return@authHeader null
+            }
             log.info("Received token: $token")
             return@authHeader HttpAuthHeader.Single("Bearer", token)
         }
+        log.info("After authHeader block")
         val jwkProvider = jwkProvider(jwtIssuer.wellKnown.jwksUri)
+        log.info("JWK provider created successfully")
         val issuer = jwtIssuer.wellKnown.issuer
+        log.info("Issuer: $issuer")
 
         log.info("Configuring JWT verifier with JWKS URI: ${jwtIssuer.wellKnown.jwksUri} and issuer: $issuer")
         verifier(jwkProvider, issuer)
