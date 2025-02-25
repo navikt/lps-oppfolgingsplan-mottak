@@ -27,17 +27,24 @@ fun AuthenticationConfig.configureMaskinportenJwt(
                 return@authHeader null
             }
             log.info("Received token: $token")
-            return@authHeader HttpAuthHeader.Single("Bearer", token)
+            val authHeader = HttpAuthHeader.Single("Bearer", token)
+            log.info("Created authHeader: $authHeader")
+            return@authHeader authHeader
         }
         log.info("After authHeader block")
-        val jwkProvider = jwkProvider(jwtIssuer.wellKnown.jwksUri)
-        log.info("JWK provider created successfully")
-        val issuer = jwtIssuer.wellKnown.issuer
-        log.info("Issuer: $issuer")
+        try {
+            val jwkProvider = jwkProvider(jwtIssuer.wellKnown.jwksUri)
+            log.info("JWK provider created successfully")
+            val issuer = jwtIssuer.wellKnown.issuer
+            log.info("Issuer: $issuer")
 
-        log.info("Configuring JWT verifier with JWKS URI: ${jwtIssuer.wellKnown.jwksUri} and issuer: $issuer")
-        verifier(jwkProvider, issuer)
-        log.info("JWT verifier configured successfully")
+            log.info("Configuring JWT verifier with JWKS URI: ${jwtIssuer.wellKnown.jwksUri} and issuer: $issuer")
+            verifier(jwkProvider, issuer)
+            log.info("JWT verifier configured successfully")
+        } catch (e: Exception) {
+            log.error("Error configuring JWT verifier: ${e.message}")
+            throw e
+        }
 
         validate { credentials ->
             log.info("Validating JWT credentials")
