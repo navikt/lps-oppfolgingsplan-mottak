@@ -26,8 +26,6 @@ import no.nav.syfo.application.exception.ApiError.IllegalArgumentError
 import no.nav.syfo.application.exception.ApiError.InternalServerError
 import no.nav.syfo.application.exception.ApiError.NoActiveSentSykmeldingError
 import no.nav.syfo.application.exception.ApiError.NotFoundError
-import no.nav.syfo.application.exception.ApiError.PdlServiceUnavailableError
-import no.nav.syfo.application.exception.ApiError.ServiceUnavailableError
 import no.nav.syfo.application.exception.EmployeeNotFoundException
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.ForbiddenAccessVeilederException
