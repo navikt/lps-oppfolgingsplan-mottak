@@ -50,6 +50,9 @@ sealed class ApiError(
     data class ServiceUnavailableError(override val message: String) :
         ApiError(HttpStatusCode.ServiceUnavailable, ErrorType.SERVICE_UNAVAILABLE, message)
 
+    data class ServiceUnavailableError(override val message: String) :
+        ApiError(HttpStatusCode.ServiceUnavailable, ErrorType.SERVICE_UNAVAILABLE, message)
+
     data object GeneralPractitionerNotFoundError :
         ApiError(
             HttpStatusCode.NotFound,
@@ -90,6 +93,13 @@ sealed class ApiError(
             HttpStatusCode.NotFound,
             ErrorType.FOLLOWUP_PLAN_NOT_FOUND,
             "The follow-up plan with a given uuid was not found",
+        )
+
+    data object PdlServiceUnavailableError :
+        ApiError(
+            HttpStatusCode.ServiceUnavailable,
+            ErrorType.SERVICE_UNAVAILABLE,
+            "Person lookup service temporarily unavailable. Please try again later."
         )
 
     data object PdlServiceUnavailableError :

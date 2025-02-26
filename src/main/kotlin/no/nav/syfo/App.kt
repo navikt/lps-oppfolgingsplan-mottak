@@ -103,7 +103,7 @@ private fun setModule(
         val isdialogmeldingClient = IsdialogmeldingClient(env.urls, azureAdClient)
         val pdlClient = PdlClient(env.urls, azureAdClient)
         val pdlUtils = PdlUtils(pdlClient)
-        val krrProxyClient = KrrProxyClient(env.urls, azureAdClient)
+    val krrProxyClient = KrrProxyClient(env.urls, azureAdClient)
         val eregClient = EregClient(env.urls, env.application, azureAdClient)
         val pdfGenClient = OpPdfGenClient(env.urls, env.application, pdlClient, krrProxyClient)
         val navLpsProducer = AltinnOppfolgingsplanProducer(env.kafka)
