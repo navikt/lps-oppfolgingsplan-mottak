@@ -149,7 +149,6 @@ class PdlClient(
                     responseBody.data?.hentIdenter?.identer?.firstOrNull()?.ident
                 } else {
                     handlePdlErrors(responseBody.errors, "get FNR from PDL")
-                    null // Reached only if error handling doesn't throw
                 }
             }
             HttpStatusCode.NoContent -> throw PdlNotFoundException("No content found in the response body")
@@ -166,7 +165,6 @@ class PdlClient(
                     responseBody.data
                 } else {
                     handlePdlErrors(responseBody.errors, "get person info from PDL")
-                    null // Reached only if error handling doesn't throw
                 }
             }
             HttpStatusCode.NoContent -> throw PdlNotFoundException("No content found in the response body")
@@ -190,7 +188,6 @@ class PdlClient(
                     }
                 } else {
                     handlePdlErrors(responseBody.errors, "get poststed from PDL")
-                    null // Reached only if error handling doesn't throw
                 }
             }
             HttpStatusCode.NoContent -> throw PdlNotFoundException("No content found in the response body")
