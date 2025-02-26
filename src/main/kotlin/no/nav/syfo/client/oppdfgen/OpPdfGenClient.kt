@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
 class OpPdfGenClient(
     private val urls: UrlEnv,
     private val appEnv: ApplicationEnv,
-    private val pdlClient: PdlClient,
+    pdlClient: PdlClient,
     private val krrProxyClient: KrrProxyClient,
     private val client: HttpClient = httpClientDefault(),
 ) {
@@ -51,7 +51,7 @@ class OpPdfGenClient(
             }
         } catch (e: Exception) {
             log.error("Call to get generate PDF for Altinn LPS-plan failed due to exception: ${e.message}", e)
-            throw e
+            return null
         }
 
         return when (response.status) {
@@ -70,7 +70,7 @@ class OpPdfGenClient(
         val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_PATH"
         val fnr = followUpPlanDTO.employeeIdentificationNumber
 
-        val personInfo = pdlClient.getPersonInfo(fnr)
+        val personInfo = pdlUtils.getPersonInfoWithRetry(fnr)
         val employeeName = pdlUtils.getPersonNameString(personInfo, fnr)
         val employeeAdress = pdlUtils.getPersonAdressString(fnr)
 
