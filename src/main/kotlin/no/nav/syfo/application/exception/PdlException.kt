@@ -3,7 +3,9 @@ package no.nav.syfo.application.exception
 import io.ktor.http.HttpStatusCode
 
 
-// New exception classes for PDL client errors
+/*
+* Exception classes for PDL client errors
+*/
 sealed class PdlException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 class PdlNotFoundException(message: String) : PdlException(message)
 class PdlBadRequestException(message: String) : PdlException(message)
