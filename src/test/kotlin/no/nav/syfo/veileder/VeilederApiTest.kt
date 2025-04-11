@@ -80,6 +80,7 @@ val oppfolgingsplan =
         employeeHasContributedToPlan = true,
         employeeHasNotContributedToPlanDescription = null,
         lpsName = "TEST",
+        lpsEmail = "lps@lps.no",
     )
 
 class VeilederApiTest :

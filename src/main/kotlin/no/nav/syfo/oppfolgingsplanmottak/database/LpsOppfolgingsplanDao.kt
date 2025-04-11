@@ -51,8 +51,9 @@ fun DatabaseInterface.storeFollowUpPlan(
             lps_name,
             lps_orgnumber,
             created_at,
-            last_updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            last_updated_at,
+            lps_email
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """.trimIndent()
 
     connection.use { connection ->
@@ -88,6 +89,7 @@ fun DatabaseInterface.storeFollowUpPlan(
             it.setString(29, lpsOrgnumber)
             it.setTimestamp(30, Timestamp.valueOf(LocalDateTime.now()))
             it.setTimestamp(31, Timestamp.valueOf(LocalDateTime.now()))
+            it.setString(32, followUpPlanDTO.lpsEmail)
             it.executeUpdate()
         }
         connection.commit()

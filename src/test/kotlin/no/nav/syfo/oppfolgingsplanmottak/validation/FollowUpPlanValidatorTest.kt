@@ -216,7 +216,8 @@ fun createFollowUpPlanDTO(
         contactPersonEmail = "contact@example.com",
         employeeHasContributedToPlan = employeeHasContributedToPlan,
         employeeHasNotContributedToPlanDescription = employeeHasNotContributedToPlanDescription,
-        lpsName = "LPS Name"
+        lpsName = "LPS Name",
+        lpsEmail = "lps@lps.no",
     )
 }
 
