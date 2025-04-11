@@ -229,6 +229,10 @@ components:
           type: "string"
           description: "Name of the consumer system sending in this plan"
           example: "Empire HR System"
+        lpsEmail:
+          type: "string"
+          description: "Email for the consumer system sending in this plan"
+          example: "empirehrsystem@empire.com"
       required:
         - "employeeIdentificationNumber"
         - "typicalWorkday"
