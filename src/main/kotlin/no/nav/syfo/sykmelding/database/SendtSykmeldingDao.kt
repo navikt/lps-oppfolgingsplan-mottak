@@ -84,7 +84,7 @@ fun DatabaseInterface.getActiveSendtSykmeldingsperioder(
     val selectStatement = """
         SELECT *
         FROM SYKMELDINGSPERIODE
-        WHERE employee_identification_number = ? AND ? BETWEEN fom AND tom
+        WHERE employee_identification_number = ? AND ? BETWEEN fom AND (tom + INTERVAL '16 days')
     """.trimIndent()
 
     return connection.use { connection ->
