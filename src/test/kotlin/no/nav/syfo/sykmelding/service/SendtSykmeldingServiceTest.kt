@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import no.nav.syfo.db.TestDB
+import no.nav.syfo.sykmelding.database.persistSykmeldingsperiode
 import no.nav.syfo.sykmelding.domain.SykmeldingsperiodeAGDTO
 import java.time.LocalDate
 
@@ -89,7 +90,35 @@ class SendtSykmeldingServiceTest :
                 storedSykmeldingsperioderAfterDelete.size shouldBe 0
             }
 
-            it("Should return true for active sendt sykmelding if period exists between fom and tom") {
+            it("Should return true for active sendt sykmelding if period exists between fom and tom plus 16 days") {
+                val sykmeldingId = "123"
+                val orgnumber = "456"
+                val employeeIdentificationNumber = "789"
+                val sykmeldingsperioder =
+                    listOf(
+                        SykmeldingsperiodeAGDTO(
+                            fom = LocalDate.now().minusDays(25),
+                            tom = LocalDate.now().minusDays(15),
+                        ),
+                    )
+
+                testDb.persistSykmeldingsperiode(
+                    sykmeldingId = sykmeldingId,
+                    orgnummer = orgnumber,
+                    employeeIdentificationNumber = employeeIdentificationNumber,
+                    fom = sykmeldingsperioder[0].fom,
+                    tom = sykmeldingsperioder[0].tom,
+                )
+
+                val activeSykmeldingsperioder =
+                    sendtSykmeldingService.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
+
+                activeSykmeldingsperioder.size shouldBe 1
+                activeSykmeldingsperioder[0].employeeIdentificationNumber shouldBe employeeIdentificationNumber
+            }
+
+            it("""Should return false for active sendt sykmelding if 
+                  period does not exist between fom and tom plus 16 days""".trimMargin()) {
                 val sykmeldingId = "123"
                 val orgnumber = "456"
                 val employeeIdentificationNumber = "789"
@@ -97,47 +126,22 @@ class SendtSykmeldingServiceTest :
                     listOf(
                         SykmeldingsperiodeAGDTO(
                             fom = LocalDate.now().minusWeeks(10),
-                            tom = LocalDate.now().plusWeeks(10),
+                            tom = LocalDate.now().minusDays(16),
                         ),
                     )
 
-                sendtSykmeldingService.persistSykmeldingsperioder(
+                testDb.persistSykmeldingsperiode(
                     sykmeldingId = sykmeldingId,
-                    orgnumber = orgnumber,
+                    orgnummer = orgnumber,
                     employeeIdentificationNumber = employeeIdentificationNumber,
-                    sykmeldingsperioder = sykmeldingsperioder,
+                    fom = sykmeldingsperioder[0].fom,
+                    tom = sykmeldingsperioder[0].tom,
                 )
 
-            val activeSykmeldingsperioder =
-                sendtSykmeldingService.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
+                val activeSykmeldingsperioder =
+                    sendtSykmeldingService.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
 
-            activeSykmeldingsperioder.size shouldBe 1
-            activeSykmeldingsperioder[0].employeeIdentificationNumber shouldBe employeeIdentificationNumber
+                activeSykmeldingsperioder shouldBe emptyList()
+            }
         }
-
-            it("Should return false for active sendt sykmelding if period does not exist between fom and tom") {
-                val sykmeldingId = "123"
-                val orgnumber = "456"
-                val employeeIdentificationNumber = "789"
-                val sykmeldingsperioder =
-                    listOf(
-                        SykmeldingsperiodeAGDTO(
-                            fom = LocalDate.now().minusWeeks(10),
-                            tom = LocalDate.now().minusWeeks(4),
-                        ),
-                    )
-
-                sendtSykmeldingService.persistSykmeldingsperioder(
-                    sykmeldingId = sykmeldingId,
-                    orgnumber = orgnumber,
-                    employeeIdentificationNumber = employeeIdentificationNumber,
-                    sykmeldingsperioder = sykmeldingsperioder,
-                )
-
-            val activeSykmeldingsperioder =
-                sendtSykmeldingService.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
-
-            activeSykmeldingsperioder shouldBe emptyList()
-        }
-    }
-})
+    })
