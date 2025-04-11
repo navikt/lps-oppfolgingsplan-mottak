@@ -6,6 +6,7 @@ practitioner. This API supports <i>delegation</i>,
 which means that you as the API consumer are acting on behalf of another company/end-user. The API also supports
 integration without <i>delegation</i>, which means
 that you are submitting a follow-up plan on behalf of your own company.
+You can read more about terms of use [here](https://www.nav.no/_/attachment/inline/1dd039e8-08ec-4b65-9a85-f4d081b8feae:5014ae52e8b038c039a7afe8d2af01cf6f68bc27/Bruksvilk%C3%A5r%20Navs%20API%20for%20elektronisk%20innsending%20av%20oppf%C3%B8lgingsplan%20fra%20sluttbrukersystem%20kopi1.pdf)
 
 ## 🎯 Target audience
 
