@@ -51,20 +51,7 @@ allOpen {
 repositories {
     mavenCentral()
     maven(url = "https://packages.confluent.io/maven/")
-    maven {
-        url = uri("https://maven.pkg.github.com/navikt/tjenestespesifikasjoner")
-        credentials {
-            username = githubUser
-            password = githubPassword
-        }
-    }
-    maven {
-        url = uri("https://maven.pkg.github.com/navikt/syfotjenester")
-        credentials {
-            username = githubUser
-            password = githubPassword
-        }
-    }
+    maven(url = "https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 }
 
 dependencies {
