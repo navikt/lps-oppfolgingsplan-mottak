@@ -4,6 +4,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.coEvery
 import io.mockk.mockk
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.NoActiveEmploymentException
 import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
@@ -16,13 +19,10 @@ import no.nav.syfo.client.aareg.domain.Ident
 import no.nav.syfo.client.aareg.domain.IdentType
 import no.nav.syfo.client.aareg.domain.Opplysningspliktig
 import no.nav.syfo.client.aareg.domain.OpplysningspliktigType
-import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.client.oppdfgen.PdlUtils
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 const val UNDERENHET_ORGNUMBER = "123456789"
 const val HOVEDENHET_ORGNUMBER = "987654321"
@@ -31,10 +31,10 @@ const val OTHER_COMPANY_HOVEDENHET_ORGNUMBER = "876543219"
 const val EMPLOYEE_SSN = "12345678901"
 
 class FollowUpPlanValidatorTest : DescribeSpec({
-    val pdlClient = mockk<PdlClient>()
+    val pdlUtils = mockk<PdlUtils>()
     val sykmeldingService = mockk<SendtSykmeldingService>()
     val arbeidsforholdOversiktClient = mockk<ArbeidsforholdOversiktClient>()
-    val validator = FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, false)
+    val validator = FollowUpPlanValidator(pdlUtils, sykmeldingService, arbeidsforholdOversiktClient, false)
 
     describe("FollowUpPlanValidator") {
         context("validateFollowUpPlanDTO") {
@@ -80,7 +80,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
 
             it("should throw exception if employee identification number is invalid") {
                 val followUpPlanDTO = createFollowUpPlanDTO(employeeIdentificationNumber = "invalid")
-                coEvery { pdlClient.getPersonInfo(any()) } returns null
+                coEvery { pdlUtils.getPersonInfoWithRetry(any()) } returns null
                 shouldThrow<FollowUpPlanDTOValidationException> {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
@@ -92,7 +92,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
                 } returns createValidAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
                 coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns emptyList()
-                coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
+                coEvery { pdlUtils.getPersonInfoWithRetry(any()) } returns mockk()
                 shouldThrow<NoActiveSentSykmeldingException> {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
@@ -102,7 +102,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 val followUpPlanDTO = createFollowUpPlanDTO()
                 coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns listOf(mockk())
                 coEvery { arbeidsforholdOversiktClient.getArbeidsforhold(any()) } returns null
-                coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
+                coEvery { pdlUtils.getPersonInfoWithRetry(any()) } returns mockk()
                 shouldThrow<NoActiveEmploymentException> {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
@@ -116,7 +116,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 } returns createValidAaregArbeidsforholdOversiktDTO(
                     OTHER_COMPANY_HOVEDENHET_ORGNUMBER, OTHER_COMPANY_UNDERENHET_ORGNUMBER
                 )
-                coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
+                coEvery { pdlUtils.getPersonInfoWithRetry(any()) } returns mockk()
                 shouldThrow<NoActiveEmploymentException> {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
@@ -136,7 +136,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 } returns createValidAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
 
                 coEvery {
-                    pdlClient.getPersonInfo(any())
+                    pdlUtils.getPersonInfoWithRetry(any())
                 } returns mockk()
 
                 validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
@@ -156,7 +156,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 } returns createValidAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
 
                 coEvery {
-                    pdlClient.getPersonInfo(any())
+                    pdlUtils.getPersonInfoWithRetry(any())
                 } returns mockk()
 
                 validator.validateFollowUpPlanDTO(followUpPlanDTO, UNDERENHET_ORGNUMBER)
@@ -176,7 +176,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 } returns createValidAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
 
                 coEvery {
-                    pdlClient.getPersonInfo(any())
+                    pdlUtils.getPersonInfoWithRetry(any())
                 } returns mockk()
 
                 shouldThrow<NoActiveEmploymentException> {

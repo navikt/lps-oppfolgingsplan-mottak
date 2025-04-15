@@ -1,6 +1,9 @@
 package no.nav.syfo.altinnmottak
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.helse.op2016.Oppfoelgingsplan4UtfyllendeInfoM
 import no.nav.helse.op2016.Skjemainnhold
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
@@ -27,9 +30,6 @@ import no.nav.syfo.util.mapFormdataToFagmelding
 import no.nav.syfo.util.xmlMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 @Suppress("LongParameterList")
 class AltinnLpsService(
@@ -81,11 +81,13 @@ class AltinnLpsService(
         val altinnLps = database.getAltinnLpsOppfolgingsplanByUuid(lpsUuid)
         val lpsFnr = altinnLps.lpsFnr
 
-        val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
+        val mostRecentFnr =
+            pdlConsumer.mostRecentFnr(lpsFnr)
+
         if (mostRecentFnr == null) {
             log.warn(
                 "[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS " +
-                    "with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
+                        "with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
             )
             return
         }
@@ -134,11 +136,15 @@ class AltinnLpsService(
     ): Boolean {
         return try {
             val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
-            mostRecentFnr?.let {
+
+            if (mostRecentFnr == null) {
+                log.error("Unable to determine most recent fnr on retry attempt for altinn-lps with UUID: $uuid")
+                false
+            } else {
                 database.storeFnr(uuid, mostRecentFnr)
                 log.info("Successfully stored fnr on retry attempt for altinn-lps with UUID: $uuid")
                 true
-            } ?: false
+            }
         } catch (e: RuntimeException) {
             log.error("Error encountered while retrying fnr fetch", e)
             false

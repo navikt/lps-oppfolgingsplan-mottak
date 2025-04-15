@@ -98,6 +98,13 @@ data class PdlErrorLocation(
 data class PdlErrorExtension(
     val code: String?,
     val classification: String,
+    val details: PdlUnauthorizedErrorDetails
+)
+
+data class PdlUnauthorizedErrorDetails(
+    val type: String?,
+    val cause: String?,
+    val policy: String?,
 )
 
 fun PdlHentPerson.toPersonName(): String? {

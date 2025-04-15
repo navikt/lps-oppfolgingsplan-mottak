@@ -18,6 +18,7 @@ import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import no.nav.syfo.client.oppdfgen.PdlUtils
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.mockdata.UserConstants.ARBEIDSTAKER_FNR
@@ -128,10 +129,10 @@ fun Application.testApiModule(
         wellKnownInternalAzureAD = externalMockEnvironment.wellKnownInternalAzureAD,
         veilederTilgangskontrollClient = veilederTilgangskontrollClient,
         followUpPlanSendingService = followUpPlanSendingService,
-        pdlClient = PdlClient(
+        pdlUtils = PdlUtils( PdlClient(
             externalMockEnvironment.environment.urls,
             externalMockEnvironment.azureAdClient,
-            externalMockEnvironment.mockHttpClient
+            externalMockEnvironment.mockHttpClient)
         ),
         sykmeldingService = sykmeldingService,
         arbeidsforholdOversiktClient = arbeidsforholdOversiktClient

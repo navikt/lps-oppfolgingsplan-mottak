@@ -4,20 +4,29 @@ import no.nav.syfo.application.exception.EmployeeNotFoundException
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.NoActiveEmploymentException
 import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
+import no.nav.syfo.application.exception.PdlBadRequestException
+import no.nav.syfo.application.exception.PdlException
+import no.nav.syfo.application.exception.PdlNotFoundException
+import no.nav.syfo.application.exception.PdlServerException
+import no.nav.syfo.application.exception.PdlServiceException
+import no.nav.syfo.application.exception.PdlUnauthorizedException
 import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
-import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.client.oppdfgen.PdlUtils
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
+import org.slf4j.LoggerFactory
 
 val TEST_FNR_LIST = listOf("05908399546", "01898299631")
 
 class FollowUpPlanValidator(
-    private val pdlClient: PdlClient,
+    private val pdlUtils: PdlUtils,
     private val sykmeldingService: SendtSykmeldingService,
     private val arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient,
     private val isDev: Boolean,
 ) {
+    private val log = LoggerFactory.getLogger(FollowUpPlanValidator::class.qualifiedName)
+
     suspend fun validateFollowUpPlanDTO(followUpPlanDTO: FollowUpPlanDTO, employerOrgnr: String) {
         validatePlan(followUpPlanDTO)
 
@@ -66,8 +75,41 @@ class FollowUpPlanValidator(
 
         validateSykmelding(followUpPlanDTO, validOrgnumbers)
 
-        if (pdlClient.getPersonInfo(followUpPlanDTO.employeeIdentificationNumber) == null) {
+        validatePersonExists(followUpPlanDTO.employeeIdentificationNumber)
+    }
+
+    private suspend fun validatePersonExists(fnr: String) {
+        try {
+            val personInfo = pdlUtils.getPersonInfoWithRetry(fnr)
+
+            if (personInfo == null) {
+                log.warn("Person with fnr not found in PDL after retry attempts")
+                throw EmployeeNotFoundException("Could not find requested person in our systems")
+            }
+        } catch (e: PdlNotFoundException) {
+            // This is the correct case for EmployeeNotFoundException
+            log.warn("Person with fnr not found in PDL")
             throw EmployeeNotFoundException("Could not find requested person in our systems")
+        } catch (e: PdlBadRequestException) {
+            // Bad input data - likely an invalid FNR format that passed regex check
+            log.error("Bad request when checking person in PDL: ${e.message}")
+            throw FollowUpPlanDTOValidationException("Invalid employee identification number format")
+        } catch (e: PdlUnauthorizedException) {
+            // Authorization issues
+            log.error("Unauthorized access to PDL: ${e.message}")
+            throw PdlServiceException("Authentication issue when validating employee. Try again later.")
+        } catch (e: PdlServerException) {
+            // Server-side PDL issues - temporary error
+            log.error("PDL server error: ${e.message}")
+            throw PdlServiceException("Temporary issue with person lookup service. Try again later.")
+        } catch (e: PdlException) {
+            // Other PDL issues
+            log.error("PDL error when validating employee: ${e.message}")
+            throw PdlServiceException("Error occurred during person validation. Please try again later.")
+        } catch (e: Exception) {
+            // Unexpected errors
+            log.error("Unexpected error during person validation: ${e.message}", e)
+            throw PdlServiceException("Unexpected error during validation. Please try again later.")
         }
     }
 
