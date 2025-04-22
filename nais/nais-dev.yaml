@@ -18,7 +18,7 @@ spec:
           product: oppfolgingsplan
           separator: "/"
           name: lps.write
-          atMaxAge: 18000
+          atMaxAge: 680
       consumes:
         - name: "nav:oppfolgingsplan/lps.write"
   liveness:
