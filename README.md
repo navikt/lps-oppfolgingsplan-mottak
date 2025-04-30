@@ -53,7 +53,6 @@ To submit a follow-up plan, you need to send a POST request with the required pa
 uuid, which can be used later to check the sending status. Please refer to
 the [Swagger documentation](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/swagger) for more information. Please
 note that you will need to provide a valid Maskinporten token in the Authorization header.
-For make it a bit easier, we have created to test users who can be used for test submitting for all companies. You can find them [here](https://github.com/navikt/lps-oppfolgingsplan-mottak/blob/068f8035a4792c85a5d4dd0a597e6292ddad86b2/src/main/kotlin/no/nav/syfo/oppfolgingsplanmottak/validation/FollowUpPlanValidator.kt#L13)
 
 ### 6. Check the sending status (optional)
 
@@ -71,6 +70,10 @@ to [NAV's guide for testing delegable API's](https://github.com/navikt/nav-ekste
 
 Please refer
 to [NAV's guide for testing API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-api/teste-api.md)
+
+## 🧪 Test users
+
+Testdata for employee users: We have created 2 test users that skip the requirements for valid work relationship, and valid sick leave. Work relationship and sick leave testdata requires manual setup from us in Nav, so we have made these two users to make it easier testing without our involvement. The employeeIdentificationNumbers are 05908399546 and 01898299631.
 
 ## Error Codes
 
