@@ -25,7 +25,8 @@ fun createDefaultFollowUpPlan(employeeIdentificationNumber: String): FollowUpPla
         contactPersonEmail = "some@email.com",
         employeeHasContributedToPlan = true,
         employeeHasNotContributedToPlanDescription = null,
-        lpsName = "LPS name"
+        lpsName = "LPS name",
+        lpsEmail = "lps@lps.no"
     )
     return followUpPlanDTO
 }
@@ -51,7 +52,8 @@ data class FollowUpPlanMockDTO(
     val contactPersonEmail: String?,
     val employeeHasContributedToPlan: Boolean?,
     val employeeHasNotContributedToPlanDescription: String?,
-    val lpsName: String?
+    val lpsName: String?,
+    val lpsEmail: String?
 )
 
 fun createDefaultFollowUpPlanMockDTO(employeeIdentificationNumber: String): FollowUpPlanMockDTO {
@@ -76,7 +78,8 @@ fun createDefaultFollowUpPlanMockDTO(employeeIdentificationNumber: String): Foll
         contactPersonEmail = "some@email.com",
         employeeHasContributedToPlan = true,
         employeeHasNotContributedToPlanDescription = null,
-        lpsName = "LPS name"
+        lpsName = "LPS name",
+        lpsEmail = "lps@lps.no"
     )
     return followUpPlanDTO
 }

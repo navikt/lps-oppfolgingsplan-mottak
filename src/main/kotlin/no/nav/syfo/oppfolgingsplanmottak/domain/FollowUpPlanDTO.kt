@@ -27,6 +27,7 @@ data class FollowUpPlanDTO(
     val employeeHasContributedToPlan: Boolean,
     val employeeHasNotContributedToPlanDescription: String?,
     val lpsName: String,
+    val lpsEmail: String?,
 ) {
     fun toOppfolgingsplanOpPdfGenRequest(
         employeeName: String?,
