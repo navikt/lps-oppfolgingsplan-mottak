@@ -23,12 +23,15 @@ import no.nav.syfo.application.exception.ApiError.IllegalArgumentError
 import no.nav.syfo.application.exception.ApiError.InternalServerError
 import no.nav.syfo.application.exception.ApiError.NoActiveSentSykmeldingError
 import no.nav.syfo.application.exception.ApiError.NotFoundError
+import no.nav.syfo.application.exception.ApiError.PdlServiceUnavailableError
+import no.nav.syfo.application.exception.ApiError.ServiceUnavailableError
 import no.nav.syfo.application.exception.EmployeeNotFoundException
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.ForbiddenAccessVeilederException
 import no.nav.syfo.application.exception.GpNotFoundException
 import no.nav.syfo.application.exception.NoActiveEmploymentException
 import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
+import no.nav.syfo.application.exception.PdlServiceException
 import no.nav.syfo.application.metric.METRICS_REGISTRY
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.configure
@@ -36,6 +39,7 @@ import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getConsumerClientId
 import java.time.Duration
 import java.util.*
+import no.nav.syfo.application.exception.PdlBadRequestException
 
 const val MAX_EXPECTED_VALUE_METRICS = 20L
 
@@ -72,6 +76,7 @@ private fun logException(call: ApplicationCall, cause: Throwable) {
     when (cause) {
         is ForbiddenAccessVeilederException -> log.warn(logExceptionMessage, cause)
         is GpNotFoundException -> log.warn(logExceptionMessage, cause)
+        is PdlServiceException -> log.error("PDL service error: $logExceptionMessage", cause)
         else -> log.error(logExceptionMessage, cause)
     }
 }
@@ -83,10 +88,14 @@ private fun determineApiError(cause: Throwable): ApiError {
         )
 
         is EmployeeNotFoundException -> EmployeeNotFoundError
+        is PdlBadRequestException -> BadRequestError(cause.message ?: "Bad request")
         is GpNotFoundException -> GeneralPractitionerNotFoundError
         is NoActiveSentSykmeldingException -> NoActiveSentSykmeldingError
         is NoActiveEmploymentException -> ApiError.NoActiveEmploymentError
         is ForbiddenAccessVeilederException -> ForbiddenAccessVeilederError
+        is PdlServiceException ->
+            if (cause.message?.isNotEmpty() == true) ServiceUnavailableError(cause.message!!)
+            else PdlServiceUnavailableError
         is BadRequestException -> BadRequestError(cause.message ?: "Bad request")
         is IllegalArgumentException -> IllegalArgumentError(cause.message ?: "Illegal argument")
         is NotFoundException -> NotFoundError(cause.message ?: "Not found")

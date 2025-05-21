@@ -15,6 +15,7 @@ enum class ErrorType {
     EMPLOYEE_NOT_FOUND,
     NO_ACTIVE_SENT_SYKMELDING,
     NO_ACTIVE_EMPLOYMENT,
+    SERVICE_UNAVAILABLE,
 }
 
 sealed class ApiError(val status: HttpStatusCode, val type: ErrorType, open val message: String) {
@@ -35,6 +36,9 @@ sealed class ApiError(val status: HttpStatusCode, val type: ErrorType, open val 
 
     data class AuthenticationError(override val message: String) :
         ApiError(HttpStatusCode.Unauthorized, ErrorType.AUTHENTICATION_ERROR, message)
+
+    data class ServiceUnavailableError(override val message: String) :
+        ApiError(HttpStatusCode.ServiceUnavailable, ErrorType.SERVICE_UNAVAILABLE, message)
 
     data object GeneralPractitionerNotFoundError :
         ApiError(
@@ -76,5 +80,12 @@ sealed class ApiError(val status: HttpStatusCode, val type: ErrorType, open val 
             HttpStatusCode.NotFound,
             ErrorType.FOLLOWUP_PLAN_NOT_FOUND,
             "The follow-up plan with a given uuid was not found"
+        )
+
+    data object PdlServiceUnavailableError :
+        ApiError(
+            HttpStatusCode.ServiceUnavailable,
+            ErrorType.SERVICE_UNAVAILABLE,
+            "Person lookup service temporarily unavailable. Please try again later."
         )
 }
