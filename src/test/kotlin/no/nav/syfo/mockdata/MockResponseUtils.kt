@@ -9,6 +9,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import no.nav.syfo.client.azuread.AzureAdTokenResponse
 import no.nav.syfo.client.krrproxy.domain.Kontaktinfo
+import no.nav.syfo.client.krrproxy.domain.PostPersonerResponse
 import no.nav.syfo.client.pdl.domain.Adressebeskyttelse
 import no.nav.syfo.client.pdl.domain.Bostedsadresse
 import no.nav.syfo.client.pdl.domain.Gradering
@@ -18,6 +19,7 @@ import no.nav.syfo.client.pdl.domain.PdlPersonResponse
 import no.nav.syfo.client.pdl.domain.PersonNavn
 import no.nav.syfo.client.pdl.domain.Vegadresse
 import no.nav.syfo.client.veiledertilgang.Tilgang
+import no.nav.syfo.mockdata.UserConstants.ARBEIDSTAKER_FNR
 import no.nav.syfo.util.NAV_PERSONIDENT_HEADER
 import no.nav.syfo.util.configuredJacksonMapper
 
@@ -54,12 +56,16 @@ fun MockRequestHandleScope.pdlPersonResponse(): HttpResponseData {
 
 fun MockRequestHandleScope.krrResponse(): HttpResponseData {
     return respond(
-        (Kontaktinfo(
-            kanVarsles = true,
-            reservert = false,
-            mobiltelefonnummer = "12121212",
-            epostadresse = "epost@some.no"
-        ))
+        PostPersonerResponse(
+            personer = mapOf(
+                ARBEIDSTAKER_FNR to Kontaktinfo(
+                    kanVarsles = true,
+                    reservert = false,
+                    mobiltelefonnummer = "12121212",
+                    epostadresse = "epost@some.no"
+                )
+            )
+        )
     )
 }
 
