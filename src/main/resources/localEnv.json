@@ -56,7 +56,7 @@
     "dokarkivScope": "dokarkiv_scope",
     "istilgangskontrollUrl": "isTilgangskontrollUrl",
     "istilgangskontrollClientId": "localhost.istilgangskontroll",
-    "krrProxyUrl": "localhost.krr.url",
+    "krrProxyUrl": "http://localhost:9093/rest/v1/personer",
     "krrProxyScope": "localhost.krr.scope",
     "eregBaseUrl": "localhost.eregBaseUrl",
     "eregScope": "eregScope",

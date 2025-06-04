@@ -143,7 +143,7 @@ spec:
     - name: MASKINPORTEN_CUSTOM_SCOPE_NAME
       value: "nav:oppfolgingsplan/lps.write"
     - name: KRR_PROXY_URL
-      value: http://digdir-krr-proxy.team-rocket/rest/v1/person
+      value: http://digdir-krr-proxy.team-rocket/rest/v1/personer
     - name: KRR_PROXY_SCOPE
       value: prod-gcp.team-rocket.digdir-krr-proxy
     - name: EREG_URL
