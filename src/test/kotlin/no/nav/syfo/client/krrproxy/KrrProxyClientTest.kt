@@ -5,12 +5,17 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.mockk
 import java.io.File
+import java.time.LocalDateTime
 import no.nav.syfo.application.ApplicationEnvironment
 import no.nav.syfo.client.azuread.AzureAdClient
-import no.nav.syfo.util.MockServers
+import no.nav.syfo.client.azuread.AzureAdToken
 import no.nav.syfo.util.FNR_1
 import no.nav.syfo.util.FNR_2
+import no.nav.syfo.util.MockServers
 
 class KrrProxyClientTest : DescribeSpec({
     val localAppPropertiesPath = "./src/main/resources/localEnv.json"
@@ -22,26 +27,22 @@ class KrrProxyClientTest : DescribeSpec({
         File(localAppPropertiesPath),
         ApplicationEnvironment::class.java
     )
-    val auth = testEnv.auth.copy(
-        azuread = testEnv.auth.azuread.copy(
-            accessTokenUrl = "http://localhost:9595",
-            wellKnownUrl = "http://localhost:9591"
-        )
-    )
-    val mockServers = MockServers(testEnv.urls, auth)
-    val azureAdMockServer = mockServers.mockAADServer()
-    val krrMockServer = mockServers.mockKrrServer()
 
-    val azureAdConsumer = AzureAdClient(auth)
+    val azureAdConsumer = mockk<AzureAdClient>()
+    val mockServers = MockServers(testEnv.urls, testEnv.auth)
+    val krrMockServer = mockServers.mockKrrServer()
     val dkifConsumer = KrrProxyClient(testEnv.urls, azureAdConsumer)
 
     beforeSpec {
-        azureAdMockServer.start()
+        clearAllMocks()
+        coEvery { azureAdConsumer.getSystemToken(any()) } returns AzureAdToken(
+            accessToken = "AAD access token",
+            expires = LocalDateTime.now().plusMinutes(5),
+        )
         krrMockServer.start()
     }
 
     afterSpec {
-        azureAdMockServer.stop(1L, 10L)
         krrMockServer.stop(1L, 10L)
     }
 

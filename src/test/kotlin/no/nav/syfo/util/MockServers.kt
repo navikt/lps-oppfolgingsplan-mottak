@@ -14,7 +14,6 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.request.receiveText
-import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
@@ -38,14 +37,6 @@ class MockServers(val urlEnv: UrlEnv, val authEnv: AuthEnv) {
                         HttpStatusCode.OK
                     )
                 }
-            }
-        }
-    }
-
-    fun mockAADServer(): NettyApplicationEngine {
-        return mockServer(authEnv.azuread.accessTokenUrl) {
-            post {
-                call.respond(tokenFromAzureServer)
             }
         }
     }
