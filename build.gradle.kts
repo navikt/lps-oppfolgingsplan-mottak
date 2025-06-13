@@ -14,7 +14,7 @@ val jacksonVersion = "2.18.2"
 val jacksonDatabindVersion = "2.13.2.2"
 val javaJwtVersion = "4.4.0"
 val nimbusVersion = "9.48"
-val detektVersion = "1.23.0"
+val detektVersion = "1.23.8"
 val kotestVersion = "5.9.1"
 val kotestExtensionsVersion = "2.0.0"
 val kotlinVersion = "2.1.21"
@@ -41,7 +41,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen") version "2.1.21"
     id("com.diffplug.spotless") version "6.25.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.gitlab.arturbosch.detekt") version "1.23.7"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 allOpen {
