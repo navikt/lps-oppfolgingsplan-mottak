@@ -1,6 +1,7 @@
 package no.nav.syfo
 
 import com.typesafe.config.ConfigFactory
+import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationEnvironment
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.config.HoconApplicationConfig
@@ -84,8 +85,7 @@ fun createApplicationEnvironment(env: Environment): ApplicationEnvironment = app
     database.grantAccessToIAMUsers()
 }
 
-@Suppress("LongMethod")
-private fun setModule(env: Environment, appState: ApplicationState): _root_ide_package_.io.ktor.server.application.Application.() -> Unit = {
+private fun setModule(env: Environment, appState: ApplicationState): Application.() -> Unit = {
     val backgroundTasksContext = Executors.newFixedThreadPool(
         env.application.coroutineThreadPoolSize,
     ).asCoroutineDispatcher()
