@@ -33,19 +33,8 @@ fun RoutingContext.getOrgnumberFromClaims(): String {
 
     return maskinportenIdToOrgnumber(consumer["ID"] as String)
 }
-fun PipelineContext<Unit, ApplicationCall>.getOrgnumberFromClaims(): String {
-    val consumer = call.principal<JWTPrincipal>()?.payload?.getClaim("consumer")?.asMap()
-        ?: throw ConsumerClaimMissing()
-
-    return maskinportenIdToOrgnumber(consumer["ID"] as String)
-}
 
 fun RoutingContext.getLpsOrgnumberFromClaims(): String? {
-    val supplier = call.principal<JWTPrincipal>()?.payload?.getClaim("supplier")?.asMap() ?: return null
-
-    return maskinportenIdToOrgnumber(supplier["ID"] as String)
-}
-fun PipelineContext<Unit, ApplicationCall>.getLpsOrgnumberFromClaims(): String? {
     val supplier = call.principal<JWTPrincipal>()?.payload?.getClaim("supplier")?.asMap() ?: return null
 
     return maskinportenIdToOrgnumber(supplier["ID"] as String)
