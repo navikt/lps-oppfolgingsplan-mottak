@@ -47,7 +47,9 @@ const val THREAD_POOL_CONNECTION_GROUP_SIZE = 8
 lateinit var database: DatabaseInterface
 
 fun main() {
+    val logger = LoggerFactory.getLogger("ktor.application")
     val env = getEnv()
+    val appState = ApplicationState()
     val server = embeddedServer(
         factory = Netty,
         environment = createApplicationEnvironment(env),
@@ -59,7 +61,12 @@ fun main() {
             workerGroupSize = THREAD_POOL_WORKER_GROUP_SIZE
             callGroupSize = THREAD_POOL_CALL_GROUP_SIZE
         },
-        module = setModule(env))
+        module = setModule(env, appState)
+    )
+    server.monitor.subscribe(ApplicationStarted) { application ->
+        appState.alive = true
+        logger.info("Application is ready, running Java VM ${Runtime.version()}")
+    }
 
 
     Runtime.getRuntime().addShutdownHook(
@@ -78,9 +85,7 @@ fun createApplicationEnvironment(env: Environment): ApplicationEnvironment = app
 }
 
 @Suppress("LongMethod")
-private fun setModule(env: Environment): _root_ide_package_.io.ktor.server.application.Application.() -> Unit = {
-    val logger = LoggerFactory.getLogger("ktor.application")
-    val appState = ApplicationState()
+private fun setModule(env: Environment, appState: ApplicationState): _root_ide_package_.io.ktor.server.application.Application.() -> Unit = {
     val backgroundTasksContext = Executors.newFixedThreadPool(
         env.application.coroutineThreadPoolSize,
     ).asCoroutineDispatcher()
@@ -158,8 +163,4 @@ private fun setModule(env: Environment): _root_ide_package_.io.ktor.server.appli
         altinnLpsService,
         env,
     )
-    monitor.subscribe(ApplicationStarted) {
-        appState.alive = true
-        logger.info("Application is ready, running Java VM ${Runtime.version()}")
-    }
 }
