@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0"
 
-val ktorVersion = "2.3.13"
+val ktorVersion = "3.1.3"
 val prometheusVersion = "0.16.0"
 val micrometerVersion = "1.12.6"
 val slf4jVersion = "2.0.17"
@@ -17,8 +17,8 @@ val nimbusVersion = "10.3"
 val detektVersion = "1.23.0"
 val kotestVersion = "5.9.1"
 val kotestExtensionsVersion = "2.0.0"
-val kotlinVersion = "1.9.24"
-val mockkVersion = "1.14.2"
+val kotlinVersion = "2.1.21"
+val mockkVersion = "1.13.14"
 val postgresVersion = "42.7.7"
 val hikariVersion = "6.3.0"
 val flywayVersion = "11.9.1"
@@ -37,8 +37,8 @@ val githubUser: String by project
 val githubPassword: String by project
 
 plugins {
-    kotlin("jvm") version "1.9.24"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.24"
+    kotlin("jvm") version "2.1.21"
+    id("org.jetbrains.kotlin.plugin.allopen") version "2.1.21"
     id("com.diffplug.spotless") version "7.0.4"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
