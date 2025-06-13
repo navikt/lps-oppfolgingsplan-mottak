@@ -3,13 +3,13 @@ package no.nav.syfo.veileder
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
+import java.util.*
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.exception.ForbiddenAccessVeilederException
@@ -21,7 +21,6 @@ import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getPersonIdent
 import no.nav.syfo.veileder.database.getOppfolgingsplanPdf
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
-import java.util.*
 
 const val VEILEDER_LPS_BASE_PATH = "/api/internad/v1/oppfolgingsplan/lps"
 const val VEILEDER_LPS_UUID_PARAM = "uuid"

@@ -5,6 +5,7 @@ import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.request.header
+import java.net.URI
 import no.nav.syfo.application.exception.AuthenticationException
 import java.net.URL
 import java.util.*
@@ -16,7 +17,7 @@ private const val JWK_BUCKET_SIZE = 10L
 private const val JWK_REFILL_RATE = 1L
 
 fun jwkProvider(jwksUri: String): JwkProvider =
-    JwkProviderBuilder(URL(jwksUri)).cached(
+    JwkProviderBuilder(URI(jwksUri).toURL()).cached(
         JWK_CACHE_SIZE,
         JWK_CACHE_EXPIRES_IN,
         TimeUnit.HOURS,
