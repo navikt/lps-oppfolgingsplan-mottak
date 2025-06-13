@@ -4,7 +4,7 @@ import io.ktor.server.application.Application
 import kotlinx.coroutines.launch
 import no.nav.syfo.altinnmottak.AltinnLpsService
 import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanConsumer
-import no.nav.syfo.application.ApplicationEnvironment
+import no.nav.syfo.application.Environment
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.sykmelding.SendtSykmeldingAivenConsumer
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
@@ -15,7 +15,7 @@ fun Application.kafkaModule(
     backgroundTasksContext: CoroutineContext,
     altinnLPSService: AltinnLpsService,
     sykmeldingService: SendtSykmeldingService,
-    env: ApplicationEnvironment,
+    env: Environment,
 ) {
     launch(backgroundTasksContext) {
         launchKafkaListener(
