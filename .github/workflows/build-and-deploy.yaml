@@ -1,8 +1,11 @@
 name: Build & Deploy
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    types: [ ready_for_review ]
   workflow_dispatch:
-
 jobs:
   jar-app:
     uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/jar-app.yaml@main
