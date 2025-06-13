@@ -64,7 +64,7 @@ fun main() {
         module = setModule(env, appState)
     )
     server.monitor.subscribe(ApplicationStarted) { application ->
-        appState.alive = true
+        appState.ready = true
         logger.info("Application is ready, running Java VM ${Runtime.version()}")
     }
 
