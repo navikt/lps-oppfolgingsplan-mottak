@@ -55,6 +55,12 @@ fun Application.installMetrics() {
             .percentilesHistogram(true)
             .maximumExpectedValue(Duration.ofSeconds(MAX_EXPECTED_VALUE_METRICS).toNanos().toDouble())
             .build()
+        meterBinders = listOf(
+            JvmMemoryMetrics(),
+            ProcessorMetrics(),
+            JvmThreadMetrics(),
+            // Do NOT include UptimeMetrics(), it is added by by ktor or another library already
+        )
     }
 }
 
