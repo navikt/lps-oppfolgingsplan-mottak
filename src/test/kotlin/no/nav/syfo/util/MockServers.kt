@@ -9,6 +9,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
 import io.ktor.server.application.call
 import io.ktor.server.application.install
+import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
@@ -23,7 +24,7 @@ import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.krrproxy.domain.PostPersonerRequest
 
 class MockServers(val urlEnv: UrlEnv, val authEnv: AuthEnv) {
-    fun mockKrrServer(): NettyApplicationEngine {
+    fun mockKrrServer(): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
         return mockServer(urlEnv.krrProxyUrl) {
             val jsonMapper = jacksonObjectMapper()
             post("/rest/v1/personer") {
@@ -44,7 +45,7 @@ class MockServers(val urlEnv: UrlEnv, val authEnv: AuthEnv) {
     fun mockServer(
         url: String,
         route: Route.() -> Unit
-    ): NettyApplicationEngine {
+    ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
         return embeddedServer(
             factory = Netty,
             port = url.extractPortFromUrl(),

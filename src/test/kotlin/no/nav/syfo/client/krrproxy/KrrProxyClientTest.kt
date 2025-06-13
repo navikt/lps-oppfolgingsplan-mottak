@@ -10,7 +10,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import java.io.File
 import java.time.LocalDateTime
-import no.nav.syfo.application.ApplicationEnvironment
+import no.nav.syfo.application.Environment
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.azuread.AzureAdToken
 import no.nav.syfo.util.FNR_1
@@ -25,7 +25,7 @@ class KrrProxyClientTest : DescribeSpec({
     val objectMapper = ObjectMapper().registerKotlinModule()
     val testEnv = objectMapper.readValue(
         File(localAppPropertiesPath),
-        ApplicationEnvironment::class.java
+        Environment::class.java
     )
 
     val azureAdConsumer = mockk<AzureAdClient>()

@@ -8,7 +8,7 @@ import no.nav.syfo.application.environment.KafkaEnv
 import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.application.environment.UrlEnv
 
-data class ApplicationEnvironment(
+data class Environment(
     val application: ApplicationEnv,
     val auth: AuthEnv,
     val database: DbEnv,

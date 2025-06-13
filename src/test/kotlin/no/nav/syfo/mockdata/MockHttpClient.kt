@@ -2,11 +2,11 @@ package no.nav.syfo.mockdata
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
-import no.nav.syfo.application.ApplicationEnvironment
+import no.nav.syfo.application.Environment
 import no.nav.syfo.client.commonConfig
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 
-fun mockHttpClient(environment: ApplicationEnvironment) = HttpClient(MockEngine) {
+fun mockHttpClient(environment: Environment) = HttpClient(MockEngine) {
     commonConfig()
     engine {
         addHandler { request ->

@@ -1,13 +1,12 @@
 package no.nav.syfo
 
 import com.typesafe.config.ConfigFactory
+import io.ktor.server.application.ApplicationEnvironment
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.config.HoconApplicationConfig
-import io.ktor.server.engine.ApplicationEngineEnvironment
-import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.engine.applicationEnvironment
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.engine.stop
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.asCoroutineDispatcher
 import no.nav.syfo.altinnmottak.AltinnLpsService
@@ -37,6 +36,7 @@ import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import no.nav.syfo.application.Environment
 
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
@@ -47,14 +47,20 @@ const val THREAD_POOL_CONNECTION_GROUP_SIZE = 8
 lateinit var database: DatabaseInterface
 
 fun main() {
+    val env = getEnv()
     val server = embeddedServer(
         factory = Netty,
-        environment = createApplicationEngineEnvironment(),
-    ) {
-        connectionGroupSize = THREAD_POOL_CONNECTION_GROUP_SIZE
-        workerGroupSize = THREAD_POOL_WORKER_GROUP_SIZE
-        callGroupSize = THREAD_POOL_CALL_GROUP_SIZE
-    }
+        environment = createApplicationEnvironment(env),
+        configure = {
+            connector {
+                port = env.application.port
+            }
+            connectionGroupSize = THREAD_POOL_CONNECTION_GROUP_SIZE
+            workerGroupSize = THREAD_POOL_WORKER_GROUP_SIZE
+            callGroupSize = THREAD_POOL_CALL_GROUP_SIZE
+        },
+        module = setModule(env))
+
 
     Runtime.getRuntime().addShutdownHook(
         Thread {
@@ -65,25 +71,30 @@ fun main() {
     server.start(wait = true)
 }
 
+fun createApplicationEnvironment(env: Environment): ApplicationEnvironment = applicationEnvironment {
+    config = HoconApplicationConfig(ConfigFactory.load())
+    database = Database(env.database)
+    database.grantAccessToIAMUsers()
+}
+
 @Suppress("LongMethod")
-private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
+private fun setModule(env: Environment): _root_ide_package_.io.ktor.server.application.Application.() -> Unit = {
     val logger = LoggerFactory.getLogger("ktor.application")
     val appState = ApplicationState()
-    val appEnv = getEnv()
     val backgroundTasksContext = Executors.newFixedThreadPool(
-        appEnv.application.coroutineThreadPoolSize,
+        env.application.coroutineThreadPoolSize,
     ).asCoroutineDispatcher()
-    database = Database(appEnv.database)
+    database = Database(env.database)
     database.grantAccessToIAMUsers()
-    val azureAdClient = AzureAdClient(appEnv.auth)
-    val isdialogmeldingClient = IsdialogmeldingClient(appEnv.urls, azureAdClient)
-    val pdlClient = PdlClient(appEnv.urls, azureAdClient)
-    val krrProxyClient = KrrProxyClient(appEnv.urls, azureAdClient)
-    val eregClient = EregClient(appEnv.urls, appEnv.application, azureAdClient)
-    val pdfGenClient = OpPdfGenClient(appEnv.urls, appEnv.application, pdlClient, krrProxyClient)
-    val navLpsProducer = AltinnOppfolgingsplanProducer(appEnv.kafka)
-    val dokarkivClient = DokarkivClient(appEnv.urls, azureAdClient, eregClient)
-    val arbeidsforholdOversiktClient = ArbeidsforholdOversiktClient(azureAdClient, appEnv.urls)
+    val azureAdClient = AzureAdClient(env.auth)
+    val isdialogmeldingClient = IsdialogmeldingClient(env.urls, azureAdClient)
+    val pdlClient = PdlClient(env.urls, azureAdClient)
+    val krrProxyClient = KrrProxyClient(env.urls, azureAdClient)
+    val eregClient = EregClient(env.urls, env.application, azureAdClient)
+    val pdfGenClient = OpPdfGenClient(env.urls, env.application, pdlClient, krrProxyClient)
+    val navLpsProducer = AltinnOppfolgingsplanProducer(env.kafka)
+    val dokarkivClient = DokarkivClient(env.urls, azureAdClient, eregClient)
+    val arbeidsforholdOversiktClient = ArbeidsforholdOversiktClient(azureAdClient, env.urls)
 
     val altinnLpsService = AltinnLpsService(
         pdlClient,
@@ -92,75 +103,63 @@ private fun createApplicationEngineEnvironment(): ApplicationEngineEnvironment {
         navLpsProducer,
         isdialogmeldingClient,
         dokarkivClient,
-        appEnv.altinnLps.sendToFastlegeRetryThreshold,
-        appEnv.toggles,
+        env.altinnLps.sendToFastlegeRetryThreshold,
+        env.toggles,
     )
 
     val sykmeldingService = SendtSykmeldingService(database)
 
-    val followupPlanProducer = FollowUpPlanProducer(appEnv.kafka)
+    val followupPlanProducer = FollowUpPlanProducer(env.kafka)
 
     val followUpPlanSendingService = FollowUpPlanSendingService(
         isdialogmeldingClient,
         followupPlanProducer,
         pdfGenClient,
         dokarkivClient,
-        appEnv.isDev(),
+        env.isDev(),
     )
 
     val wellKnownInternalAzureAD = getWellKnown(
-        wellKnownUrl = appEnv.auth.azuread.wellKnownUrl,
+        wellKnownUrl = env.auth.azuread.wellKnownUrl,
     )
 
     val wellKnownMaskinporten = getWellKnown(
-        wellKnownUrl = appEnv.auth.maskinporten.wellKnownUrl,
+        wellKnownUrl = env.auth.maskinporten.wellKnownUrl,
     )
 
     val veilederTilgangskontrollClient = VeilederTilgangskontrollClient(
         azureAdClient = azureAdClient,
-        url = appEnv.urls.istilgangskontrollUrl,
-        clientId = appEnv.urls.istilgangskontrollClientId,
+        url = env.urls.istilgangskontrollUrl,
+        clientId = env.urls.istilgangskontrollClientId,
     )
 
-    val applicationEngineEnvironment = applicationEngineEnvironment {
-        log = logger
-        config = HoconApplicationConfig(ConfigFactory.load())
-        connector {
-            port = appEnv.application.port
-        }
-        module {
-            apiModule(
-                appState,
-                database,
-                appEnv,
-                wellKnownMaskinporten,
-                wellKnownInternalAzureAD,
-                veilederTilgangskontrollClient,
-                followUpPlanSendingService,
-                pdlClient,
-                sykmeldingService,
-                arbeidsforholdOversiktClient
-            )
-            kafkaModule(
-                appState,
-                backgroundTasksContext,
-                altinnLpsService,
-                sykmeldingService,
-                appEnv,
-            )
-            schedulerModule(
-                backgroundTasksContext,
-                database,
-                altinnLpsService,
-                appEnv,
-            )
-        }
-    }
-
-    applicationEngineEnvironment.monitor.subscribe(ApplicationStarted) {
-        appState.ready = true
+    apiModule(
+        appState,
+        database,
+        env,
+        wellKnownMaskinporten,
+        wellKnownInternalAzureAD,
+        veilederTilgangskontrollClient,
+        followUpPlanSendingService,
+        pdlClient,
+        sykmeldingService,
+        arbeidsforholdOversiktClient
+    )
+    kafkaModule(
+        appState,
+        backgroundTasksContext,
+        altinnLpsService,
+        sykmeldingService,
+        env,
+    )
+    schedulerModule(
+        backgroundTasksContext,
+        database,
+        altinnLpsService,
+        env,
+    )
+    monitor.subscribe(ApplicationStarted) {
+        appState.alive = true
         logger.info("Application is ready, running Java VM ${Runtime.version()}")
     }
-
-    return applicationEngineEnvironment
 }

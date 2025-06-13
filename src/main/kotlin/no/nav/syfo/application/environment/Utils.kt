@@ -2,7 +2,7 @@ package no.nav.syfo.application.environment
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.syfo.application.ApplicationEnvironment
+import no.nav.syfo.application.Environment
 import no.nav.syfo.application.exception.MissingRequiredVariableException
 import java.io.File
 
@@ -13,11 +13,11 @@ const val DEV_CLUSTER = "dev-gcp"
 val objectMapper = ObjectMapper().registerKotlinModule()
 
 @Suppress("LongMethod")
-fun getEnv(): ApplicationEnvironment {
+fun getEnv(): Environment {
     if (isLocal()) {
         return getLocalEnv()
     }
-    return ApplicationEnvironment(
+    return Environment(
         application = ApplicationEnv(
             appName = getEnvVar("NAIS_APP_NAME"),
             port = getEnvVar("APPLICATION_PORT").toInt(),
@@ -101,10 +101,10 @@ fun getEnvVar(varName: String, defaultValue: String? = null) =
 fun getPropertyFromSecretsFile(name: String) =
     File("$SERVICE_USER_MOUNT_PATH/$name").readText()
 
-fun getLocalEnv(): ApplicationEnvironment =
-    objectMapper.readValue(File(LOCAL_PROPERTIES_PATH), ApplicationEnvironment::class.java)
+fun getLocalEnv(): Environment =
+    objectMapper.readValue(File(LOCAL_PROPERTIES_PATH), Environment::class.java)
 
-fun ApplicationEnvironment.isDev(): Boolean {
+fun Environment.isDev(): Boolean {
     return this.application.cluster == DEV_CLUSTER
 }
 

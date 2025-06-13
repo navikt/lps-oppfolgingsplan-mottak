@@ -40,6 +40,7 @@ fun Routing.registerFollowUpPlanApi(
                 log.info("Received follow-up plan")
                 val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
                 val planUuid = UUID.randomUUID()
+
                 val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
 

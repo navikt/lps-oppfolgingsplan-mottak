@@ -12,14 +12,13 @@ import io.ktor.client.request.forms.submitForm
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.parameters
-import io.ktor.server.application.call
 import io.ktor.server.application.log
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
-import no.nav.syfo.application.ApplicationEnvironment
+import no.nav.syfo.application.Environment
 import no.nav.syfo.client.httpClientDefault
 import java.util.*
 
@@ -28,7 +27,7 @@ private const val CONSUMER_ORG = "889640782"
 private val httpClient = httpClientDefault()
 
 fun Routing.registerMaskinportenTokenApi(
-    env: ApplicationEnvironment
+    env: Environment
 ) {
     route("/api/test/token") {
         authenticate("test-token") {
@@ -64,7 +63,7 @@ fun Routing.registerMaskinportenTokenApi(
     }
 }
 
-private fun generateJwtGrant(env: ApplicationEnvironment): String {
+private fun generateJwtGrant(env: Environment): String {
     val authEnv = env.auth.maskinporten
     val rsaKey = RSAKey.parse(authEnv.clientJwk)
     val signedJwt = SignedJWT(
