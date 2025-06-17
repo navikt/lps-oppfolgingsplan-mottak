@@ -12,7 +12,12 @@ import io.ktor.server.plugins.callid.CallId
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
+import java.time.Duration
+import java.util.*
 import no.nav.syfo.application.exception.ApiError
 import no.nav.syfo.application.exception.ApiError.BadRequestError
 import no.nav.syfo.application.exception.ApiError.EmployeeNotFoundError
@@ -34,8 +39,6 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.configure
 import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getConsumerClientId
-import java.time.Duration
-import java.util.*
 
 const val MAX_EXPECTED_VALUE_METRICS = 20L
 
@@ -52,6 +55,12 @@ fun Application.installMetrics() {
             .percentilesHistogram(true)
             .maximumExpectedValue(Duration.ofSeconds(MAX_EXPECTED_VALUE_METRICS).toNanos().toDouble())
             .build()
+        meterBinders = listOf(
+            JvmMemoryMetrics(),
+            ProcessorMetrics(),
+            JvmThreadMetrics(),
+            // Do NOT include UptimeMetrics(), it is added by by ktor or another library already
+        )
     }
 }
 
