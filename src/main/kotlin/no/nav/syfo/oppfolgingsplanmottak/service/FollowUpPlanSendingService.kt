@@ -60,7 +60,7 @@ class FollowUpPlanSendingService(
                     followUpPlanDTO.employeeIdentificationNumber,
                     employerOrgnr,
                     true,
-                    LocalDateTime.now().atZone(ZoneId.of("Europe/Oslo")).toEpochSecond(),
+                    LocalDateTime.now().atZone(ZoneId.of("Europe/Oslo")).toEpochSecond().toInt(),
                 )
                 followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
                 COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE.increment()

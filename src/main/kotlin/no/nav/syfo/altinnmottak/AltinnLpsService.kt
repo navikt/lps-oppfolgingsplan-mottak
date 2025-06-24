@@ -184,7 +184,7 @@ class AltinnLpsService(
         orgnummer: String,
         hasBehovForBistand: Boolean,
     ) {
-        val todayInEpoch = LocalDateTime.now().atZone(ZoneId.of("Europe/Oslo")).toEpochSecond()
+        val todayInEpoch = LocalDateTime.now().atZone(ZoneId.of("Europe/Oslo")).toEpochSecond().toInt()
         val planToSendToNav = KAltinnOppfolgingsplan(
             uuid.toString(),
             mostRecentFnr,
