@@ -5,5 +5,5 @@ data class KFollowUpPlan(
     val fodselsnummer: String,
     val virksomhetsnummer: String,
     val behovForBistandFraNav: Boolean,
-    val opprettet: Int
+    val opprettet: Long
 )

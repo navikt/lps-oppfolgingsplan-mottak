@@ -27,8 +27,8 @@ import no.nav.syfo.util.mapFormdataToFagmelding
 import no.nav.syfo.util.xmlMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 @Suppress("LongParameterList")
@@ -184,7 +184,7 @@ class AltinnLpsService(
         orgnummer: String,
         hasBehovForBistand: Boolean,
     ) {
-        val todayInEpoch = LocalDate.now().toEpochDay().toInt()
+        val todayInEpoch = LocalDateTime.now().atZone(ZoneId.of("Europe/Oslo")).toEpochSecond()
         val planToSendToNav = KAltinnOppfolgingsplan(
             uuid.toString(),
             mostRecentFnr,
