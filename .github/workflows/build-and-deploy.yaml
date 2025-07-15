@@ -20,3 +20,4 @@ jobs:
     secrets: inherit
     with:
       app: lps-oppfolgingsplan-mottak
+      java-version: '21'
