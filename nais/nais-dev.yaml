@@ -51,7 +51,7 @@ spec:
           - envVarPrefix: GCP_DB
             name: lps-db
         diskAutoresize: false
-        diskSize: 12
+        diskSize: 10
         diskType: SSD
         highAvailability: false
         insights:
