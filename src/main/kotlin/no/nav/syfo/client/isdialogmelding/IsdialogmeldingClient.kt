@@ -62,8 +62,9 @@ class IsdialogmeldingClient(
                 log.warn(
                     "Unable to determine fastlege, or lacking appropiate 'partnerinformasjon'-data",
                 )
+                log.error(GpNotFoundException().message)
                 COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE.increment()
-                throw GpNotFoundException()
+                false
             }
 
             else -> {

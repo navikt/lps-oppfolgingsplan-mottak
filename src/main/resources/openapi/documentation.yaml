@@ -25,7 +25,7 @@ paths:
         required: true
       responses:
         "200":
-          description: "OK"
+          description: "OK, but check the response for sending status to general practitioner"
           content:
             'application/json':
               schema:
@@ -51,7 +51,7 @@ paths:
                   - $ref: '#/components/schemas/NoActiveSentSykmeldingError'
                   - $ref: '#/components/schemas/NoActiveEmploymentError'
         '404':
-          description: The GP or Employee was not found. Please check the error type for details.
+          description: The Employee was not found. Or something happened during sending to GP. Please check the error type for details.
           content:
             application/json:
               schema:
