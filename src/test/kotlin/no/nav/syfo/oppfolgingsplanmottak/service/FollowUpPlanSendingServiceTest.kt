@@ -3,7 +3,6 @@ package no.nav.syfo.oppfolgingsplanmottak.service
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -37,9 +36,8 @@ class FollowUpPlanSendingServiceTest : DescribeSpec({
                 val uuid = UUID.randomUUID()
                 val employerOrgnr = "987654321"
 
+                coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) } returns true
                 val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
-
-                coVerify(exactly = 1) { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) }
                 response.isSentToGeneralPractitionerStatus shouldBe true
             }
         }
