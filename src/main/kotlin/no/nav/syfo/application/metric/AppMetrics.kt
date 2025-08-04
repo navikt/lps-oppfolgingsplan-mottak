@@ -1,15 +1,14 @@
 package no.nav.syfo.application.metric
 
-import io.ktor.server.application.call
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.micrometer.core.instrument.Clock
 import io.micrometer.core.instrument.Counter
-import io.micrometer.prometheus.PrometheusConfig
-import io.micrometer.prometheus.PrometheusMeterRegistry
-import io.prometheus.client.CollectorRegistry
+import io.micrometer.prometheusmetrics.PrometheusConfig
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import io.prometheus.client.hotspot.DefaultExports
+import io.prometheus.metrics.model.registry.PrometheusRegistry
 
 const val METRICS_NS = "lps_oppfolgingsplan_mottak"
 const val TAG_BISTAND = "bistand"
@@ -33,7 +32,7 @@ const val METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV = "${METRICS_NS}_followup_lps_pla
 const val METRIKK_FOLLOWUP_LPS_DELT_MED_NAV = "${METRICS_NS}_followup_lps_plan_delt_med_nav"
 
 val METRICS_REGISTRY =
-    PrometheusMeterRegistry(PrometheusConfig.DEFAULT, CollectorRegistry.defaultRegistry, Clock.SYSTEM)
+    PrometheusMeterRegistry(PrometheusConfig.DEFAULT, PrometheusRegistry.defaultRegistry, Clock.SYSTEM)
 
 val COUNT_METRIKK_PROSSESERING_VELLYKKET: Counter = Counter
     .builder(METRIKK_PROSSESERING_VELLYKKET)
