@@ -41,11 +41,10 @@ class FollowUpPlanSendingService(
         val sentToFastlegeStatus: Boolean =
             shouldSendToGeneralPractitioner && run {
                 if (pdf != null) {
-                    isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
+                    return@run isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
                         sykmeldtFnr,
                         pdf
                     )
-                    true
                 } else {
                     false
                 }
