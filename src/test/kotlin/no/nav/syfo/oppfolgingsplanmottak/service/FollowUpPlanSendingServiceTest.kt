@@ -3,7 +3,6 @@ package no.nav.syfo.oppfolgingsplanmottak.service
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
@@ -13,6 +12,7 @@ import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.mockdata.randomFollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import java.util.*
+import no.nav.syfo.application.exception.GpNotFoundException
 
 class FollowUpPlanSendingServiceTest : DescribeSpec({
     val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)
@@ -37,9 +37,8 @@ class FollowUpPlanSendingServiceTest : DescribeSpec({
                 val uuid = UUID.randomUUID()
                 val employerOrgnr = "987654321"
 
+                coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) } returns true
                 val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
-
-                coVerify(exactly = 1) { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) }
                 response.isSentToGeneralPractitionerStatus shouldBe true
             }
         }
@@ -59,7 +58,24 @@ class FollowUpPlanSendingServiceTest : DescribeSpec({
                 response.isSentToNavStatus shouldBe true
             }
         }
+        it("sent-statuses is correct when plan should be sent to Nav and GP but GP is not found") {
+            runBlocking {
+                coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) } returns false
+                val followUpPlanDTO =
+                    randomFollowUpPlanDTO.copy(
+                        sendPlanToNav = true,
+                        sendPlanToGeneralPractitioner = true
+                    )
+                val uuid = UUID.randomUUID()
+                val employerOrgnr = "987654321"
 
+                val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
+
+                verify(exactly = 0) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
+                response.isSentToNavStatus shouldBe true
+                response.isSentToGeneralPractitionerStatus shouldBe false
+            }
+        }
         it("sent-status is false, and does create task in Modia when sendPlanToNav is false") {
             runBlocking {
                 val followUpPlanDTO =
