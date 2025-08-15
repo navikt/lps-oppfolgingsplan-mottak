@@ -11,7 +11,8 @@ import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 class FollowUpPlanSendingService(
@@ -58,7 +59,7 @@ class FollowUpPlanSendingService(
                     followUpPlanDTO.employeeIdentificationNumber,
                     employerOrgnr,
                     true,
-                    LocalDate.now().toEpochDay().toInt(),
+                    LocalDateTime.now().atZone(ZoneId.of("Europe/Oslo")).toEpochSecond().toInt(),
                 )
                 followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
                 COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE.increment()
