@@ -174,6 +174,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanWithoutMostRecentFnr(): List<Al
         SELECT *
         FROM ALTINN_LPS
         WHERE fnr is null
+        AND skip_retry is not true 
         LIMIT 50
     """.trimIndent()
 
@@ -190,6 +191,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanWithoutGeneratedPdf(): List<Alt
         FROM ALTINN_LPS
         WHERE fnr is not null
         AND pdf is null
+        AND skip_retry is not true
         LIMIT 50
     """.trimIndent()
 
@@ -209,6 +211,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToNav(): List<AltinnL
         AND should_send_to_nav
         AND NOT sent_to_nav
         AND migrated = false
+        AND skip_retry is not true
         LIMIT 50
     """.trimIndent()
 
@@ -229,6 +232,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThres
         AND NOT sent_to_fastlege 
         AND send_to_fastlege_retry_count <= ?
         AND migrated = false
+        AND skip_retry is not true
         LIMIT 50
     """.trimIndent()
 
@@ -248,6 +252,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv(): List<Al
         AND pdf is not null
         AND journalpost_id is null
         AND migrated = false
+        AND skip_retry is not true
         LIMIT 50
     """.trimIndent()
 
