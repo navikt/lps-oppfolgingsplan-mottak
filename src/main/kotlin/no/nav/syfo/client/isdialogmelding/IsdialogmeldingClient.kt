@@ -61,6 +61,7 @@ class IsdialogmeldingClient(
                 log.warn(
                     "Unable to determine fastlege, or lacking appropiate 'partnerinformasjon'-data",
                 )
+                log.warn(response.bodyAsText())
                 COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE.increment()
                 false
             }
