@@ -11,4 +11,16 @@ updates:
     schedule:
       interval: daily
       time: '14:30'
+    patterns:
+      - 'org.apache.kafka*'
+    registries:
+      - maven-central
+
+  - package-ecosystem: gradle
+    directory: '/'
+    schedule:
+      interval: daily
+      time: '14:30'
     open-pull-requests-limit: 20
+    exclude-patterns:
+      - 'org.apache.kafka*'
