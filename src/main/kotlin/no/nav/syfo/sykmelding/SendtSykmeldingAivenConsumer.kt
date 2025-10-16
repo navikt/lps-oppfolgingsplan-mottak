@@ -54,7 +54,8 @@ class SendtSykmeldingAivenConsumer(
 
     private fun processRecord(record: ConsumerRecord<String, String>) {
         try {
-            val sykmeldingKafkaMessage: SykmeldingKafkaMessage? = objectMapper.readValue(record.value())
+            val sykmeldingKafkaMessage: SykmeldingKafkaMessage? =
+                record.value()?.let { objectMapper.readValue(record.value()) }
             val sykmeldingId = record.key()
 
             if (sykmeldingKafkaMessage == null) {
