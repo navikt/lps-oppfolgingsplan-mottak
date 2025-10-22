@@ -45,14 +45,14 @@ class SendtSykmeldingAivenConsumer(
 
     override suspend fun listen(applicationState: ApplicationState) {
         while (applicationState.ready) {
-            kafkaListener.poll(pollDurationInMillis).forEach { record: ConsumerRecord<String, String> ->
+            kafkaListener.poll(pollDurationInMillis).forEach { record: ConsumerRecord<String, String?> ->
                 log.info("Received record with key: ${record.key()}")
                 processRecord(record)
             }
         }
     }
 
-    private fun processRecord(record: ConsumerRecord<String, String>) {
+    private fun processRecord(record: ConsumerRecord<String, String?>) {
         try {
             val sykmeldingKafkaMessage: SykmeldingKafkaMessage? =
                 record.value()?.let { objectMapper.readValue(it) }
