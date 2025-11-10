@@ -156,7 +156,8 @@ java.toolchain {
 tasks {
     withType<ShadowJar> {
         mergeServiceFiles {
-            setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+            setPath("META-INF/services/**")
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
         }
         isZip64 = true
         manifest {
