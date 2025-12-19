@@ -6,7 +6,7 @@ practitioner. This API supports <i>delegation</i>,
 which means that you as the API consumer are acting on behalf of another company/end-user. The API also supports
 integration without <i>delegation</i>, which means
 that you are submitting a follow-up plan on behalf of your own company.
-This API is governed by the [terms of use](https://www.nav.no/_/attachment/inline/1dd039e8-08ec-4b65-9a85-f4d081b8feae:5014ae52e8b038c039a7afe8d2af01cf6f68bc27/Bruksvilk%C3%A5r%20Navs%20API%20for%20elektronisk%20innsending%20av%20oppf%C3%B8lgingsplan%20fra%20sluttbrukersystem%20kopi1.pdf), and by accessing or using this API, you acknowledge and agree to these terms.
+This API is governed by the [terms of use](https://www.nav.no/_/attachment/inline/1dd039e8-08ec-4b65-9a85-f4d081b8feae:ef802133524bcc2529f65b8f24b0d9635665150c/Bruksvilk%C3%A5r%20-%20Navs%20API%20for%20elektronisk%20innsending%20av%20oppf%C3%B8lgingsplan%20fra%20sluttbrukersystem.pdf), and by accessing or using this API, you acknowledge and agree to these terms.
 
 ## 🎯 Target audience
 
@@ -80,6 +80,7 @@ Testdata for employee users: We have created 2 test users that skip the requirem
 
 If you get an error, we will provide an ApiError object in the response body.
 An ApiError will contain the following fields:
+
 <pre>
 - status: HttpStatusCode
 - type: ErrorType
@@ -87,7 +88,7 @@ An ApiError will contain the following fields:
 </pre>
 
 | Status | Type                           | Example Message                                                                                     | Description                                                                                             |
-|--------|--------------------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| ------ | ------------------------------ | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | 400    | VALIDATION_ERROR               | Invalid employee identification number                                                              | The employeeIdentificationNumber field does not match the required format (11 digits).                  |
 | 400    | VALIDATION_ERROR               | needsHelpFromNav cannot be true if sendPlanToNav is false                                           | If you are not sending the plan to NAV, then you cannot ask from help from NAV                          |
 | 400    | VALIDATION_ERROR               | needsHelpFromNavDescription is obligatory if needsHelpFromNav is true                               | If you need help from NAV, then a description of what you need help with is mandatory.                  |
@@ -147,7 +148,7 @@ Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-com
 ### 🗺️ Div dokumentasjon
 
 | Description          | Url                                                                |
-|----------------------|--------------------------------------------------------------------|
+| -------------------- | ------------------------------------------------------------------ |
 | Testing library      | https://kotest.io/                                                 |
 | Mocking library      | https://mockk.io/                                                  |
 | Static code analysis | https://detekt.dev/                                                |
