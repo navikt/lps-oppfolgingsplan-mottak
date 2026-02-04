@@ -1,0 +1,64 @@
+meta {
+  name: Maskinporten token
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://test.maskinporten.no/token
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:json {
+  grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
+  assertion: {{jwt_signed}}
+}
+
+body:form-urlencoded {
+  grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
+  assertion: {{jwt_signed}}
+}
+
+script:pre-request {
+  var uuid = require("uuid");
+  
+  var navigator = {};
+  var window = {};
+  eval(bru.getEnvVar("jsrsasign-js"));
+  var currentTimestamp = Math.floor(Date.now() / 1000)
+  
+  // JWT headers
+  var header = {
+      "kid": "KtghJiXRiZ",
+      "alg": "RS256"
+  };
+  
+  // JWT data
+  var data = {
+      "aud": "https://test.maskinporten.no/",
+      "iss": "eed19f4a-c2f6-49e5-9713-db3563db5913",
+      "scope": "nav:oppfolgingsplan/lps.write",
+      "consumer_org": "310829994",
+      "iat": currentTimestamp,
+      "exp": (currentTimestamp + 180),
+      "jti": uuid.v4(),
+  }
+  
+  var sHeader = JSON.stringify(header);
+  var sPayload = JSON.stringify(data);
+  var privateKey = bru.getEnvVar("privateKey"); // get private key from environment
+  
+  // JWK signed
+  var sJWT = KJUR.jws.JWS.sign(
+      header.alg, sHeader, sPayload, privateKey
+  );
+  // Save signed JWK
+  bru.setEnvVar('jwt_signed', sJWT);
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
