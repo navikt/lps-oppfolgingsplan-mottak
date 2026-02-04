@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "name": "lps-opfolgingsplan-mottak-v2",
+  "name": ".bruno",
   "type": "collection",
   "ignore": [
     "node_modules",

@@ -1,0 +1,56 @@
+meta {
+  name: maskinporten-token
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://test.maskinporten.no/token
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
+  assertion: {{jwt_signed}}
+}
+
+script:pre-request {
+  const jwt = require("jsonwebtoken");
+  
+  const env = (name, required = true) => {
+    const value = bru.getEnvVar(name);
+    if (required && !value) throw new Error(`Missing env var '${name}'`);
+    return value;
+  };
+  
+  const now = Math.floor(Date.now() / 1000);
+  
+  const header = { alg: "RS256", kid: "KtghJiXRiZ", typ: "JWT" };
+  
+  const payload = {
+    aud: "https://test.maskinporten.no/",
+    iss: "eed19f4a-c2f6-49e5-9713-db3563db5913",
+    scope: "nav:oppfolgingsplan/lps.write",
+    iat: now,
+    exp: now + 180,
+    jti: `${now}-${Math.random().toString(16).slice(2)}`
+  };
+  
+  let privateKey = env("privateKey");
+  
+  privateKey = privateKey.replace(/\\n/g, "\n");
+  
+  const token = jwt.sign(payload, privateKey, {
+    algorithm: "RS256",
+    header,
+  });
+  
+  bru.setEnvVar("jwt_signed", token);
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
