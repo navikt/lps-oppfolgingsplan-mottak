@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: https://test.maskinporten.no/token
+  url: {{url}}
   body: formUrlEncoded
   auth: inherit
 }
@@ -25,19 +25,24 @@ script:pre-request {
   };
   
   const now = Math.floor(Date.now() / 1000);
+  let aud = env("aud");
+  let privateKey = env("privateKey");
+  let scope = env("scope");
+  let clientId = env("clientId");
+  let keyId = env("keyId");
+  let onBehalfOf = env("onBehalfOf", false)
   
-  const header = { alg: "RS256", kid: "KtghJiXRiZ", typ: "JWT" };
+  const header = { alg: "RS256", kid: keyId, typ: "JWT" };
   
   const payload = {
-    aud: "https://test.maskinporten.no/",
-    iss: "eed19f4a-c2f6-49e5-9713-db3563db5913",
-    scope: "nav:oppfolgingsplan/lps.write",
+    aud: aud,
+    iss: clientId,
+    scope: scope,
     iat: now,
     exp: now + 180,
-    jti: `${now}-${Math.random().toString(16).slice(2)}`
+    jti: `${now}-${Math.random().toString(16).slice(2)}`,
+    consumer_org: onBehalfOf
   };
-  
-  let privateKey = env("privateKey");
   
   privateKey = privateKey.replace(/\\n/g, "\n");
   
