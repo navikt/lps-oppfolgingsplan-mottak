@@ -41,6 +41,25 @@ information.
 
 - Scope to be used when requesting token: `nav:oppfolgingsplan/lps.write`
 
+ 
+🧪 OR use Bruno API Collections
+
+We provide API collections to help you test and explore the API.
+
+### Bruno (Recommended)
+
+We now provide a **Bruno collection** for testing the API. Bruno is an open-source, Git-friendly API client. You can find the collection in the repository under the `/bruno` folder.
+
+To use it:
+1. [Download Bruno](https://www.usebruno.com)
+2. Open the `/bruno` collection folder in Bruno (Open Collection)
+3. Configure your environment variables (Maskinporten credentials, etc.) as described in the collection documentation.
+4. Start testing the API using the pre-configured requests in the collection.
+
+### Postman (Legacy)
+
+A Postman collection is also available, but we recommend using Bruno for new integrations as it is now our primary tool for API testing.
+
 ### 4. Verify integration (optional)
 
 If you want to verify that the integration works as expected, you can use the `verify-integration` endpoint. Please
