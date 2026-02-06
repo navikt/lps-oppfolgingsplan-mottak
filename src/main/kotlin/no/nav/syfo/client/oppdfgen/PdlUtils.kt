@@ -16,7 +16,7 @@ class PdlUtils(private val pdlClient: PdlClient) {
         val personInfo = pdlClient.getPersonInfo(fnr)
 
         if (personInfo != null && personInfo.isNotGradert()) {
-            val vegadresse = personInfo.hentPerson?.bostedsadresse?.first()?.vegadresse
+            val vegadresse = personInfo.hentPerson?.bostedsadresse?.firstOrNull()?.vegadresse
             val bosted: String
 
             return if (vegadresse != null && !vegadresse.postnummer.isNullOrEmpty()) {
@@ -25,7 +25,7 @@ class PdlUtils(private val pdlClient: PdlClient) {
                 "${vegadresse.adressenavn ?: ""} ${vegadresse.husnummer ?: ""}" +
                     "${vegadresse.husbokstav ?: ""} ${vegadresse.postnummer} $bosted"
             } else {
-                log.info("Can not get person's address string due to vegadresse or postnummer are null")
+                log.info("Can not get person's address string due to missing bostedsadresse/vegadresse/postnummer")
                 null
             }
         } else {

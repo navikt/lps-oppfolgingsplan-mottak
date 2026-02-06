@@ -108,5 +108,21 @@ class PdlUtilsTest : DescribeSpec({
             val address = pdlUtils.getPersonAdressString("11111111111")
             address shouldBe null
         }
+
+        it("Should return null if bostedsadresse list is empty") {
+            coEvery { pdlClient.getPersonInfo(any()) } returns PdlHentPerson(
+                PdlPerson(
+                    adressebeskyttelse = listOf(
+                        Adressebeskyttelse(gradering = Gradering.UGRADERT)
+                    ),
+                    listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
+                    emptyList()
+                )
+            )
+
+            val address = pdlUtils.getPersonAdressString("11111111111")
+
+            address shouldBe null
+        }
     }
 })
