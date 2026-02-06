@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "lps-oppfolgingsplan-mottak",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

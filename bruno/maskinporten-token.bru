@@ -1,0 +1,61 @@
+meta {
+  name: maskinporten-token
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{url}}
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
+  assertion: {{jwt_signed}}
+}
+
+script:pre-request {
+  const jwt = require("jsonwebtoken");
+  
+  const env = (name, required = true) => {
+    const value = bru.getEnvVar(name);
+    if (required && !value) throw new Error(`Missing env var '${name}'`);
+    return value;
+  };
+  
+  const now = Math.floor(Date.now() / 1000);
+  let aud = env("aud");
+  let privateKey = env("privateKey");
+  let scope = env("scope");
+  let clientId = env("clientId");
+  let keyId = env("keyId");
+  let onBehalfOf = env("onBehalfOf", false)
+  
+  const header = { alg: "RS256", kid: keyId, typ: "JWT" };
+  
+  const payload = {
+    aud: aud,
+    iss: clientId,
+    scope: scope,
+    iat: now,
+    exp: now + 180,
+    jti: `${now}-${Math.random().toString(16).slice(2)}`,
+    consumer_org: onBehalfOf
+  };
+  
+  privateKey = privateKey.replace(/\\n/g, "\n");
+  
+  const token = jwt.sign(payload, privateKey, {
+    algorithm: "RS256",
+    header,
+  });
+  
+  bru.setEnvVar("jwt_signed", token);
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

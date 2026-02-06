@@ -15,3 +15,5 @@ src/generated
 
 ./gradle.properties
 
+# bruno
+bruno/.env
