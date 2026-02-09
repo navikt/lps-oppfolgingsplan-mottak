@@ -58,7 +58,7 @@ To use it:
 
 ### Postman (Legacy)
 
-Using of Postman to is still available, but we recommend using Bruno for new integrations as it is now our primary tool for API testing.
+We still provide instructions on how to configure Postman to get Maskinporten token, but we do not provide a collection ready for import and use.
 
 ### 4. Verify integration (optional)
 
