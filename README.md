@@ -58,7 +58,7 @@ To use it:
 
 ### Postman (Legacy)
 
-A Postman collection is also available, but we recommend using Bruno for new integrations as it is now our primary tool for API testing.
+Using of Postman to is still available, but we recommend using Bruno for new integrations as it is now our primary tool for API testing.
 
 ### 4. Verify integration (optional)
 
