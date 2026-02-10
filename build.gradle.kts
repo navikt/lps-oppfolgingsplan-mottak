@@ -3,45 +3,45 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0"
 
-val ktorVersion = "2.3.13"
+val ktorVersion = "3.4.0"
 val prometheusVersion = "0.16.0"
-val micrometerVersion = "1.12.6"
-val slf4jVersion = "2.0.16"
-val logbackVersion = "1.5.15"
+val micrometerVersion = "1.16.2"
+val slf4jVersion = "2.0.17"
+val logbackVersion = "1.5.26"
 val javaxVersion = "2.1.1"
-val logstashEncoderVersion = "8.0"
-val jacksonVersion = "2.18.2"
+val logstashEncoderVersion = "8.1"
+val jacksonVersion = "2.21.0"
 val jacksonDatabindVersion = "2.13.2.2"
-val javaJwtVersion = "4.4.0"
-val nimbusVersion = "9.48"
-val detektVersion = "1.23.0"
-val kotestVersion = "5.9.1"
+val javaJwtVersion = "4.5.0"
+val nimbusVersion = "10.7"
+val detektVersion = "1.23.8"
+val kotestVersion = "6.1.2"
 val kotestExtensionsVersion = "2.0.0"
-val kotlinVersion = "1.9.24"
-val mockkVersion = "1.13.14"
-val postgresVersion = "42.7.7"
-val hikariVersion = "5.1.0"
-val flywayVersion = "10.21.0"
-val gsonVersion = "2.11.0"
-val kafkaVersion = "3.7.0"
+val kotlinVersion = "2.3.0"
+val mockkVersion = "1.14.9"
+val postgresVersion = "42.7.9"
+val hikariVersion = "6.3.2"
+val flywayVersion = "11.20.3"
+val gsonVersion = "2.13.2"
+val kafkaVersion = "4.1.1"
 val altinnKanalSchemasVersion = "2.0.0"
-val avroVersion = "1.12.0"
-val confluentVersion = "7.8.0"
+val avroVersion = "1.12.1"
+val confluentVersion = "8.1.1"
 val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
 val helseXmlVersion = "2.0.1"
-val quartzSchedulerVersion = "2.5.0"
+val quartzSchedulerVersion = "2.5.2"
 val kotestTestContainersExtensionVersion = "2.0.2"
-val testcontainersVersion = "1.20.4"
+val testcontainersVersion = "1.21.4"
 
 val githubUser: String by project
 val githubPassword: String by project
 
 plugins {
-    kotlin("jvm") version "1.9.24"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.24"
-    id("com.diffplug.spotless") version "6.25.0"
+    kotlin("jvm") version "2.2.21"
+    id("org.jetbrains.kotlin.plugin.allopen") version "2.2.21"
+    id("com.diffplug.spotless") version "8.2.1"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.gitlab.arturbosch.detekt") version "1.23.7"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 allOpen {
@@ -146,11 +146,11 @@ configurations.implementation {
 }
 
 kotlin {
-    jvmToolchain(19)
+    jvmToolchain(21)
 }
 
 java.toolchain {
-    languageVersion.set(JavaLanguageVersion.of(19))
+    languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks {

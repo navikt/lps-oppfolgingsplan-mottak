@@ -1,0 +1,42 @@
+docs {
+  ## Bruno Setup Guide
+  
+  ### Getting Started
+  
+  1. **Rename the environment file:**
+     ```bash
+     mv .env.default .env
+     ```
+      Or just copy it with the requested name if you want to keep the original one for later use.
+  2. **Find the values for test environment variables** as described [here](https://github.com/navikt/lps-oppfolgingsplan-mottak/?tab=readme-ov-file#-testing-guide-for-delegated-setup). For Prod environment use the following [docs](https://github.com/navikt/lps-oppfolgingsplan-mottak/?tab=readme-ov-file#lps-follow-up-plan-api-consumer-guide).
+  Note:
+     - Variables postfixed with `_TEST` → Test environment
+     - Variables postfixed with `_PROD` → Production environment
+  
+  3. **Configure your `.env` file** with the appropriate values:
+     - `CLIENT_ID_TEST` / `CLIENT_ID_PROD`
+     - `PRIVATE_KEY_TEST` / `PRIVATE_KEY_PROD`
+     - `ON_BEHALF_OF_TEST` / `ON_BEHALF_OF_PROD`
+  NB: onBehalfOf is an optional parameter, and you don't need it if you want token where the supplier is same as consumer.
+  
+  4. **Select the wanted Environment between `test` and `prod` from the upper right selection option in Bruno 
+   
+  ### Important Notes
+  
+  **Private Key Format:**
+  Ensure the private key is valid PEM format with correct headers:
+  ```
+  -----BEGIN PRIVATE KEY-----
+  <key content>
+  -----END PRIVATE KEY-----
+  ```
+  
+  **Common Errors:**
+  | Error | Cause |
+  |-------|-------|
+  | `NO_START_LINE` | Malformed PEM or missing BEGIN/END headers |
+  ---
+  - Ensure no extra whitespace or line breaks before `-----BEGIN PRIVATE KEY-----`
+  - The key must include both BEGIN and END markers
+  
+}

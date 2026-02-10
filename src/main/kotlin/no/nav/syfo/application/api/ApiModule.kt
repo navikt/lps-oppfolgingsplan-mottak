@@ -6,7 +6,7 @@ import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.routing
-import no.nav.syfo.application.ApplicationEnvironment
+import no.nav.syfo.application.Environment
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.api.auth.AzureAdJwtIssuer
 import no.nav.syfo.application.api.auth.MaskinportenJwtIssuer
@@ -32,7 +32,7 @@ import no.nav.syfo.veileder.registerVeilederApi
 fun Application.apiModule(
     applicationState: ApplicationState,
     database: DatabaseInterface,
-    environment: ApplicationEnvironment,
+    environment: Environment,
     wellKnownMaskinporten: WellKnown,
     wellKnownInternalAzureAD: WellKnown,
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,

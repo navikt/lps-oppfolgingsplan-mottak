@@ -6,7 +6,7 @@ practitioner. This API supports <i>delegation</i>,
 which means that you as the API consumer are acting on behalf of another company/end-user. The API also supports
 integration without <i>delegation</i>, which means
 that you are submitting a follow-up plan on behalf of your own company.
-This API is governed by the [terms of use](https://www.nav.no/_/attachment/inline/1dd039e8-08ec-4b65-9a85-f4d081b8feae:5014ae52e8b038c039a7afe8d2af01cf6f68bc27/Bruksvilk%C3%A5r%20Navs%20API%20for%20elektronisk%20innsending%20av%20oppf%C3%B8lgingsplan%20fra%20sluttbrukersystem%20kopi1.pdf), and by accessing or using this API, you acknowledge and agree to these terms.
+This API is governed by the [terms of use](https://www.nav.no/_/attachment/inline/1dd039e8-08ec-4b65-9a85-f4d081b8feae:ef802133524bcc2529f65b8f24b0d9635665150c/Bruksvilk%C3%A5r%20-%20Navs%20API%20for%20elektronisk%20innsending%20av%20oppf%C3%B8lgingsplan%20fra%20sluttbrukersystem.pdf), and by accessing or using this API, you acknowledge and agree to these terms.
 
 ## 🎯 Target audience
 
@@ -40,6 +40,25 @@ information.
 <br>
 
 - Scope to be used when requesting token: `nav:oppfolgingsplan/lps.write`
+
+ 
+🧪 OR use Bruno API Collections
+
+We provide API collections to help you test and explore the API.
+
+### Bruno (Recommended)
+
+We now provide a **Bruno collection** for testing the API. Bruno is an open-source, Git-friendly API client. You can find the collection in the repository under the `/bruno` folder.
+
+To use it:
+1. [Download Bruno](https://www.usebruno.com)
+2. Open the `/bruno` collection folder in Bruno (Open Collection)
+3. Configure your environment variables (Maskinporten credentials, etc.) as described in the collection documentation.
+4. Start testing the API using the pre-configured requests in the collection.
+
+### Postman (Legacy)
+
+We still provide instructions on how to configure Postman to get Maskinporten token, but we do not provide a collection ready for import and use.
 
 ### 4. Verify integration (optional)
 
@@ -80,6 +99,7 @@ Testdata for employee users: We have created 2 test users that skip the requirem
 
 If you get an error, we will provide an ApiError object in the response body.
 An ApiError will contain the following fields:
+
 <pre>
 - status: HttpStatusCode
 - type: ErrorType
@@ -87,7 +107,7 @@ An ApiError will contain the following fields:
 </pre>
 
 | Status | Type                           | Example Message                                                                                     | Description                                                                                             |
-|--------|--------------------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| ------ | ------------------------------ | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | 400    | VALIDATION_ERROR               | Invalid employee identification number                                                              | The employeeIdentificationNumber field does not match the required format (11 digits).                  |
 | 400    | VALIDATION_ERROR               | needsHelpFromNav cannot be true if sendPlanToNav is false                                           | If you are not sending the plan to NAV, then you cannot ask from help from NAV                          |
 | 400    | VALIDATION_ERROR               | needsHelpFromNavDescription is obligatory if needsHelpFromNav is true                               | If you need help from NAV, then a description of what you need help with is mandatory.                  |
@@ -117,7 +137,7 @@ is therefore not included in the API. <br>
 
 ## ✉️ Contact
 
-Please write an email to **team-esyfo@nav.no** if you have questions about the API.
+Please write an email to **nav.it.team.esyfo@nav.no** if you have questions about the API.
 Questions about maskinporten or Altinn must be directed to Digdir/Altinn.
 
 <br>
@@ -132,10 +152,8 @@ Questions about maskinporten or Altinn must be directed to Digdir/Altinn.
 
 - Installer og konfigurer [Detect IDEA plugin](https://plugins.jetbrains.com/plugin/10761-detekt) for live kodeanalyse
 - Installer [Kotest IDEA plugin](https://plugins.jetbrains.com/plugin/14080-kotest) for å kjøre tester
--
 
-Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings)
-til 19
+Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings) til 21.
 
 ### 🛠️ Hvordan sette opp sendt sykmelding for en ansatt
 
@@ -149,7 +167,7 @@ til 19
 ### 🗺️ Div dokumentasjon
 
 | Description          | Url                                                                |
-|----------------------|--------------------------------------------------------------------|
+| -------------------- | ------------------------------------------------------------------ |
 | Testing library      | https://kotest.io/                                                 |
 | Mocking library      | https://mockk.io/                                                  |
 | Static code analysis | https://detekt.dev/                                                |

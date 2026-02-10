@@ -45,13 +45,13 @@ class DokarkivClient(
         pdf: ByteArray,
         uuid: UUID,
     ): String {
-        val avsenderMottaker = createAvsenderMottaker(employerOrgnr, employerOrgnr)
-        val orgName = eregClient.getEmployerOrganisationName(employerOrgnr) ?: employerOrgnr
+        val orgName = eregClient.getEmployerOrganisationName(employerOrgnr)
+        val avsenderMottaker = createAvsenderMottaker(employerOrgnr, orgName)
 
         val journalpostRequest = createJournalpostRequest(
             followUpPlan.employeeIdentificationNumber,
             pdf,
-            navn = orgName,
+            navn = orgName ?: employerOrgnr ,
             avsenderMottaker,
             "NAV_NO",
             uuid.toString(),
@@ -63,7 +63,7 @@ class DokarkivClient(
         lps: AltinnLpsOppfolgingsplan,
         virksomhetsnavn: String,
     ): String {
-        val avsenderMottaker = createAvsenderMottaker(lps.orgnummer, virksomhetsnavn)
+        val avsenderMottaker = createAvsenderMottaker(lps.orgnummer)
         val journalpostRequest = createJournalpostRequest(
             lps.fnr!!,
             lps.pdf!!,
@@ -124,7 +124,7 @@ class DokarkivClient(
 
     private fun createAvsenderMottaker(
         orgnummer: String,
-        virksomhetsnavn: String,
+        virksomhetsnavn: String? = null,
     ) = AvsenderMottaker(
         id = orgnummer,
         idType = ID_TYPE_ORGNR,
