@@ -91,7 +91,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 val followUpPlanDTO = createFollowUpPlanDTO()
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+                } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
                 coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns emptyList()
                 coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
                 shouldThrow<NoActiveSentSykmeldingException> {
@@ -114,7 +114,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
                 coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns listOf(mockk())
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforholdOversiktDTO(
+                } returns createAaregArbeidsforhold(
                     OTHER_COMPANY_HOVEDENHET_ORGNUMBER, OTHER_COMPANY_UNDERENHET_ORGNUMBER
                 )
                 coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
@@ -134,7 +134,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
 
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+                } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
 
                 coEvery {
                     pdlClient.getPersonInfo(any())
@@ -154,7 +154,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
 
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+                } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
 
                 coEvery {
                     pdlClient.getPersonInfo(any())
@@ -174,7 +174,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
 
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforholdOversiktDTO(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+                } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
 
                 coEvery {
                     pdlClient.getPersonInfo(any())
@@ -196,7 +196,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
 
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createMultipleArbeidsforholdOversikt()
+                } returns createMultipleAaregArbeidsforhold()
 
                 coEvery {
                     pdlClient.getPersonInfo(any())
@@ -216,7 +216,7 @@ class FollowUpPlanValidatorTest : DescribeSpec({
 
                 coEvery {
                     arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createMultipleArbeidsforholdOversikt()
+                } returns createMultipleAaregArbeidsforhold()
 
                 coEvery {
                     pdlClient.getPersonInfo(any())
@@ -284,7 +284,7 @@ fun createArbeidsforholdoversikt(
     )
 }
 
-fun createAaregArbeidsforholdOversiktDTO(
+fun createAaregArbeidsforhold(
     hovedEnhetOrgNr: String,
     underenhetOrgNr: String
 ): AaregArbeidsforholdOversikt {
@@ -293,7 +293,7 @@ fun createAaregArbeidsforholdOversiktDTO(
     )
 }
 
-fun createMultipleArbeidsforholdOversikt(): AaregArbeidsforholdOversikt {
+fun createMultipleAaregArbeidsforhold(): AaregArbeidsforholdOversikt {
     return AaregArbeidsforholdOversikt(
         listOf(
             createArbeidsforholdoversikt(UNDERENHET_ORGNUMBER, HOVEDENHET_ORGNUMBER),
