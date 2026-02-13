@@ -92,19 +92,21 @@ class FollowUpPlanValidator(
         val arbeidsforholdOversikt =
             arbeidsforholdOversiktClient.getArbeidsforhold(followUpPlanDTO.employeeIdentificationNumber)
 
-        val activeArbeidsforhold = arbeidsforholdOversikt?.arbeidsforholdoversikter?.firstOrNull {
+        val matchingArbeidsforhold = arbeidsforholdOversikt?.arbeidsforholdoversikter?.filter {
             it.opplysningspliktig.getJuridiskOrgnummer() == employerOrgnr ||
                 it.arbeidssted.getOrgnummer() == employerOrgnr
-        }
+        } ?: emptyList()
 
-        if (activeArbeidsforhold == null) {
+        if (matchingArbeidsforhold.isEmpty()) {
             throw NoActiveEmploymentException("No active employment relationship found for given orgnumber")
         }
 
-        val validOrgnumbers = listOf(
-            activeArbeidsforhold.opplysningspliktig.getJuridiskOrgnummer(),
-            activeArbeidsforhold.arbeidssted.getOrgnummer(),
-        )
+        val validOrgnumbers = matchingArbeidsforhold.flatMap {
+            listOf(
+                it.opplysningspliktig.getJuridiskOrgnummer(),
+                it.arbeidssted.getOrgnummer(),
+            )
+        }.distinct()
         return validOrgnumbers
     }
 }
