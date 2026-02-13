@@ -28,6 +28,7 @@ const val UNDERENHET_ORGNUMBER = "123456789"
 const val HOVEDENHET_ORGNUMBER = "987654321"
 const val OTHER_COMPANY_UNDERENHET_ORGNUMBER = "234567890"
 const val OTHER_COMPANY_HOVEDENHET_ORGNUMBER = "876543219"
+const val SECOND_UNDERENHET_ORGNUMBER = "111222333"
 const val EMPLOYEE_SSN = "12345678901"
 
 class FollowUpPlanValidatorTest : DescribeSpec({
@@ -181,6 +182,130 @@ class FollowUpPlanValidatorTest : DescribeSpec({
 
                 shouldThrow<NoActiveEmploymentException> {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, OTHER_COMPANY_HOVEDENHET_ORGNUMBER)
+                }
+            }
+
+            it(
+                "should pass validation when employee has multiple arbeidsforhold with same hovedenhet " +
+                    "and sykmelding is sent to any of the underenheter"
+            ) {
+                val followUpPlanDTO = createFollowUpPlanDTO()
+                coEvery {
+                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                } returns listOf(
+                    Sykmeldingsperiode(
+                        uuid = UUID.randomUUID(),
+                        sykmeldingId = "sykmelding123",
+                        organizationNumber = SECOND_UNDERENHET_ORGNUMBER,
+                        employeeIdentificationNumber = EMPLOYEE_SSN,
+                        fom = LocalDate.now().minusDays(10),
+                        tom = LocalDate.now().plusDays(10),
+                        createdAt = LocalDateTime.now()
+                    )
+                )
+
+                coEvery {
+                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                } returns AaregArbeidsforholdOversikt(
+                    listOf(
+                        Arbeidsforholdoversikt(
+                            arbeidssted = Arbeidssted(
+                                type = ArbeidsstedType.Underenhet,
+                                identer = listOf(
+                                    Ident(type = IdentType.ORGANISASJONSNUMMER, ident = UNDERENHET_ORGNUMBER, gjeldende = true)
+                                )
+                            ),
+                            opplysningspliktig = Opplysningspliktig(
+                                type = OpplysningspliktigType.Hovedenhet,
+                                identer = listOf(
+                                    Ident(type = IdentType.ORGANISASJONSNUMMER, ident = HOVEDENHET_ORGNUMBER, gjeldende = true)
+                                )
+                            )
+                        ),
+                        Arbeidsforholdoversikt(
+                            arbeidssted = Arbeidssted(
+                                type = ArbeidsstedType.Underenhet,
+                                identer = listOf(
+                                    Ident(type = IdentType.ORGANISASJONSNUMMER, ident = SECOND_UNDERENHET_ORGNUMBER, gjeldende = true)
+                                )
+                            ),
+                            opplysningspliktig = Opplysningspliktig(
+                                type = OpplysningspliktigType.Hovedenhet,
+                                identer = listOf(
+                                    Ident(type = IdentType.ORGANISASJONSNUMMER, ident = HOVEDENHET_ORGNUMBER, gjeldende = true)
+                                )
+                            )
+                        )
+                    )
+                )
+
+                coEvery {
+                    pdlClient.getPersonInfo(any())
+                } returns mockk()
+
+                validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+            }
+
+            it(
+                "should throw exception when employee has multiple arbeidsforhold but " +
+                    "sykmelding is sent to orgnumber not in any of them"
+            ) {
+                val followUpPlanDTO = createFollowUpPlanDTO()
+                coEvery {
+                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                } returns listOf(
+                    Sykmeldingsperiode(
+                        uuid = UUID.randomUUID(),
+                        sykmeldingId = "sykmelding123",
+                        organizationNumber = OTHER_COMPANY_UNDERENHET_ORGNUMBER,
+                        employeeIdentificationNumber = EMPLOYEE_SSN,
+                        fom = LocalDate.now().minusDays(10),
+                        tom = LocalDate.now().plusDays(10),
+                        createdAt = LocalDateTime.now()
+                    )
+                )
+
+                coEvery {
+                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                } returns AaregArbeidsforholdOversikt(
+                    listOf(
+                        Arbeidsforholdoversikt(
+                            arbeidssted = Arbeidssted(
+                                type = ArbeidsstedType.Underenhet,
+                                identer = listOf(
+                                    Ident(type = IdentType.ORGANISASJONSNUMMER, ident = UNDERENHET_ORGNUMBER, gjeldende = true)
+                                )
+                            ),
+                            opplysningspliktig = Opplysningspliktig(
+                                type = OpplysningspliktigType.Hovedenhet,
+                                identer = listOf(
+                                    Ident(type = IdentType.ORGANISASJONSNUMMER, ident = HOVEDENHET_ORGNUMBER, gjeldende = true)
+                                )
+                            )
+                        ),
+                        Arbeidsforholdoversikt(
+                            arbeidssted = Arbeidssted(
+                                type = ArbeidsstedType.Underenhet,
+                                identer = listOf(
+                                    Ident(type = IdentType.ORGANISASJONSNUMMER, ident = SECOND_UNDERENHET_ORGNUMBER, gjeldende = true)
+                                )
+                            ),
+                            opplysningspliktig = Opplysningspliktig(
+                                type = OpplysningspliktigType.Hovedenhet,
+                                identer = listOf(
+                                    Ident(type = IdentType.ORGANISASJONSNUMMER, ident = HOVEDENHET_ORGNUMBER, gjeldende = true)
+                                )
+                            )
+                        )
+                    )
+                )
+
+                coEvery {
+                    pdlClient.getPersonInfo(any())
+                } returns mockk()
+
+                shouldThrow<NoActiveSentSykmeldingException> {
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
             }
         }
