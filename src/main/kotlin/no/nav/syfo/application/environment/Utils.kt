@@ -59,7 +59,7 @@ fun getEnv(): Environment {
                 username = getEnvVar("KAFKA_SCHEMA_REGISTRY_USER"),
                 password = getEnvVar("KAFKA_SCHEMA_REGISTRY_PASSWORD"),
             ),
-            sslConfig = KafkaSslEnv(
+            sslConfig = if (isLocal()) null else KafkaSslEnv(
                 truststoreLocation = getEnvVar("KAFKA_TRUSTSTORE_PATH"),
                 keystoreLocation = getEnvVar("KAFKA_KEYSTORE_PATH"),
                 credstorePassword = getEnvVar("KAFKA_CREDSTORE_PASSWORD"),

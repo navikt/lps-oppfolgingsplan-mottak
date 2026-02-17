@@ -3,7 +3,7 @@ package no.nav.syfo.application.environment
 data class KafkaEnv(
     val brokerUrl: String,
     val schemaRegistry: KafkaSchemaRegistryEnv,
-    val sslConfig: KafkaSslEnv,
+    val sslConfig: KafkaSslEnv?,
 )
 
 data class KafkaSslEnv(
@@ -14,6 +14,6 @@ data class KafkaSslEnv(
 
 data class KafkaSchemaRegistryEnv(
     val url: String,
-    val username: String,
-    val password: String,
+    val username: String?,
+    val password: String?,
 )
