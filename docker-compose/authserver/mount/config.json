@@ -1,0 +1,52 @@
+{
+  "interactiveLogin": true,
+  "httpServer": "NettyWrapper",
+  "tokenCallbacks": [
+    {
+      "issuerId": "tokenx",
+      "tokenExpiry": 3600,
+      "requestMappings": [
+        {
+          "requestParam": "code",
+          "match": "tokenx",
+          "claims": {
+            "acr": "${acr}",
+            "pid": "${pid}",
+            "aud": "${aud}"
+          }
+        }
+      ]
+    },
+    {
+      "issuerId": "maskinporten",
+      "tokenExpiry": 3600,
+      "requestMappings": [
+        {
+          "requestParam": "code",
+          "match": "maskinporten",
+          "claims": {
+            "authorization_details": [
+              {
+                "type": "urn:altinn:systemuser",
+                "systemuser_org": {
+                  "authority": "iso6523-actorid-upis",
+                  "ID": "${systemUserOrg}"
+                },
+                "systemuser_id": [
+                  "c068399e-8d82-4dfa-937f-92d77ec0881d"
+                ],
+                "system_id": "215649202_kpfSys"
+              }
+            ],
+            "iss": "https://test.maskinporten.no/",
+            "scope": "nav:syfo/narmesteleder/lps",
+            "consumer": {
+              "authority": "${consumerAuthority}",
+              "ID": "${consumerId}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

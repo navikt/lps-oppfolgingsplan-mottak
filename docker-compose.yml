@@ -11,6 +11,7 @@ services:
       POSTGRES_DB: lps-db
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./docker-compose/postgres/init-scripts:/docker-entrypoint-initdb.d
 #  valkey:
 #    image: valkey/valkey:latest
 #    container_name: valkey-server
