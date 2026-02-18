@@ -14,7 +14,6 @@ val jacksonVersion = "2.21.0"
 val jacksonDatabindVersion = "2.13.2.2"
 val javaJwtVersion = "4.5.0"
 val nimbusVersion = "10.7"
-val detektVersion = "1.23.8"
 val kotestVersion = "6.1.3"
 val kotestExtensionsVersion = "2.0.0"
 val kotlinVersion = "2.3.10"
@@ -41,7 +40,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen") version "2.2.21"
     id("com.diffplug.spotless") version "8.2.1"
     id("com.gradleup.shadow") version "9.3.1"
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
 }
 
 allOpen {
@@ -135,12 +134,6 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 
-detekt {
-    toolVersion = detektVersion
-    config.setFrom(file("config/detekt/detekt.yml"))
-    buildUponDefaultConfig = true
-}
-
 configurations.implementation {
     exclude(group = "com.fasterxml.jackson.module", module = "jackson-module-scala_2.13")
 }
@@ -170,5 +163,8 @@ tasks {
     }
     withType<Test> {
         useJUnitPlatform()
+    }
+    named("check") {
+        dependsOn("ktlintCheck")
     }
 }
