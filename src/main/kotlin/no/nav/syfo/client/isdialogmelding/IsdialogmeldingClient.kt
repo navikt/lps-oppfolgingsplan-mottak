@@ -33,22 +33,24 @@ class IsdialogmeldingClient(
         val requestUrl = "${urls.isdialogmeldingUrl}/$SEND_LPS_PDF_TO_FASTLEGE_PATH"
 
         val rsOppfoelgingsplan = RSOppfoelgingsplan(sykmeldtFnr, planAsPdf)
-        val token = azureAdClient.getSystemToken(urls.isdialogmeldingClientId)?.accessToken
-            ?: throw RuntimeException("Failed to Send plan to fastlege: No token was found")
-        val response = try {
-            client.post(requestUrl) {
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(HttpHeaders.Authorization, createBearerToken(token))
-                    append(NAV_CALL_ID_HEADER, createCallId())
+        val token =
+            azureAdClient.getSystemToken(urls.isdialogmeldingClientId)?.accessToken
+                ?: throw RuntimeException("Failed to Send plan to fastlege: No token was found")
+        val response =
+            try {
+                client.post(requestUrl) {
+                    headers {
+                        append(HttpHeaders.ContentType, ContentType.Application.Json)
+                        append(HttpHeaders.Authorization, createBearerToken(token))
+                        append(NAV_CALL_ID_HEADER, createCallId())
+                    }
+                    setBody(rsOppfoelgingsplan)
                 }
-                setBody(rsOppfoelgingsplan)
+            } catch (e: Exception) {
+                log.error("Exception while sending LPS to fastlege", e)
+                COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE.increment()
+                throw e
             }
-        } catch (e: Exception) {
-            log.error("Exception while sending LPS to fastlege", e)
-            COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE.increment()
-            throw e
-        }
 
         return when (response.status) {
             HttpStatusCode.OK -> {
@@ -68,7 +70,7 @@ class IsdialogmeldingClient(
             else -> {
                 log.error(
                     "Call to to send LPS plan to fastlege failed with status: " +
-                            "${response.status}, response body: ${response.bodyAsText()}"
+                        "${response.status}, response body: ${response.bodyAsText()}",
                 )
                 COUNT_METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE_FALSE.increment()
                 false

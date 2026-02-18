@@ -11,5 +11,5 @@ data class Sykmeldingsperiode(
     val employeeIdentificationNumber: String,
     val fom: LocalDate,
     val tom: LocalDate,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 )

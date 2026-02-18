@@ -9,25 +9,28 @@ import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.domain.SykmeldingsperiodeAGDTO
 import java.time.LocalDate
 
-class SendtSykmeldingService(private val database: DatabaseInterface) {
+class SendtSykmeldingService(
+    private val database: DatabaseInterface,
+) {
     fun persistSykmeldingsperioder(
         sykmeldingId: String,
         orgnumber: String,
         employeeIdentificationNumber: String,
-        sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>
+        sykmeldingsperioder: List<SykmeldingsperiodeAGDTO>,
     ) {
-        val activeSykmeldingsPerioder = sykmeldingsperioder.filter {
-            !it.tom.isBefore(
-                LocalDate.now()
-            )
-        }
+        val activeSykmeldingsPerioder =
+            sykmeldingsperioder.filter {
+                !it.tom.isBefore(
+                    LocalDate.now(),
+                )
+            }
         activeSykmeldingsPerioder.forEach { sykmeldingsperiode ->
             database.persistSykmeldingsperiode(
                 sykmeldingId = sykmeldingId,
                 orgnummer = orgnumber,
                 employeeIdentificationNumber = employeeIdentificationNumber,
                 fom = sykmeldingsperiode.fom,
-                tom = sykmeldingsperiode.tom
+                tom = sykmeldingsperiode.tom,
             )
         }
     }
@@ -39,13 +42,8 @@ class SendtSykmeldingService(private val database: DatabaseInterface) {
     fun getSykmeldingsperioder(
         orgnumber: String,
         employeeIdentificationNumber: String,
-    ): List<Sykmeldingsperiode> {
-        return database.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
-    }
+    ): List<Sykmeldingsperiode> = database.getSykmeldingsperioder(orgnumber, employeeIdentificationNumber)
 
-    fun getActiveSendtSykmeldingsperioder(
-        employeeIdentificationNumber: String,
-    ): List<Sykmeldingsperiode> {
-        return database.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
-    }
+    fun getActiveSendtSykmeldingsperioder(employeeIdentificationNumber: String): List<Sykmeldingsperiode> =
+        database.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber)
 }

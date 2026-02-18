@@ -6,22 +6,24 @@ import no.nav.syfo.application.Environment
 import no.nav.syfo.client.commonConfig
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 
-fun mockHttpClient(environment: Environment) = HttpClient(MockEngine) {
-    commonConfig()
-    engine {
-        addHandler { request ->
-            val requestUrl = request.url.toString()
-            when {
-                requestUrl.contains("/${environment.auth.azuread.accessTokenUrl}") -> azureAdMockResponse()
-                requestUrl.contains("/${environment.urls.istilgangskontrollUrl}") -> tilgangskontrollResponse(
-                    request
-                )
+fun mockHttpClient(environment: Environment) =
+    HttpClient(MockEngine) {
+        commonConfig()
+        engine {
+            addHandler { request ->
+                val requestUrl = request.url.toString()
+                when {
+                    requestUrl.contains("/${environment.auth.azuread.accessTokenUrl}") -> azureAdMockResponse()
+                    requestUrl.contains("/${environment.urls.istilgangskontrollUrl}") ->
+                        tilgangskontrollResponse(
+                            request,
+                        )
 
-                requestUrl.startsWith(environment.urls.pdlUrl) -> pdlPersonResponse()
-                requestUrl.contains(OpPdfGenClient.FOLLOWUP_PLAN_PATH) -> opPdfGenResponse()
-                requestUrl.contains(environment.urls.krrProxyUrl) -> krrResponse()
-                else -> error("Unhandled ${request.url.encodedPath}")
+                    requestUrl.startsWith(environment.urls.pdlUrl) -> pdlPersonResponse()
+                    requestUrl.contains(OpPdfGenClient.FOLLOWUP_PLAN_PATH) -> opPdfGenResponse()
+                    requestUrl.contains(environment.urls.krrProxyUrl) -> krrResponse()
+                    else -> error("Unhandled ${request.url.encodedPath}")
+                }
             }
         }
     }
-}

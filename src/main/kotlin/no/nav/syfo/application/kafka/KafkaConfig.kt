@@ -25,23 +25,24 @@ val pollDurationInMillis: Duration = Duration.ofMillis(ONE_SECOND_IN_MILLIS)
 
 fun commonProperties(env: KafkaEnv): Properties {
     val sslConfig = env.sslConfig
-    return HashMap<String, String>().apply {
-        sslConfig?.let {
-            put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SSL)
-            put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "") // Disable server host name verification
-            put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, JAVA_KEYSTORE)
-            put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, PKCS12)
-            put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, sslConfig.truststoreLocation)
-            put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, sslConfig.credstorePassword)
-            put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, sslConfig.keystoreLocation)
-            put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, sslConfig.credstorePassword)
-            put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, sslConfig.credstorePassword)
-        }
-        put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.brokerUrl)
-        remove(SaslConfigs.SASL_MECHANISM)
-        remove(SaslConfigs.SASL_JAAS_CONFIG)
-        remove(SaslConfigs.SASL_MECHANISM)
-    }.toProperties()
+    return HashMap<String, String>()
+        .apply {
+            sslConfig?.let {
+                put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SSL)
+                put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "") // Disable server host name verification
+                put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, JAVA_KEYSTORE)
+                put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, PKCS12)
+                put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, sslConfig.truststoreLocation)
+                put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, sslConfig.credstorePassword)
+                put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, sslConfig.keystoreLocation)
+                put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, sslConfig.credstorePassword)
+                put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, sslConfig.credstorePassword)
+            }
+            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, env.brokerUrl)
+            remove(SaslConfigs.SASL_MECHANISM)
+            remove(SaslConfigs.SASL_JAAS_CONFIG)
+            remove(SaslConfigs.SASL_MECHANISM)
+        }.toProperties()
 }
 
 fun consumerProperties(env: KafkaEnv): Properties {

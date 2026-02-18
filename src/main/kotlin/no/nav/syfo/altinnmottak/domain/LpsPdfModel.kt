@@ -3,7 +3,7 @@ package no.nav.syfo.altinnmottak.domain
 import java.time.LocalDate
 
 data class Fagmelding(
-    val oppfolgingsplan: Oppfolgingsplan
+    val oppfolgingsplan: Oppfolgingsplan,
 )
 
 data class Oppfolgingsplan(
@@ -12,7 +12,7 @@ data class Oppfolgingsplan(
     val opplysingerOmSykefravaeret: OpplysingerOmSykefravaeret?,
     val tiltak: List<Tiltak>,
     val arbeidstakersDeltakelse: ArbeidstakersDeltakelse?,
-    val utfyllendeInfo: String?
+    val utfyllendeInfo: String?,
 )
 
 data class Nokkelopplysninger(
@@ -23,7 +23,7 @@ data class Nokkelopplysninger(
     val annenKontaktPersonFornavnEtternavn: FornavnEtternavn?,
     val tlfkontatkperson: String?,
     val virksomhetenerIAVirksomhet: Boolean?,
-    val virksomhetenHarBedrifsHelseTjeneste: Boolean?
+    val virksomhetenHarBedrifsHelseTjeneste: Boolean?,
 )
 
 data class OpplysningerOmArbeidstakeren(
@@ -31,13 +31,13 @@ data class OpplysningerOmArbeidstakeren(
     val fodselsnummer: String?,
     val tlf: String?,
     val stillingAvdeling: String?,
-    val ordineareArbeidsoppgaver: String?
+    val ordineareArbeidsoppgaver: String?,
 )
 
 data class OpplysingerOmSykefravaeret(
     val forsteFravearsdag: LocalDate?,
     val sykmeldingsDato: LocalDate?,
-    val sykmeldingsProsentVedSykmeldDato: String?
+    val sykmeldingsProsentVedSykmeldDato: String?,
 )
 
 data class Tiltak(
@@ -52,12 +52,12 @@ data class Tiltak(
     val tilrettelagtArbeidIkkeMulig: String?,
     val vurderingEffektAvTiltak: VurderingEffektAvTiltak,
     val fremdrift: String?,
-    val underskrift: Underskift
+    val underskrift: Underskift,
 )
 
 data class TiltaketGjennonforesIPerioden(
     val fraDato: LocalDate?,
-    val tilDato: LocalDate?
+    val tilDato: LocalDate?,
 )
 
 data class BehovForBistandFraNav(
@@ -68,40 +68,39 @@ data class BehovForBistandFraNav(
     val arbeidsrettedeTiltak: Boolean?,
     val arbeidsrettedeTiltakBeskrivelse: String?,
     val hjelpemidler: Boolean?,
-    val hjelpemidlerBeskrivelse: String?
+    val hjelpemidlerBeskrivelse: String?,
 )
 
 data class BehovForBistandFraAndre(
     val bedriftsHelsetjenesten: Boolean?,
     val andre: Boolean?,
-    val andreFritekst: String?
+    val andreFritekst: String?,
 )
 
 data class VurderingEffektAvTiltak(
     val vurderingEffektAvTiltakFritekst: String?,
-    val behovForNyeTiltak: Boolean?
+    val behovForNyeTiltak: Boolean?,
 )
 
 data class Underskift(
     val datoforUnderskift: LocalDate?,
-    val signertPapirkopiForeliggerPaaArbeidsplasssen: Boolean?
+    val signertPapirkopiForeliggerPaaArbeidsplasssen: Boolean?,
 )
 
 data class FornavnEtternavn(
     val fornavn: String?,
-    val etternavn: String?
+    val etternavn: String?,
 )
 
 data class ArbeidstakersDeltakelse(
     val arbeidstakerMedvirkGjeonnforingOppfolginsplan: Boolean?,
-    val hvorforHarIkkeArbeidstakerenMedvirket: String?
+    val hvorforHarIkkeArbeidstakerenMedvirket: String?,
 )
 
-fun Oppfolgingsplan.isBehovForBistandFraNAV(): Boolean {
-    return this.tiltak.any {
-        it.behovForBistandFraNav?.raadOgVeiledning == true
-            || it.behovForBistandFraNav?.dialogmoteMed == true
-            || it.behovForBistandFraNav?.arbeidsrettedeTiltak == true
-            || it.behovForBistandFraNav?.hjelpemidler == true
+fun Oppfolgingsplan.isBehovForBistandFraNAV(): Boolean =
+    this.tiltak.any {
+        it.behovForBistandFraNav?.raadOgVeiledning == true ||
+            it.behovForBistandFraNav?.dialogmoteMed == true ||
+            it.behovForBistandFraNav?.arbeidsrettedeTiltak == true ||
+            it.behovForBistandFraNav?.hjelpemidler == true
     }
-}

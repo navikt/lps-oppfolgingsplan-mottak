@@ -23,9 +23,12 @@ import no.nav.syfo.application.environment.AuthEnv
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.krrproxy.domain.PostPersonerRequest
 
-class MockServers(val urlEnv: UrlEnv, val authEnv: AuthEnv) {
-    fun mockKrrServer(): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
-        return mockServer(urlEnv.krrProxyUrl) {
+class MockServers(
+    val urlEnv: UrlEnv,
+    val authEnv: AuthEnv,
+) {
+    fun mockKrrServer(): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> =
+        mockServer(urlEnv.krrProxyUrl) {
             val jsonMapper = jacksonObjectMapper()
             post("/rest/v1/personer") {
                 val requestBody = jsonMapper.readValue(call.receiveText(), PostPersonerRequest::class.java)
@@ -35,18 +38,17 @@ class MockServers(val urlEnv: UrlEnv, val authEnv: AuthEnv) {
                     call.respondText(
                         jsonMapper.writeValueAsString(dkifPostPersonerResponse),
                         ContentType.Application.Json,
-                        HttpStatusCode.OK
+                        HttpStatusCode.OK,
                     )
                 }
             }
         }
-    }
 
     fun mockServer(
         url: String,
-        route: Route.() -> Unit
-    ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> {
-        return embeddedServer(
+        route: Route.() -> Unit,
+    ): EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration> =
+        embeddedServer(
             factory = Netty,
             port = url.extractPortFromUrl(),
         ) {
@@ -61,5 +63,4 @@ class MockServers(val urlEnv: UrlEnv, val authEnv: AuthEnv) {
                 route(this)
             }
         }
-    }
 }

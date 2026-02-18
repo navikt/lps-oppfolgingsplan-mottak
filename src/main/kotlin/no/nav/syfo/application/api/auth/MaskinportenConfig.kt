@@ -10,9 +10,7 @@ import io.ktor.util.AttributeKey
 import no.nav.syfo.application.exception.ApiError
 import no.nav.syfo.application.exception.AuthenticationException
 
-fun AuthenticationConfig.configureMaskinportenJwt(
-    jwtIssuer: MaskinportenJwtIssuer,
-) {
+fun AuthenticationConfig.configureMaskinportenJwt(jwtIssuer: MaskinportenJwtIssuer) {
     val defaultErrorMessage = "Authentication failed. Please check your token"
 
     jwt(name = jwtIssuer.jwtIssuerType.name) {
@@ -38,8 +36,8 @@ fun AuthenticationConfig.configureMaskinportenJwt(
             call.respond(
                 HttpStatusCode.Unauthorized,
                 ApiError.AuthenticationError(
-                    message = authError
-                )
+                    message = authError,
+                ),
             )
         }
     }

@@ -27,19 +27,26 @@ class VeilederTilgangskontrollClient(
 ) {
     private val tilgangskontrollPersonUrl = "${url}$TILGANGSKONTROLL_PERSON_PATH"
 
-    suspend fun hasAccess(callId: String, personIdent: PersonIdent, token: String): Boolean {
-        val onBehalfOfToken = azureAdClient.getOnBehalfOfToken(
-            scopeClientId = clientId,
-            token = token,
-        )?.accessToken ?: throw RuntimeException("Failed to request access to Person: Failed to get OBO token")
+    suspend fun hasAccess(
+        callId: String,
+        personIdent: PersonIdent,
+        token: String,
+    ): Boolean {
+        val onBehalfOfToken =
+            azureAdClient
+                .getOnBehalfOfToken(
+                    scopeClientId = clientId,
+                    token = token,
+                )?.accessToken ?: throw RuntimeException("Failed to request access to Person: Failed to get OBO token")
 
         return try {
-            val tilgang = httpClient.get(tilgangskontrollPersonUrl) {
-                header(HttpHeaders.Authorization, createBearerToken(onBehalfOfToken))
-                header(NAV_PERSONIDENT_HEADER, personIdent.value)
-                header(NAV_CALL_ID_HEADER, callId)
-                accept(ContentType.Application.Json)
-            }
+            val tilgang =
+                httpClient.get(tilgangskontrollPersonUrl) {
+                    header(HttpHeaders.Authorization, createBearerToken(onBehalfOfToken))
+                    header(NAV_PERSONIDENT_HEADER, personIdent.value)
+                    header(NAV_CALL_ID_HEADER, callId)
+                    accept(ContentType.Application.Json)
+                }
             COUNT_CALL_TILGANGSKONTROLL_PERSON_SUCCESS.increment()
             tilgang.body<Tilgang>().erGodkjent
         } catch (e: ResponseException) {
@@ -59,7 +66,7 @@ class VeilederTilgangskontrollClient(
         log.error(
             "Error while requesting access to person from istilgangskontroll with {}, {}",
             StructuredArguments.keyValue("statusCode", response.status.value.toString()),
-            StructuredArguments.keyValue("callId", callId)
+            StructuredArguments.keyValue("callId", callId),
         )
         COUNT_CALL_TILGANGSKONTROLL_PERSON_FAIL.increment()
     }

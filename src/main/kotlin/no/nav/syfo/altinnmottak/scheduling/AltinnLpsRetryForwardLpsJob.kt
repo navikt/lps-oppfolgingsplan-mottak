@@ -71,10 +71,11 @@ class AltinnLpsRetryForwardLpsJob : Job {
         val altinnLpsOppfolgingsplanNotYetSentToNav = database.getAltinnLpsOppfolgingsplanNotYetSentToNav()
         altinnLpsOppfolgingsplanNotYetSentToNav.forEach { lps ->
             val skjemainnhold = xmlMapper.readValue<Oppfoelgingsplan4UtfyllendeInfoM>(lps.xml).skjemainnhold
-            val oppfolgingsplan = mapFormdataToFagmelding(
-                lps.fnr!!,
-                skjemainnhold,
-            ).oppfolgingsplan
+            val oppfolgingsplan =
+                mapFormdataToFagmelding(
+                    lps.fnr!!,
+                    skjemainnhold,
+                ).oppfolgingsplan
             val harBehovForBistand = oppfolgingsplan.isBehovForBistandFraNAV()
             try {
                 altinnLpsService.sendLpsPlanToNav(
@@ -97,19 +98,20 @@ class AltinnLpsRetryForwardLpsJob : Job {
         val altinnLpsOppfolgingsplanNotYetSentToFastlege =
             database.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThreshold)
         altinnLpsOppfolgingsplanNotYetSentToFastlege.forEach { lps ->
-            val success = try {
-                altinnLpsService.sendLpsPlanToGeneralPractitioner(
-                    lps.uuid,
-                    lps.lpsFnr,
-                    lps.pdf!!
-                )
-            } catch (e: GpNotFoundException) {
-                log.warn("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege due to missing fastlege", e)
-                false
-            } catch (e: RuntimeException) {
-                log.error("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege", e)
-                false
-            }
+            val success =
+                try {
+                    altinnLpsService.sendLpsPlanToGeneralPractitioner(
+                        lps.uuid,
+                        lps.lpsFnr,
+                        lps.pdf!!,
+                    )
+                } catch (e: GpNotFoundException) {
+                    log.warn("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege due to missing fastlege", e)
+                    false
+                } catch (e: RuntimeException) {
+                    log.error("Could not forward altinn-lps with uuid ${lps.uuid} to fastlege", e)
+                    false
+                }
             if (!success) {
                 database.updateSendToFastlegeRetryCount(lps.uuid, lps.sendToFastlegeRetryCount)
             } else {
@@ -121,17 +123,18 @@ class AltinnLpsRetryForwardLpsJob : Job {
 
     private suspend fun forwardUnsentLpsToDokarkiv(
         database: DatabaseInterface,
-        altinnLpsService: AltinnLpsService
+        altinnLpsService: AltinnLpsService,
     ) {
         val altinnLpsOppfolgingsplanNotYetSentToDokarkiv = database.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv()
         log.info("Forwarding ${altinnLpsOppfolgingsplanNotYetSentToDokarkiv.size} LPS plans to dokarkiv")
         altinnLpsOppfolgingsplanNotYetSentToDokarkiv.forEach { lps ->
-            val journalpostId = try {
-                altinnLpsService.sendLpsPlanToGosys(lps)
-            } catch (e: RuntimeException) {
-                log.error("Could not forward altinn-lps with uuid ${lps.uuid} to DokArkiv", e)
-                null
-            }
+            val journalpostId =
+                try {
+                    altinnLpsService.sendLpsPlanToGosys(lps)
+                } catch (e: RuntimeException) {
+                    log.error("Could not forward altinn-lps with uuid ${lps.uuid} to DokArkiv", e)
+                    null
+                }
             journalpostId?.let { database.updateJournalpostId(lps.uuid, journalpostId) }
         }
     }

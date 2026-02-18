@@ -10,7 +10,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
-import java.io.FileNotFoundException
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
@@ -28,13 +27,13 @@ import no.nav.syfo.client.pdl.domain.SokAdresseVariables
 import no.nav.syfo.client.pdl.domain.Variables
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.FileNotFoundException
 
 class PdlClient(
     private val urls: UrlEnv,
     private val azureAdClient: AzureAdClient,
     private val client: HttpClient = httpClientDefault(),
 ) {
-
     private val log: Logger = LoggerFactory.getLogger(PdlClient::class.qualifiedName)
 
     suspend fun mostRecentFnr(fnr: String): String? {
@@ -44,7 +43,12 @@ class PdlClient(
             HttpStatusCode.OK -> {
                 val responseBody = response.body<PdlIdenterResponse>()
                 if (responseBody.errors.isNullOrEmpty()) {
-                    val pdlResponse = responseBody.data?.hentIdenter?.identer?.first()?.ident
+                    val pdlResponse =
+                        responseBody.data
+                            ?.hentIdenter
+                            ?.identer
+                            ?.first()
+                            ?.ident
                     pdlResponse
                 } else {
                     log.error("Could not get fnr from PDL: response contains errors: ${responseBody.errors}")
@@ -102,29 +106,33 @@ class PdlClient(
     }
 
     private suspend fun getFnr(ident: String): HttpResponse? {
-        val graphQuery = this::class.java.getResource(IDENTER_QUERY)?.readText()
-            ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
+        val graphQuery =
+            this::class.java.getResource(IDENTER_QUERY)?.readText()
+                ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
         val requestBody = PdlRequest(graphQuery, Variables(ident))
         return postCallToPdl(requestBody)
     }
 
     private suspend fun getPerson(ident: String): HttpResponse? {
-        val graphQuery = this::class.java.getResource(PERSON_QUERY)?.readText()
-            ?: throw FileNotFoundException("Could not found resource: $PERSON_QUERY")
+        val graphQuery =
+            this::class.java.getResource(PERSON_QUERY)?.readText()
+                ?: throw FileNotFoundException("Could not found resource: $PERSON_QUERY")
         val requestBody = PdlRequest(graphQuery, Variables(ident))
         return postCallToPdl(requestBody)
     }
 
     private suspend fun sokAdresse(postnummer: String): HttpResponse? {
-        val graphQuery = this::class.java.getResource(SOK_ADRESSE)?.readText()
-            ?: throw FileNotFoundException("Could not found resource: $SOK_ADRESSE")
-        val requestBody = SokAdressePdlRequest(
-            graphQuery,
-            SokAdresseVariables(
-                paging = Paging(),
-                criteria = listOf(Criterion(searchRule = SearchRule(postnummer)))
+        val graphQuery =
+            this::class.java.getResource(SOK_ADRESSE)?.readText()
+                ?: throw FileNotFoundException("Could not found resource: $SOK_ADRESSE")
+        val requestBody =
+            SokAdressePdlRequest(
+                graphQuery,
+                SokAdresseVariables(
+                    paging = Paging(),
+                    criteria = listOf(Criterion(searchRule = SearchRule(postnummer))),
+                ),
             )
-        )
         return postCallToPdl(requestBody)
     }
 
@@ -136,7 +144,12 @@ class PdlClient(
                 val responseBody = response.body<PdlSokAdresseResponse>()
                 if (responseBody.errors.isNullOrEmpty()) {
                     val poststed =
-                        responseBody.data?.sokAdresse?.hits?.first()?.vegadresse?.poststed
+                        responseBody.data
+                            ?.sokAdresse
+                            ?.hits
+                            ?.first()
+                            ?.vegadresse
+                            ?.poststed
                     log.info("Fetched poststed from PDL: $poststed")
                     poststed
                 } else {

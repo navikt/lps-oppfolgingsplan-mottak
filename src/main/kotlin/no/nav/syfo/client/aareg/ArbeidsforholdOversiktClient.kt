@@ -20,27 +20,28 @@ import org.slf4j.LoggerFactory
 
 class ArbeidsforholdOversiktClient(
     private val azureAdClient: AzureAdClient,
-    private val urlEnv: UrlEnv
+    private val urlEnv: UrlEnv,
 ) {
-
     private val arbeidsforholdOversiktPath = "${urlEnv.aaregBaseUrl}$ARBEIDSFORHOLD_OVERSIKT_PATH"
 
     private val httpClient = httpClientDefault()
 
     suspend fun getArbeidsforhold(personIdent: String): AaregArbeidsforholdOversikt? =
         try {
-            val token = azureAdClient.getSystemToken(urlEnv.aaregScope)?.accessToken
-                ?: throw RuntimeException("Failed to get Arbeidsforhold: No token was found")
+            val token =
+                azureAdClient.getSystemToken(urlEnv.aaregScope)?.accessToken
+                    ?: throw RuntimeException("Failed to get Arbeidsforhold: No token was found")
 
-            httpClient.post(arbeidsforholdOversiktPath) {
-                header(HttpHeaders.Authorization, createBearerToken(token))
-                contentType(ContentType.Application.Json)
-                setBody(
-                    FinnArbeidsforholdoversikterPrArbeidstakerAPIRequest(
-                        arbeidstakerId = personIdent
+            httpClient
+                .post(arbeidsforholdOversiktPath) {
+                    header(HttpHeaders.Authorization, createBearerToken(token))
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        FinnArbeidsforholdoversikterPrArbeidstakerAPIRequest(
+                            arbeidstakerId = personIdent,
+                        ),
                     )
-                )
-            }.body()
+                }.body()
         } catch (e: ClientRequestException) {
             if (e.response.status == HttpStatusCode.NotFound) {
                 logger.error("Fant ikke arbeidsforhold for bruker", e)

@@ -12,12 +12,12 @@ import org.quartz.Job
 import org.quartz.JobExecutionContext
 import org.slf4j.LoggerFactory
 
-class AltinnLpsRetryProcessLpsJob: Job {
+class AltinnLpsRetryProcessLpsJob : Job {
     private val log = LoggerFactory.getLogger(AltinnLpsRetryProcessLpsJob::class.qualifiedName)
     private val jobName = "PROCESS_LPS_JOB"
     private val jobLogPrefix = "[$jobName]:"
-    override fun execute(context: JobExecutionContext) {
 
+    override fun execute(context: JobExecutionContext) {
         val jobDataMap = context.jobDetail.jobDataMap
         val database = jobDataMap[DB_SHORTNAME] as DatabaseInterface
         val altinnLpsService = jobDataMap[LPS_SERVICE_SHORTNAME] as AltinnLpsService
@@ -32,7 +32,10 @@ class AltinnLpsRetryProcessLpsJob: Job {
         }
     }
 
-    private suspend fun retryStoreFnrs(database: DatabaseInterface, altinnLpsService: AltinnLpsService) {
+    private suspend fun retryStoreFnrs(
+        database: DatabaseInterface,
+        altinnLpsService: AltinnLpsService,
+    ) {
         val lpsWithoutMostRecentFnr = database.getAltinnLpsOppfolgingsplanWithoutMostRecentFnr()
         val lpsPlansWithoutMostRecentFnrSize = lpsWithoutMostRecentFnr.size
         if (lpsPlansWithoutMostRecentFnrSize == 0) {
@@ -44,7 +47,7 @@ class AltinnLpsRetryProcessLpsJob: Job {
                 successfulRetriesCount++
             }
         }
-        logInfo("$successfulRetriesCount/${lpsPlansWithoutMostRecentFnrSize} fnrs successfully retried and stored")
+        logInfo("$successfulRetriesCount/$lpsPlansWithoutMostRecentFnrSize fnrs successfully retried and stored")
     }
 
     private suspend fun retryStorePdfs(
@@ -59,12 +62,15 @@ class AltinnLpsRetryProcessLpsJob: Job {
         var successfulRetriesCount = 0
         lpsWithoutPdfs.forEach { lps ->
             if (altinnLpsService.retryStorePdf(
-                lps.uuid,
-                lps.fnr!!,
-                lps.xml,
-            )) { successfulRetriesCount++ }
+                    lps.uuid,
+                    lps.fnr!!,
+                    lps.xml,
+                )
+            ) {
+                successfulRetriesCount++
+            }
         }
-        logInfo("$successfulRetriesCount/${lpsWithoutPdfsSize} PDFs successfully generated and stored")
+        logInfo("$successfulRetriesCount/$lpsWithoutPdfsSize PDFs successfully generated and stored")
     }
 
     private fun logInfo(message: String) = log.info("$jobLogPrefix $message")

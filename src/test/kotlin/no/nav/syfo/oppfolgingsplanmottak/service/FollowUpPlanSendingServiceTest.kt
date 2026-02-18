@@ -12,102 +12,102 @@ import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.mockdata.randomFollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import java.util.*
-import no.nav.syfo.application.exception.GpNotFoundException
 
-class FollowUpPlanSendingServiceTest : DescribeSpec({
-    val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)
-    val followupPlanProducer = mockk<FollowUpPlanProducer>(relaxed = true)
-    val opPdfGenClient = mockk<OpPdfGenClient>(relaxed = true)
-    val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
-    val service =
-        FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, opPdfGenClient, dokarkivClient, false)
-    val pdfByteArray = "<MOCK PDF CONTENT>".toByteArray()
+class FollowUpPlanSendingServiceTest :
+    DescribeSpec({
+        val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)
+        val followupPlanProducer = mockk<FollowUpPlanProducer>(relaxed = true)
+        val opPdfGenClient = mockk<OpPdfGenClient>(relaxed = true)
+        val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
+        val service =
+            FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, opPdfGenClient, dokarkivClient, false)
+        val pdfByteArray = "<MOCK PDF CONTENT>".toByteArray()
 
-    beforeSpec {
-        coEvery { opPdfGenClient.getLpsPdf(any()) } returns pdfByteArray
-        coEvery { dokarkivClient.journalforLps(any(), any(), any(), any()) } returns "id123"
-    }
-
-    describe("FollowUpPlanSendingService") {
-        it(
-            "sends plan to gp when sendPlanToGeneralPractitioner is true and sendLpsPlanToFastlegeToggle is enabled",
-        ) {
-            runBlocking {
-                val followUpPlanDTO = randomFollowUpPlanDTO.copy(sendPlanToGeneralPractitioner = true)
-                val uuid = UUID.randomUUID()
-                val employerOrgnr = "987654321"
-
-                coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) } returns true
-                val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
-                response.isSentToGeneralPractitionerStatus shouldBe true
-            }
+        beforeSpec {
+            coEvery { opPdfGenClient.getLpsPdf(any()) } returns pdfByteArray
+            coEvery { dokarkivClient.journalforLps(any(), any(), any(), any()) } returns "id123"
         }
 
-        it("sent-status is true when sendPlanToNav is true") {
-            runBlocking {
-                val followUpPlanDTO =
-                    randomFollowUpPlanDTO.copy(
-                        sendPlanToNav = true,
-                    )
-                val uuid = UUID.randomUUID()
-                val employerOrgnr = "987654321"
+        describe("FollowUpPlanSendingService") {
+            it(
+                "sends plan to gp when sendPlanToGeneralPractitioner is true and sendLpsPlanToFastlegeToggle is enabled",
+            ) {
+                runBlocking {
+                    val followUpPlanDTO = randomFollowUpPlanDTO.copy(sendPlanToGeneralPractitioner = true)
+                    val uuid = UUID.randomUUID()
+                    val employerOrgnr = "987654321"
 
-                val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
+                    coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) } returns true
+                    val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
+                    response.isSentToGeneralPractitionerStatus shouldBe true
+                }
+            }
 
-                verify(exactly = 0) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
-                response.isSentToNavStatus shouldBe true
+            it("sent-status is true when sendPlanToNav is true") {
+                runBlocking {
+                    val followUpPlanDTO =
+                        randomFollowUpPlanDTO.copy(
+                            sendPlanToNav = true,
+                        )
+                    val uuid = UUID.randomUUID()
+                    val employerOrgnr = "987654321"
+
+                    val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
+
+                    verify(exactly = 0) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
+                    response.isSentToNavStatus shouldBe true
+                }
+            }
+            it("sent-statuses is correct when plan should be sent to Nav and GP but GP is not found") {
+                runBlocking {
+                    coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) } returns false
+                    val followUpPlanDTO =
+                        randomFollowUpPlanDTO.copy(
+                            sendPlanToNav = true,
+                            sendPlanToGeneralPractitioner = true,
+                        )
+                    val uuid = UUID.randomUUID()
+                    val employerOrgnr = "987654321"
+
+                    val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
+
+                    verify(exactly = 0) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
+                    response.isSentToNavStatus shouldBe true
+                    response.isSentToGeneralPractitionerStatus shouldBe false
+                }
+            }
+            it("sent-status is false, and does create task in Modia when sendPlanToNav is false") {
+                runBlocking {
+                    val followUpPlanDTO =
+                        randomFollowUpPlanDTO.copy(
+                            sendPlanToNav = false,
+                        )
+                    val uuid = UUID.randomUUID()
+                    val employerOrgnr = "987654321"
+
+                    val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
+
+                    verify(exactly = 0) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
+                    response.isSentToNavStatus shouldBe false
+                }
+            }
+
+            it("creates task in Modia when sendPlanToNav is true and needsHelpFromNav is true") {
+                runBlocking {
+                    val followUpPlanDTO =
+                        randomFollowUpPlanDTO.copy(
+                            sendPlanToNav = true,
+                            needsHelpFromNav = true,
+                            needsHelpFromNavDescription = "Needs help from NAV description",
+                        )
+                    val uuid = UUID.randomUUID()
+                    val employerOrgnr = "987654321"
+
+                    val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
+
+                    verify(exactly = 1) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
+                    response.isSentToNavStatus shouldBe true
+                }
             }
         }
-        it("sent-statuses is correct when plan should be sent to Nav and GP but GP is not found") {
-            runBlocking {
-                coEvery { isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(any(), any()) } returns false
-                val followUpPlanDTO =
-                    randomFollowUpPlanDTO.copy(
-                        sendPlanToNav = true,
-                        sendPlanToGeneralPractitioner = true
-                    )
-                val uuid = UUID.randomUUID()
-                val employerOrgnr = "987654321"
-
-                val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
-
-                verify(exactly = 0) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
-                response.isSentToNavStatus shouldBe true
-                response.isSentToGeneralPractitionerStatus shouldBe false
-            }
-        }
-        it("sent-status is false, and does create task in Modia when sendPlanToNav is false") {
-            runBlocking {
-                val followUpPlanDTO =
-                    randomFollowUpPlanDTO.copy(
-                        sendPlanToNav = false,
-                    )
-                val uuid = UUID.randomUUID()
-                val employerOrgnr = "987654321"
-
-                val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
-
-                verify(exactly = 0) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
-                response.isSentToNavStatus shouldBe false
-            }
-        }
-
-        it("creates task in Modia when sendPlanToNav is true and needsHelpFromNav is true") {
-            runBlocking {
-                val followUpPlanDTO =
-                    randomFollowUpPlanDTO.copy(
-                        sendPlanToNav = true,
-                        needsHelpFromNav = true,
-                        needsHelpFromNavDescription = "Needs help from NAV description",
-                    )
-                val uuid = UUID.randomUUID()
-                val employerOrgnr = "987654321"
-
-                val response = service.sendFollowUpPlan(followUpPlanDTO, uuid, employerOrgnr)
-
-                verify(exactly = 1) { followupPlanProducer.createFollowUpPlanTaskInModia(any()) }
-                response.isSentToNavStatus shouldBe true
-            }
-        }
-    }
-})
+    })

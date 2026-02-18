@@ -39,27 +39,29 @@ class FollowUpPlanSendingService(
         log.info("Should send to GP: $shouldSendToGeneralPractitioner")
 
         val sentToFastlegeStatus: Boolean =
-            shouldSendToGeneralPractitioner && run {
-                if (pdf != null) {
-                    return@run isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
-                        sykmeldtFnr,
-                        pdf
-                    )
-                } else {
-                    false
+            shouldSendToGeneralPractitioner &&
+                run {
+                    if (pdf != null) {
+                        return@run isdialogmeldingClient.sendLpsPlanToGeneralPractitioner(
+                            sykmeldtFnr,
+                            pdf,
+                        )
+                    } else {
+                        false
+                    }
                 }
-            }
 
         if (shouldSendToNav) {
             if (needsHelpFromNav == true) {
                 log.info("needsHelpFromNav is true, sending follow-up plan with uuid $uuid to Modia")
-                val planToSendToNav = KFollowUpPlan(
-                    uuid.toString(),
-                    followUpPlanDTO.employeeIdentificationNumber,
-                    employerOrgnr,
-                    true,
-                    LocalDate.now().toEpochDay().toInt(),
-                )
+                val planToSendToNav =
+                    KFollowUpPlan(
+                        uuid.toString(),
+                        followUpPlanDTO.employeeIdentificationNumber,
+                        employerOrgnr,
+                        true,
+                        LocalDate.now().toEpochDay().toInt(),
+                    )
                 followupPlanProducer.createFollowUpPlanTaskInModia(planToSendToNav)
                 COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE.increment()
             } else {
@@ -78,7 +80,7 @@ class FollowUpPlanSendingService(
             uuid = uuid.toString(),
             isSentToGeneralPractitionerStatus = sentToFastlegeStatus,
             isSentToNavStatus = followUpPlanDTO.sendPlanToNav,
-            pdf = pdf
+            pdf = pdf,
         )
     }
 }

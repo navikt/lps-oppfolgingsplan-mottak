@@ -14,9 +14,10 @@ fun DatabaseInterface.persistSykmeldingsperiode(
     orgnummer: String,
     employeeIdentificationNumber: String,
     fom: LocalDate,
-    tom: LocalDate
+    tom: LocalDate,
 ) {
-    val insertStatement = """
+    val insertStatement =
+        """
         INSERT INTO SYKMELDINGSPERIODE (
             uuid,
             sykmelding_id,
@@ -26,7 +27,7 @@ fun DatabaseInterface.persistSykmeldingsperiode(
             tom,
             created_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?)
-    """.trimIndent()
+        """.trimIndent()
 
     connection.use { connection ->
         connection.prepareStatement(insertStatement).use {
@@ -44,10 +45,11 @@ fun DatabaseInterface.persistSykmeldingsperiode(
 }
 
 fun DatabaseInterface.deleteSykmeldingsperioder(sykmeldingId: String) {
-    val deleteStatement = """
+    val deleteStatement =
+        """
         DELETE FROM SYKMELDINGSPERIODE
         WHERE sykmelding_id = ?
-    """.trimIndent()
+        """.trimIndent()
 
     connection.use { connection ->
         connection.prepareStatement(deleteStatement).use {
@@ -62,11 +64,12 @@ fun DatabaseInterface.getSykmeldingsperioder(
     orgnumber: String,
     employeeIdentificationNumber: String,
 ): List<Sykmeldingsperiode> {
-    val selectStatement = """
+    val selectStatement =
+        """
         SELECT *
         FROM SYKMELDINGSPERIODE
         WHERE organization_number = ? AND employee_identification_number = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(selectStatement).use {
@@ -77,15 +80,14 @@ fun DatabaseInterface.getSykmeldingsperioder(
     }
 }
 
-fun DatabaseInterface.getActiveSendtSykmeldingsperioder(
-    employeeIdentificationNumber: String,
-): List<Sykmeldingsperiode> {
+fun DatabaseInterface.getActiveSendtSykmeldingsperioder(employeeIdentificationNumber: String): List<Sykmeldingsperiode> {
     val today = Timestamp.valueOf(LocalDateTime.now())
-    val selectStatement = """
+    val selectStatement =
+        """
         SELECT *
         FROM SYKMELDINGSPERIODE
         WHERE employee_identification_number = ? AND ? BETWEEN fom AND (tom + INTERVAL '16 days')
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(selectStatement).use {
@@ -96,12 +98,13 @@ fun DatabaseInterface.getActiveSendtSykmeldingsperioder(
     }
 }
 
-fun ResultSet.toSykmeldingsperiode() = Sykmeldingsperiode(
-    uuid = UUID.fromString(getString("uuid")),
-    sykmeldingId = getString("sykmelding_id"),
-    organizationNumber = getString("organization_number"),
-    employeeIdentificationNumber = getString("employee_identification_number"),
-    fom = getTimestamp("fom").toLocalDateTime().toLocalDate(),
-    tom = getTimestamp("tom").toLocalDateTime().toLocalDate(),
-    createdAt = getTimestamp("created_at").toLocalDateTime()
-)
+fun ResultSet.toSykmeldingsperiode() =
+    Sykmeldingsperiode(
+        uuid = UUID.fromString(getString("uuid")),
+        sykmeldingId = getString("sykmelding_id"),
+        organizationNumber = getString("organization_number"),
+        employeeIdentificationNumber = getString("employee_identification_number"),
+        fom = getTimestamp("fom").toLocalDateTime().toLocalDate(),
+        tom = getTimestamp("tom").toLocalDateTime().toLocalDate(),
+        createdAt = getTimestamp("created_at").toLocalDateTime(),
+    )

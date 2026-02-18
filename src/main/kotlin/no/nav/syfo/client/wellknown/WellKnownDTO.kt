@@ -9,7 +9,8 @@ data class WellKnownDTO(
     val jwks_uri: String,
 )
 
-fun WellKnownDTO.toWellKnown() = WellKnown(
-    issuer = this.issuer,
-    jwksUri = this.jwks_uri,
-)
+fun WellKnownDTO.toWellKnown() =
+    WellKnown(
+        issuer = this.issuer,
+        jwksUri = this.jwks_uri,
+    )

@@ -6,8 +6,8 @@ import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.routing
-import no.nav.syfo.application.Environment
 import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.auth.AzureAdJwtIssuer
 import no.nav.syfo.application.api.auth.MaskinportenJwtIssuer
 import no.nav.syfo.application.api.auth.configureAzureAdJwt

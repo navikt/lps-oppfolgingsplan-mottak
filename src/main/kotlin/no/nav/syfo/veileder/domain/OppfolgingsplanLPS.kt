@@ -8,5 +8,5 @@ data class OppfolgingsplanLPS(
     val fnr: String,
     val virksomhetsnummer: String,
     val opprettet: LocalDateTime,
-    val sistEndret: LocalDateTime
+    val sistEndret: LocalDateTime,
 )

@@ -8,60 +8,63 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.io.File
-import java.time.LocalDateTime
 import no.nav.syfo.application.Environment
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.azuread.AzureAdToken
 import no.nav.syfo.util.FNR_1
 import no.nav.syfo.util.FNR_2
 import no.nav.syfo.util.MockServers
+import java.io.File
+import java.time.LocalDateTime
 
-class KrrProxyClientTest : DescribeSpec({
-    val localAppPropertiesPath = "./src/main/resources/localEnv.json"
-    val fnrNonReservedUser = FNR_1
-    val fnrReservedUser = FNR_2
+class KrrProxyClientTest :
+    DescribeSpec({
+        val localAppPropertiesPath = "./src/main/resources/localEnv.json"
+        val fnrNonReservedUser = FNR_1
+        val fnrReservedUser = FNR_2
 
-    val objectMapper = ObjectMapper().registerKotlinModule()
-    val testEnv = objectMapper.readValue(
-        File(localAppPropertiesPath),
-        Environment::class.java
-    )
+        val objectMapper = ObjectMapper().registerKotlinModule()
+        val testEnv =
+            objectMapper.readValue(
+                File(localAppPropertiesPath),
+                Environment::class.java,
+            )
 
-    val azureAdConsumer = mockk<AzureAdClient>()
-    val mockServers = MockServers(testEnv.urls, testEnv.auth)
-    val krrMockServer = mockServers.mockKrrServer()
-    val dkifConsumer = KrrProxyClient(testEnv.urls, azureAdConsumer)
+        val azureAdConsumer = mockk<AzureAdClient>()
+        val mockServers = MockServers(testEnv.urls, testEnv.auth)
+        val krrMockServer = mockServers.mockKrrServer()
+        val dkifConsumer = KrrProxyClient(testEnv.urls, azureAdConsumer)
 
-    beforeSpec {
-        clearAllMocks()
-        coEvery { azureAdConsumer.getSystemToken(any()) } returns AzureAdToken(
-            accessToken = "AAD access token",
-            expires = LocalDateTime.now().plusMinutes(5),
-        )
-        krrMockServer.start()
-    }
-
-    afterSpec {
-        krrMockServer.stop(1L, 10L)
-    }
-
-    describe("KrrProxyClientTest") {
-        it("Call KrrProxy for non-reserved user") {
-            val dkifResponse = dkifConsumer.person(fnrNonReservedUser)
-            dkifResponse shouldNotBe null
-            dkifResponse!!.kanVarsles shouldBe true
+        beforeSpec {
+            clearAllMocks()
+            coEvery { azureAdConsumer.getSystemToken(any()) } returns
+                AzureAdToken(
+                    accessToken = "AAD access token",
+                    expires = LocalDateTime.now().plusMinutes(5),
+                )
+            krrMockServer.start()
         }
 
-        it("Call KrrProxy for reserved user") {
-            val dkifResponse = dkifConsumer.person(fnrReservedUser)
-            dkifResponse shouldNotBe null
-            dkifResponse!!.kanVarsles shouldBe false
+        afterSpec {
+            krrMockServer.stop(1L, 10L)
         }
 
-        it("function person should return null on when request causes exception") {
-            val dkifResponse = dkifConsumer.person("serverdown")
-            dkifResponse shouldBe null
+        describe("KrrProxyClientTest") {
+            it("Call KrrProxy for non-reserved user") {
+                val dkifResponse = dkifConsumer.person(fnrNonReservedUser)
+                dkifResponse shouldNotBe null
+                dkifResponse!!.kanVarsles shouldBe true
+            }
+
+            it("Call KrrProxy for reserved user") {
+                val dkifResponse = dkifConsumer.person(fnrReservedUser)
+                dkifResponse shouldNotBe null
+                dkifResponse!!.kanVarsles shouldBe false
+            }
+
+            it("function person should return null on when request causes exception") {
+                val dkifResponse = dkifConsumer.person("serverdown")
+                dkifResponse shouldBe null
+            }
         }
-    }
-})
+    })

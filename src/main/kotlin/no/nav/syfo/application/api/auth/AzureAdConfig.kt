@@ -9,18 +9,17 @@ import org.slf4j.LoggerFactory
 
 private val log: Logger = LoggerFactory.getLogger("no.nav.syfo.application.api.auth")
 
-fun AuthenticationConfig.configureAzureAdJwt(
-    jwtIssuer: AzureAdJwtIssuer,
-) {
+fun AuthenticationConfig.configureAzureAdJwt(jwtIssuer: AzureAdJwtIssuer) {
     jwt(name = jwtIssuer.jwtIssuerType.name) {
         verifier(
             jwkProvider = jwkProvider(jwtIssuer.wellKnown.jwksUri),
             issuer = jwtIssuer.wellKnown.issuer,
         )
         validate { credential ->
-            val credentialsHasExpectedAudience = credential.inExpectedAudience(
-                expectedAudience = jwtIssuer.acceptedAudienceList,
-            )
+            val credentialsHasExpectedAudience =
+                credential.inExpectedAudience(
+                    expectedAudience = jwtIssuer.acceptedAudienceList,
+                )
             if (credentialsHasExpectedAudience) {
                 JWTPrincipal(credential.payload)
             } else {

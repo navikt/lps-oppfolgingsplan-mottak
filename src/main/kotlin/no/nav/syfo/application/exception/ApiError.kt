@@ -17,64 +17,74 @@ enum class ErrorType {
     NO_ACTIVE_EMPLOYMENT,
 }
 
-sealed class ApiError(val status: HttpStatusCode, val type: ErrorType, open val message: String) {
-    data class FollowUpPlanDTOValidationError(override val message: String) :
-        ApiError(HttpStatusCode.BadRequest, ErrorType.VALIDATION_ERROR, message)
+sealed class ApiError(
+    val status: HttpStatusCode,
+    val type: ErrorType,
+    open val message: String,
+) {
+    data class FollowUpPlanDTOValidationError(
+        override val message: String,
+    ) : ApiError(HttpStatusCode.BadRequest, ErrorType.VALIDATION_ERROR, message)
 
-    data class NotFoundError(override val message: String) :
-        ApiError(HttpStatusCode.NotFound, ErrorType.NOT_FOUND, message)
+    data class NotFoundError(
+        override val message: String,
+    ) : ApiError(HttpStatusCode.NotFound, ErrorType.NOT_FOUND, message)
 
-    data class InternalServerError(override val message: String) :
-        ApiError(HttpStatusCode.InternalServerError, ErrorType.INTERNAL_SERVER_ERROR, message)
+    data class InternalServerError(
+        override val message: String,
+    ) : ApiError(HttpStatusCode.InternalServerError, ErrorType.INTERNAL_SERVER_ERROR, message)
 
-    data class IllegalArgumentError(override val message: String) :
-        ApiError(HttpStatusCode.BadRequest, ErrorType.ILLEGAL_ARGUMENT, message)
+    data class IllegalArgumentError(
+        override val message: String,
+    ) : ApiError(HttpStatusCode.BadRequest, ErrorType.ILLEGAL_ARGUMENT, message)
 
-    data class BadRequestError(override val message: String) :
-        ApiError(HttpStatusCode.BadRequest, ErrorType.BAD_REQUEST, message)
+    data class BadRequestError(
+        override val message: String,
+    ) : ApiError(HttpStatusCode.BadRequest, ErrorType.BAD_REQUEST, message)
 
-    data class AuthenticationError(override val message: String) :
-        ApiError(HttpStatusCode.Unauthorized, ErrorType.AUTHENTICATION_ERROR, message)
+    data class AuthenticationError(
+        override val message: String,
+    ) : ApiError(HttpStatusCode.Unauthorized, ErrorType.AUTHENTICATION_ERROR, message)
 
     data object GeneralPractitionerNotFoundError :
         ApiError(
             HttpStatusCode.NotFound,
             ErrorType.GENERAL_PRACTITIONER_NOT_FOUND,
-            "General practitioner was not found"
+            "General practitioner was not found",
         )
 
     data object NoActiveSentSykmeldingError :
         ApiError(
             HttpStatusCode.Forbidden,
             ErrorType.NO_ACTIVE_SENT_SYKMELDING,
-            "No active sykmelding sent to employer"
+            "No active sykmelding sent to employer",
         )
 
     data object NoActiveEmploymentError :
         ApiError(
             HttpStatusCode.Forbidden,
             ErrorType.NO_ACTIVE_EMPLOYMENT,
-            "No active employment relationship found for given orgnumber"
+            "No active employment relationship found for given orgnumber",
         )
 
     data object EmployeeNotFoundError :
         ApiError(
             HttpStatusCode.NotFound,
             ErrorType.EMPLOYEE_NOT_FOUND,
-            "Could not find requested person in our systems"
+            "Could not find requested person in our systems",
         )
 
     data object ForbiddenAccessVeilederError :
         ApiError(
             HttpStatusCode.Forbidden,
             ErrorType.FORBIDDEN_ACCESS_VEILEDER,
-            "Forbidden"
+            "Forbidden",
         )
 
     data object FollowupPlanNotFoundError :
         ApiError(
             HttpStatusCode.NotFound,
             ErrorType.FOLLOWUP_PLAN_NOT_FOUND,
-            "The follow-up plan with a given uuid was not found"
+            "The follow-up plan with a given uuid was not found",
         )
 }

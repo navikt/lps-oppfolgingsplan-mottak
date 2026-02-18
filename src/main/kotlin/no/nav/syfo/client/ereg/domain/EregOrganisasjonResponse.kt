@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class EregOrganisasjonResponse(
-        val navn: EregOrganisasjonNavn
+    val navn: EregOrganisasjonNavn,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class EregOrganisasjonNavn(
-        val sammensattnavn: String,
+    val sammensattnavn: String,
 )
 
-fun EregOrganisasjonResponse.getNavn(): String {
-    return this.navn.sammensattnavn
-}
+fun EregOrganisasjonResponse.getNavn(): String = this.navn.sammensattnavn

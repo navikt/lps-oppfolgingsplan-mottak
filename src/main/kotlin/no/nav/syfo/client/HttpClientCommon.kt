@@ -37,4 +37,5 @@ val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
 }
 
 fun httpClientDefault() = HttpClient(Apache, commonConfig)
+
 fun httpClientProxy() = HttpClient(Apache, proxyConfig)

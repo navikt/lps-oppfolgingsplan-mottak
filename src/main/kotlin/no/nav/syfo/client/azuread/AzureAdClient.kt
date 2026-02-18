@@ -25,17 +25,21 @@ class AzureAdClient(
     private val clientId = authEnv.azuread.clientId
     private val clientSecret = authEnv.azuread.clientSecret
 
-    suspend fun getOnBehalfOfToken(scopeClientId: String, token: String): AzureAdToken? = getAccessToken(
-        Parameters.build {
-            append("client_id", clientId)
-            append("client_secret", clientSecret)
-            append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-            append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-            append("assertion", token)
-            append("scope", "api://$scopeClientId/.default")
-            append("requested_token_use", "on_behalf_of")
-        }
-    )?.toAzureAdToken()
+    suspend fun getOnBehalfOfToken(
+        scopeClientId: String,
+        token: String,
+    ): AzureAdToken? =
+        getAccessToken(
+            Parameters.build {
+                append("client_id", clientId)
+                append("client_secret", clientSecret)
+                append("client_assertion_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                append("assertion", token)
+                append("scope", "api://$scopeClientId/.default")
+                append("requested_token_use", "on_behalf_of")
+            },
+        )?.toAzureAdToken()
 
     suspend fun getSystemToken(scopeClientId: String): AzureAdToken? {
         val cacheKey = "${CACHE_AZUREAD_TOKEN_SYSTEM_KEY_PREFIX}$scopeClientId"
@@ -43,14 +47,15 @@ class AzureAdClient(
         return if (cachedToken?.isExpired() == false) {
             cachedToken
         } else {
-            val azureAdTokenResponse = getAccessToken(
-                Parameters.build {
-                    append("client_id", clientId)
-                    append("client_secret", clientSecret)
-                    append("grant_type", "client_credentials")
-                    append("scope", "api://$scopeClientId/.default")
-                }
-            )
+            val azureAdTokenResponse =
+                getAccessToken(
+                    Parameters.build {
+                        append("client_id", clientId)
+                        append("client_secret", clientSecret)
+                        append("grant_type", "client_credentials")
+                        append("scope", "api://$scopeClientId/.default")
+                    },
+                )
             azureAdTokenResponse?.let { token ->
                 token.toAzureAdToken().also {
                     cache[cacheKey] = it
@@ -59,26 +64,23 @@ class AzureAdClient(
         }
     }
 
-    private suspend fun getAccessToken(
-        formParameters: Parameters,
-    ): AzureAdTokenResponse? =
+    private suspend fun getAccessToken(formParameters: Parameters): AzureAdTokenResponse? =
         try {
-            val response: HttpResponse = httpClient.post(aadAccessTokenUrl) {
-                accept(ContentType.Application.Json)
-                setBody(FormDataContent(formParameters))
-            }
+            val response: HttpResponse =
+                httpClient.post(aadAccessTokenUrl) {
+                    accept(ContentType.Application.Json)
+                    setBody(FormDataContent(formParameters))
+                }
             response.body<AzureAdTokenResponse>()
         } catch (e: ResponseException) {
             handleUnexpectedResponseException(e)
             null
         }
 
-    private fun handleUnexpectedResponseException(
-        responseException: ResponseException,
-    ) {
+    private fun handleUnexpectedResponseException(responseException: ResponseException) {
         log.error(
             "Error while requesting AzureAdAccessToken with statusCode=${responseException.response.status.value}",
-            responseException
+            responseException,
         )
     }
 

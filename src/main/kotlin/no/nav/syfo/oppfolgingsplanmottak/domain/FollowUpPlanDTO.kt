@@ -33,7 +33,7 @@ data class FollowUpPlanDTO(
         employeeName: String?,
         employeePhoneNumber: String?,
         employeeEmail: String?,
-        employeeAddress: String?
+        employeeAddress: String?,
     ): OppfolgingsplanOpPdfGenRequest {
         val sendPlanTo = getSendToString(this.sendPlanToNav, this.sendPlanToGeneralPractitioner)
         val evaluationDateFormatted = getEvaluationDateFormatted(this.evaluationDate)
@@ -63,15 +63,16 @@ data class FollowUpPlanDTO(
                 employerContactPersonEmail = this.contactPersonEmail,
                 employeeHasContributedToPlan = if (this.employeeHasContributedToPlan) "Ja" else "Nei",
                 employeeHasNotContributedToPlanDescription = this.employeeHasNotContributedToPlanDescription,
-            )
+            ),
         )
     }
 
-    private fun getEvaluationDateFormatted(date: LocalDate): String {
-        return date.format(DateTimeFormatter.ofPattern("dd. MMMM yyyy"))
-    }
+    private fun getEvaluationDateFormatted(date: LocalDate): String = date.format(DateTimeFormatter.ofPattern("dd. MMMM yyyy"))
 
-    private fun getSendToString(nav: Boolean, lege: Boolean): String {
+    private fun getSendToString(
+        nav: Boolean,
+        lege: Boolean,
+    ): String {
         var sendToStr = ""
         if (nav) {
             sendToStr += "NAV"

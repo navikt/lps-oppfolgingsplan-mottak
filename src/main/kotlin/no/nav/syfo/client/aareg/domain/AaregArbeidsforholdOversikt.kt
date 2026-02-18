@@ -1,7 +1,7 @@
 package no.nav.syfo.client.aareg.domain
 
 data class AaregArbeidsforholdOversikt(
-    val arbeidsforholdoversikter: List<Arbeidsforholdoversikt> = emptyList()
+    val arbeidsforholdoversikter: List<Arbeidsforholdoversikt> = emptyList(),
 )
 
 data class Arbeidsforholdoversikt(
@@ -11,12 +11,13 @@ data class Arbeidsforholdoversikt(
 
 data class Arbeidssted(
     val type: ArbeidsstedType,
-    val identer: List<Ident>
+    val identer: List<Ident>,
 ) {
     fun getOrgnummer() =
-        identer.firstOrNull {
-            it.type == IdentType.ORGANISASJONSNUMMER
-        }?.ident
+        identer
+            .firstOrNull {
+                it.type == IdentType.ORGANISASJONSNUMMER
+            }?.ident
 }
 
 data class Opplysningspliktig(
@@ -24,9 +25,10 @@ data class Opplysningspliktig(
     val identer: List<Ident>,
 ) {
     fun getJuridiskOrgnummer() =
-        identer.firstOrNull {
-            it.type == IdentType.ORGANISASJONSNUMMER
-        }?.ident
+        identer
+            .firstOrNull {
+                it.type == IdentType.ORGANISASJONSNUMMER
+            }?.ident
 }
 
 data class Ident(

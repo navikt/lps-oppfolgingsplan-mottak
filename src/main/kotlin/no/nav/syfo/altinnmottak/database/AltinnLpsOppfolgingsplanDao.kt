@@ -11,7 +11,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppfolgingsplan) {
-    val insertStatement = """
+    val insertStatement =
+        """
         INSERT INTO ALTINN_LPS (
             uuid,
             lps_fnr,
@@ -23,7 +24,7 @@ fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppf
             created,
             last_changed
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """.trimIndent()
+        """.trimIndent()
 
     connection.use { connection ->
         connection.prepareStatement(insertStatement).use {
@@ -42,124 +43,149 @@ fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppf
     }
 }
 
-fun DatabaseInterface.storeFnr(uuid: UUID, fnr: String): Int {
-    val updateStatement = """
+fun DatabaseInterface.storeFnr(
+    uuid: UUID,
+    fnr: String,
+): Int {
+    val updateStatement =
+        """
         UPDATE ALTINN_LPS
         SET fnr = ?, last_changed = ?
         WHERE uuid = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
-        val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setString(1, fnr)
-            it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
-            it.setObject(3, uuid)
-            it.executeUpdate()
-        }
+        val rowsUpdated =
+            connection.prepareStatement(updateStatement).use {
+                it.setString(1, fnr)
+                it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+                it.setObject(3, uuid)
+                it.executeUpdate()
+            }
         connection.commit()
         rowsUpdated
     }
 }
 
-fun DatabaseInterface.storePdf(uuid: UUID, pdfBytes: ByteArray): Int {
-    val updateStatement = """
+fun DatabaseInterface.storePdf(
+    uuid: UUID,
+    pdfBytes: ByteArray,
+): Int {
+    val updateStatement =
+        """
         UPDATE ALTINN_LPS
         SET pdf = ?, last_changed = ?
         WHERE uuid = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
-        val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setBytes(1, pdfBytes)
-            it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
-            it.setObject(3, uuid)
-            it.executeUpdate()
-        }
+        val rowsUpdated =
+            connection.prepareStatement(updateStatement).use {
+                it.setBytes(1, pdfBytes)
+                it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+                it.setObject(3, uuid)
+                it.executeUpdate()
+            }
         connection.commit()
         rowsUpdated
     }
 }
 
-fun DatabaseInterface.updateJournalpostId(uuid: UUID, journalpostId: String): Int {
-    val updateStatement = """
+fun DatabaseInterface.updateJournalpostId(
+    uuid: UUID,
+    journalpostId: String,
+): Int {
+    val updateStatement =
+        """
         UPDATE ALTINN_LPS
         SET journalpost_id = ?, last_changed = ?
         WHERE uuid = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
-        val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setString(1, journalpostId)
-            it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
-            it.setObject(3, uuid)
-            it.executeUpdate()
-        }
+        val rowsUpdated =
+            connection.prepareStatement(updateStatement).use {
+                it.setString(1, journalpostId)
+                it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+                it.setObject(3, uuid)
+                it.executeUpdate()
+            }
         connection.commit()
         rowsUpdated
     }
 }
 
 fun DatabaseInterface.setSentToNavTrue(uuid: UUID): Int {
-    val updateStatement = """
+    val updateStatement =
+        """
         UPDATE ALTINN_LPS
         SET sent_to_nav = TRUE, last_changed = ?
         WHERE uuid = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
-        val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()))
-            it.setObject(2, uuid)
-            it.executeUpdate()
-        }
+        val rowsUpdated =
+            connection.prepareStatement(updateStatement).use {
+                it.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()))
+                it.setObject(2, uuid)
+                it.executeUpdate()
+            }
         connection.commit()
         rowsUpdated
     }
 }
 
 fun DatabaseInterface.setSentToFastlegeTrue(uuid: UUID): Int {
-    val updateStatement = """
+    val updateStatement =
+        """
         UPDATE ALTINN_LPS
         SET sent_to_fastlege = TRUE, last_changed = ?
         WHERE uuid = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
-        val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()))
-            it.setObject(2, uuid)
-            it.executeUpdate()
-        }
+        val rowsUpdated =
+            connection.prepareStatement(updateStatement).use {
+                it.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()))
+                it.setObject(2, uuid)
+                it.executeUpdate()
+            }
         connection.commit()
         rowsUpdated
     }
 }
 
-fun DatabaseInterface.updateSendToFastlegeRetryCount(uuid: UUID, prevCount: Int): Int {
-    val updateStatement = """
+fun DatabaseInterface.updateSendToFastlegeRetryCount(
+    uuid: UUID,
+    prevCount: Int,
+): Int {
+    val updateStatement =
+        """
         UPDATE ALTINN_LPS
         SET send_to_fastlege_retry_count = ?, last_changed = ?
         WHERE uuid = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
-        val rowsUpdated = connection.prepareStatement(updateStatement).use {
-            it.setInt(1, prevCount + 1)
-            it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
-            it.setObject(3, uuid)
-            it.executeUpdate()
-        }
+        val rowsUpdated =
+            connection.prepareStatement(updateStatement).use {
+                it.setInt(1, prevCount + 1)
+                it.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()))
+                it.setObject(3, uuid)
+                it.executeUpdate()
+            }
         connection.commit()
         rowsUpdated
     }
 }
 
 fun DatabaseInterface.getAltinnLpsOppfolgingsplanByUuid(lpsUUID: UUID): AltinnLpsOppfolgingsplan {
-    val queryStatement = """
+    val queryStatement =
+        """
         SELECT *
         FROM ALTINN_LPS
         WHERE uuid = ?
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
@@ -170,13 +196,14 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanByUuid(lpsUUID: UUID): AltinnLp
 }
 
 fun DatabaseInterface.getAltinnLpsOppfolgingsplanWithoutMostRecentFnr(): List<AltinnLpsOppfolgingsplan> {
-    val queryStatement = """
+    val queryStatement =
+        """
         SELECT *
         FROM ALTINN_LPS
         WHERE fnr is null
         AND skip_retry is not true 
         LIMIT 50
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
@@ -186,14 +213,15 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanWithoutMostRecentFnr(): List<Al
 }
 
 fun DatabaseInterface.getAltinnLpsOppfolgingsplanWithoutGeneratedPdf(): List<AltinnLpsOppfolgingsplan> {
-    val queryStatement = """
+    val queryStatement =
+        """
         SELECT *
         FROM ALTINN_LPS
         WHERE fnr is not null
         AND pdf is null
         AND skip_retry is not true
         LIMIT 50
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
@@ -202,9 +230,9 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanWithoutGeneratedPdf(): List<Alt
     }
 }
 
-
 fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToNav(): List<AltinnLpsOppfolgingsplan> {
-    val queryStatement = """
+    val queryStatement =
+        """
         SELECT *
         FROM ALTINN_LPS
         WHERE pdf is not null
@@ -213,7 +241,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToNav(): List<AltinnL
         AND migrated = false
         AND skip_retry is not true
         LIMIT 50
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
@@ -222,9 +250,9 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToNav(): List<AltinnL
     }
 }
 
-fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThreshold: Int):
-        List<AltinnLpsOppfolgingsplan> {
-    val queryStatement = """
+fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThreshold: Int): List<AltinnLpsOppfolgingsplan> {
+    val queryStatement =
+        """
         SELECT *
         FROM ALTINN_LPS
         WHERE pdf is not null
@@ -234,7 +262,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThres
         AND migrated = false
         AND skip_retry is not true
         LIMIT 50
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {
@@ -245,7 +273,8 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToFastlege(retryThres
 }
 
 fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv(): List<AltinnLpsOppfolgingsplan> {
-    val queryStatement = """
+    val queryStatement =
+        """
         SELECT *
         FROM ALTINN_LPS
         WHERE sent_to_nav
@@ -254,7 +283,7 @@ fun DatabaseInterface.getAltinnLpsOppfolgingsplanNotYetSentToDokarkiv(): List<Al
         AND migrated = false
         AND skip_retry is not true
         LIMIT 50
-    """.trimIndent()
+        """.trimIndent()
 
     return connection.use { connection ->
         connection.prepareStatement(queryStatement).use {

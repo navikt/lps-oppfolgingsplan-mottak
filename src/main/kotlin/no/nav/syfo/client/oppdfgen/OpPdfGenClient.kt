@@ -34,25 +34,25 @@ class OpPdfGenClient(
     private val krrProxyClient: KrrProxyClient,
     private val client: HttpClient = httpClientDefault(),
 ) {
-
     private val pdlUtils = PdlUtils(pdlClient)
 
     suspend fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
         val requestUrl = "${urls.opPdfGenUrl}/$ALTINN_PLAN_PATH"
         val requestBody = mapper.writeValueAsString(fagmelding)
-        val response = try {
-            client.post(requestUrl) {
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
-                    append(NAV_CALL_ID_HEADER, createCallId())
+        val response =
+            try {
+                client.post(requestUrl) {
+                    headers {
+                        append(HttpHeaders.ContentType, ContentType.Application.Json)
+                        append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
+                        append(NAV_CALL_ID_HEADER, createCallId())
+                    }
+                    setBody(requestBody)
                 }
-                setBody(requestBody)
+            } catch (e: Exception) {
+                log.error("Call to get generate PDF for Altinn LPS-plan failed due to exception: ${e.message}", e)
+                throw e
             }
-        } catch (e: Exception) {
-            log.error("Call to get generate PDF for Altinn LPS-plan failed due to exception: ${e.message}", e)
-            throw e
-        }
 
         return when (response.status) {
             HttpStatusCode.OK -> {
@@ -76,28 +76,30 @@ class OpPdfGenClient(
 
         val personDigitalContactInfo = krrProxyClient.person(fnr)
 
-        val request = followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
-            employeeName,
-            employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
-            employeeEmail = personDigitalContactInfo?.epostadresse,
-            employeeAdress
-        )
+        val request =
+            followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
+                employeeName,
+                employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
+                employeeEmail = personDigitalContactInfo?.epostadresse,
+                employeeAdress,
+            )
         val requestBody = mapper.writeValueAsString(request)
 
-        val response = try {
-            log.info("Calling PdfGen")
-            client.post(requestUrl) {
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
-                    append(NAV_CALL_ID_HEADER, createCallId())
+        val response =
+            try {
+                log.info("Calling PdfGen")
+                client.post(requestUrl) {
+                    headers {
+                        append(HttpHeaders.ContentType, ContentType.Application.Json)
+                        append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
+                        append(NAV_CALL_ID_HEADER, createCallId())
+                    }
+                    setBody(requestBody)
                 }
-                setBody(requestBody)
+            } catch (e: Exception) {
+                log.error("Call to get PDF for LPS-plan failed due to exception: ${e.message}", e)
+                throw e
             }
-        } catch (e: Exception) {
-            log.error("Call to get PDF for LPS-plan failed due to exception: ${e.message}", e)
-            throw e
-        }
 
         return when (response.status) {
             HttpStatusCode.OK -> {
@@ -110,7 +112,7 @@ class OpPdfGenClient(
             else -> {
                 log.error(
                     "Call to generate PDF failed with status: ${response.status}, " +
-                        "response body: ${response.bodyAsText()}"
+                        "response body: ${response.bodyAsText()}",
                 )
                 null
             }
@@ -122,9 +124,10 @@ class OpPdfGenClient(
         private const val ALTINN_PLAN_PATH = "api/v1/genpdf/opservice/oppfolgingsplanlps"
         const val FOLLOWUP_PLAN_PATH = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
 
-        private val mapper = ObjectMapper()
-            .registerKotlinModule()
-            .registerModule(JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        private val mapper =
+            ObjectMapper()
+                .registerKotlinModule()
+                .registerModule(JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     }
 }

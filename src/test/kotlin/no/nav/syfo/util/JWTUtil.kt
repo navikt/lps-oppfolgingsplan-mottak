@@ -15,32 +15,35 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
-fun validVeilederToken(navIdent: String = UserConstants.VEILEDER_IDENT) = generateAzureAdJWT(
-    audience = ExternalMockEnvironment.instance.environment.auth.azuread.clientId,
-    issuer = ExternalMockEnvironment.instance.wellKnownInternalAzureAD.issuer,
-    navIdent = navIdent,
-)
-
-fun validMaskinportenToken(consumerOrgnumber: String = "123456789", supplierOrgnumber: String = "889640782") =
-    generateMaskinportenJWT(
-        issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
-        scope = ExternalMockEnvironment.instance.environment.auth.maskinporten.scope,
-        consumerOrgnumber = consumerOrgnumber,
-        supplierOrgnumber = supplierOrgnumber,
-        expiry = LocalDateTime.now().plusHours(1)
+fun validVeilederToken(navIdent: String = UserConstants.VEILEDER_IDENT) =
+    generateAzureAdJWT(
+        audience = ExternalMockEnvironment.instance.environment.auth.azuread.clientId,
+        issuer = ExternalMockEnvironment.instance.wellKnownInternalAzureAD.issuer,
+        navIdent = navIdent,
     )
+
+fun validMaskinportenToken(
+    consumerOrgnumber: String = "123456789",
+    supplierOrgnumber: String = "889640782",
+) = generateMaskinportenJWT(
+    issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
+    scope = ExternalMockEnvironment.instance.environment.auth.maskinporten.scope,
+    consumerOrgnumber = consumerOrgnumber,
+    supplierOrgnumber = supplierOrgnumber,
+    expiry = LocalDateTime.now().plusHours(1),
+)
 
 fun customMaskinportenToken(
     consumerOrgnumber: String? = "123456789",
     supplierOrgnumber: String? = "889640782",
     scope: String = ExternalMockEnvironment.instance.environment.auth.maskinporten.scope,
-    expiry: LocalDateTime = LocalDateTime.now().plusHours(1)
+    expiry: LocalDateTime = LocalDateTime.now().plusHours(1),
 ) = generateMaskinportenJWT(
     issuer = ExternalMockEnvironment.instance.wellKnownMaskinporten.issuer,
     scope = scope,
     consumerOrgnumber = consumerOrgnumber,
     supplierOrgnumber = supplierOrgnumber,
-    expiry = expiry
+    expiry = expiry,
 )
 
 const val KEY_ID = "localhost-signer"
@@ -56,7 +59,8 @@ fun generateAzureAdJWT(
     val key = getDefaultRSAKey()
     val alg = Algorithm.RSA256(key.toRSAPublicKey(), key.toRSAPrivateKey())
 
-    return JWT.create()
+    return JWT
+        .create()
         .withKeyId(KEY_ID)
         .withIssuer(issuer)
         .withAudience(audience)
@@ -73,40 +77,40 @@ fun generateMaskinportenJWT(
     scope: String,
     expiry: LocalDateTime?,
     consumerOrgnumber: String?,
-    supplierOrgnumber: String?
+    supplierOrgnumber: String?,
 ): String {
     val now = Date()
     val key = getDefaultRSAKey()
     val alg = Algorithm.RSA256(key.toRSAPublicKey(), key.toRSAPrivateKey())
 
-    val jwtBuilder = JWT.create()
-        .withKeyId(KEY_ID)
-        .withIssuer(issuer)
-        .withJWTId(UUID.randomUUID().toString())
-        .withClaim("iat", now)
-        .withClaim("scope", scope)
-        .withExpiresAt(expiry?.let { Date.from(it.atZone(ZoneId.systemDefault()).toInstant()) })
+    val jwtBuilder =
+        JWT
+            .create()
+            .withKeyId(KEY_ID)
+            .withIssuer(issuer)
+            .withJWTId(UUID.randomUUID().toString())
+            .withClaim("iat", now)
+            .withClaim("scope", scope)
+            .withExpiresAt(expiry?.let { Date.from(it.atZone(ZoneId.systemDefault()).toInstant()) })
 
     if (!consumerOrgnumber.isNullOrEmpty()) {
         jwtBuilder.withClaim(
             "consumer",
-            mapOf("authority" to "iso6523-actorid-upis", "ID" to "0192:$consumerOrgnumber")
+            mapOf("authority" to "iso6523-actorid-upis", "ID" to "0192:$consumerOrgnumber"),
         )
     }
 
     if (!supplierOrgnumber.isNullOrEmpty()) {
         jwtBuilder.withClaim(
             "supplier",
-            mapOf("authority" to "iso6523-actorid-upis", "ID" to "0192:$supplierOrgnumber")
+            mapOf("authority" to "iso6523-actorid-upis", "ID" to "0192:$supplierOrgnumber"),
         )
     }
 
     return jwtBuilder.sign(alg)
 }
 
-private fun getDefaultRSAKey(): RSAKey {
-    return getJWKSet().getKeyByKeyId(KEY_ID) as RSAKey
-}
+private fun getDefaultRSAKey(): RSAKey = getJWKSet().getKeyByKeyId(KEY_ID) as RSAKey
 
 private fun getJWKSet(): JWKSet {
     val jwkSet = getFileAsString("src/test/resources/jwkset.json")

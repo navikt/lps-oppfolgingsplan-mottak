@@ -11,7 +11,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
-import java.util.*
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.httpClientDefault
@@ -20,6 +19,7 @@ import no.nav.syfo.client.krrproxy.domain.PostPersonerRequest
 import no.nav.syfo.client.krrproxy.domain.PostPersonerResponse
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class KrrProxyClient(
     private val urlEnv: UrlEnv,
@@ -28,21 +28,21 @@ class KrrProxyClient(
 ) {
     suspend fun person(fnr: String): Kontaktinfo? {
         val accessToken = "Bearer ${azureAdTokenConsumer.getSystemToken(urlEnv.krrProxyScope)?.accessToken}"
-        val response: HttpResponse? = try {
-            client.post(urlEnv.krrProxyUrl) {
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(HttpHeaders.Authorization, accessToken)
-                    append(NAV_CALL_ID_HEADER, createCallId())
+        val response: HttpResponse? =
+            try {
+                client.post(urlEnv.krrProxyUrl) {
+                    headers {
+                        append(HttpHeaders.ContentType, ContentType.Application.Json)
+                        append(HttpHeaders.Authorization, accessToken)
+                        append(NAV_CALL_ID_HEADER, createCallId())
+                    }
+                    setBody(PostPersonerRequest.createForFnr(fnr))
                 }
-                setBody(PostPersonerRequest.createForFnr(fnr))
+            } catch (e: Exception) {
+                log.error("Error while calling KRR-PROXY: ${e.message}", e)
 
+                return null
             }
-        } catch (e: Exception) {
-            log.error("Error while calling KRR-PROXY: ${e.message}", e)
-
-            return null
-        }
 
         return when (response?.status) {
             HttpStatusCode.OK -> {
@@ -57,7 +57,7 @@ class KrrProxyClient(
             else -> {
                 log.error(
                     "Call to get  kontaktinfo from KRR-PROXY failed with status: ${response?.status}, " +
-                        "response body: ${response?.bodyAsText()}"
+                        "response body: ${response?.bodyAsText()}",
                 )
                 null
             }

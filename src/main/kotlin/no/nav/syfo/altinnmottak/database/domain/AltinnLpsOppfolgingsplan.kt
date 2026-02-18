@@ -34,7 +34,9 @@ data class AltinnLpsOppfolgingsplan(
         if (pdf != null) {
             if (other.pdf == null) return false
             if (!pdf.contentEquals(other.pdf)) return false
-        } else if (other.pdf != null) return false
+        } else if (other.pdf != null) {
+            return false
+        }
         if (xml != other.xml) return false
         if (shouldSendToNav != other.shouldSendToNav) return false
         if (shouldSendToFastlege != other.shouldSendToFastlege) return false
