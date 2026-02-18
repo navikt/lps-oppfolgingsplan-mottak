@@ -63,7 +63,7 @@ script:pre-request {
 script:post-response {
   const data = res.getBody();
   const accessToken = data.access_token; 
-  bru.setEnvVar("maskinportenToken", accessToken, { persist: true });
+  bru.setVar("maskinportenToken", accessToken);
 }
 
 settings {
