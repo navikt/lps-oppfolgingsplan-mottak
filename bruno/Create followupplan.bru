@@ -54,7 +54,7 @@ assert {
 script:post-response {
   const data = res.getBody();
   const uuid = data.uuid; 
-  bru.setEnvVar("followupplanUuid", uuid, { persist: true });
+  bru.setVar("followupplanUuid", uuid);
 }
 
 settings {

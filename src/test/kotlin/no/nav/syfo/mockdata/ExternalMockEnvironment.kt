@@ -1,5 +1,6 @@
 package no.nav.syfo.mockdata
 
+import io.mockk.mockk
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.client.wellknown.WellKnown
@@ -32,7 +33,7 @@ class ExternalMockEnvironment private constructor() {
     val wellKnownMaskinporten = wellKnownMaskinporten()
     val wellKnownInternalAzureAD = wellKnownInternalAzureAD()
 
-    val azureAdClient = AzureAdClient(environment.auth, httpClient = mockHttpClient)
+    val azureAdClient = mockk<AzureAdClient>(relaxed = true)
 
     companion object {
         val instance: ExternalMockEnvironment = ExternalMockEnvironment()

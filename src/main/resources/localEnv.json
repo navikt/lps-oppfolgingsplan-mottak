@@ -22,29 +22,25 @@
     "azuread": {
       "clientId": "aad_client_id",
       "clientSecret": "aad_client_secret",
-      "accessTokenUrl": "aad_access_token",
-      "wellKnownUrl": "aad_well_known"
+      "accessTokenUrl": "http://localhost:6969/azuread/token",
+      "wellKnownUrl": "http://localhost:6969/azuread/.well-known/openid-configuration"
     }
   },
   "database": {
-    "dbHost": "127.0.0.1",
+    "dbHost": "localhost",
     "dbPort": "5432",
     "dbName": "lps-db",
-    "dbUsername": "lps-user",
+    "dbUsername": "username",
     "dbPassword": "password"
   },
   "kafka": {
-    "brokerUrl": "<BROKER_HOST>",
+    "brokerUrl": "localhost:9092",
     "schemaRegistry": {
-      "url": "<SCHEMA_REGISTRY_URL>",
-      "username": "usr",
-      "password": "pwd"
+      "url": "http://localhost:8081",
+      "username": null,
+      "password": null
     },
-    "sslConfig": {
-      "truststoreLocation": "path_to_truststore",
-      "keystoreLocation": "path_to_keystore",
-      "credstorePassword": "path_to_credstore"
-    }
+    "sslConfig": null
   },
   "urls": {
     "pdlUrl": "http://pdl.no",
