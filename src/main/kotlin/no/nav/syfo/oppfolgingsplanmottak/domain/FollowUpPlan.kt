@@ -6,9 +6,8 @@ data class FollowUpPlan(
     val isSentToNavStatus: Boolean?,
     val pdf: ByteArray?,
 ) {
-    fun toFollowUpPlanResponse(): FollowUpPlanResponse {
-        return FollowUpPlanResponse(this.uuid, this.isSentToGeneralPractitionerStatus, this.isSentToNavStatus)
-    }
+    fun toFollowUpPlanResponse(): FollowUpPlanResponse =
+        FollowUpPlanResponse(this.uuid, this.isSentToGeneralPractitionerStatus, this.isSentToNavStatus)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -22,7 +21,9 @@ data class FollowUpPlan(
         if (pdf != null) {
             if (other.pdf == null) return false
             if (!pdf.contentEquals(other.pdf)) return false
-        } else if (other.pdf != null) return false
+        } else if (other.pdf != null) {
+            return false
+        }
 
         return true
     }

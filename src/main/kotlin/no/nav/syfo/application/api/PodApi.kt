@@ -1,7 +1,6 @@
 package no.nav.syfo.application.api
 
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
@@ -31,17 +30,17 @@ fun Routing.registerPodApi(
     }
 }
 
-private fun isReady(applicationState: ApplicationState, database: DatabaseInterface): Boolean {
-    return applicationState.ready && database.isOk()
-}
+private fun isReady(
+    applicationState: ApplicationState,
+    database: DatabaseInterface,
+): Boolean = applicationState.ready && database.isOk()
 
 @Suppress("SwallowedException")
-private fun DatabaseInterface.isOk(): Boolean {
-    return try {
+private fun DatabaseInterface.isOk(): Boolean =
+    try {
         connection.use {
             it.isValid(1)
         }
     } catch (ex: Exception) {
         false
     }
-}

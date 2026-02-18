@@ -18,16 +18,17 @@ fun Application.schedulerModule(
     val leaderElection = LeaderElection(env.application)
 
     launch(backgroundTasksContext) {
-        val scheduler = AltinnLpsScheduler(
-            database,
-            altinnLpsService,
-            leaderElection,
-            env.toggles,
-        ).startScheduler()
+        val scheduler =
+            AltinnLpsScheduler(
+                database,
+                altinnLpsService,
+                leaderElection,
+                env.toggles,
+            ).startScheduler()
         Runtime.getRuntime().addShutdownHook(
             Thread {
                 scheduler.shutdown()
-            }
+            },
         )
     }
 }

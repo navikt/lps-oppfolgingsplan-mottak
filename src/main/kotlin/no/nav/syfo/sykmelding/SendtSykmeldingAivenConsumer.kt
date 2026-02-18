@@ -26,19 +26,20 @@ class SendtSykmeldingAivenConsumer(
     private val objectMapper = configuredJacksonMapper()
 
     init {
-        val kafkaConfig = consumerProperties(env).apply {
-            put(CommonClientConfigs.GROUP_ID_CONFIG, "lps-oppfolgingsplan-mottak-sendt-sykmelding-01")
-            put(
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                "org.apache.kafka.common.serialization.StringDeserializer"
-            )
-            put(
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                "org.apache.kafka.common.serialization.StringDeserializer"
-            )
-            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-            put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
-        }
+        val kafkaConfig =
+            consumerProperties(env).apply {
+                put(CommonClientConfigs.GROUP_ID_CONFIG, "lps-oppfolgingsplan-mottak-sendt-sykmelding-01")
+                put(
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                    "org.apache.kafka.common.serialization.StringDeserializer",
+                )
+                put(
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                    "org.apache.kafka.common.serialization.StringDeserializer",
+                )
+                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+                put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
+            }
         kafkaListener = KafkaConsumer(kafkaConfig)
         kafkaListener.subscribe(listOf(SENDT_SYKMELDING_TOPIC))
     }
@@ -67,7 +68,7 @@ class SendtSykmeldingAivenConsumer(
                     sykmeldingId = sykmeldingId,
                     employeeIdentificationNumber = sykmeldingKafkaMessage.kafkaMetadata.fnr,
                     orgnumber = sykmeldingKafkaMessage.event.arbeidsgiver.orgnummer,
-                    sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder
+                    sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder,
                 )
             }
             log.info("Committing offset")

@@ -110,11 +110,14 @@ fun PdlHentPerson.toPersonName(): String? {
     }
 }
 
-private fun getMellomnavn(mellomnavn: String?): String {
-    return if (mellomnavn !== null) " $mellomnavn" else ""
-}
+private fun getMellomnavn(mellomnavn: String?): String = if (mellomnavn !== null) " $mellomnavn" else ""
 
 fun PdlHentPerson.isNotGradert(): Boolean {
-    val graderingName = this.hentPerson?.adressebeskyttelse?.firstOrNull()?.gradering?.name
+    val graderingName =
+        this.hentPerson
+            ?.adressebeskyttelse
+            ?.firstOrNull()
+            ?.gradering
+            ?.name
     return graderingName == null || graderingName == Gradering.UGRADERT.name
 }

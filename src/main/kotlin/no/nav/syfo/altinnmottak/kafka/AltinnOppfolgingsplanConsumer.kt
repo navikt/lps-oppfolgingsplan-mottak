@@ -12,13 +12,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 const val ALTINNKANAL_TOPIC = "alf.aapen-altinn-oppfolgingsplan-mottatt-v2"
 
 class AltinnOppfolgingsplanConsumer(
     val env: KafkaEnv,
-    private val altinnLPSService: AltinnLpsService
+    private val altinnLPSService: AltinnLpsService,
 ) : KafkaListener {
     private val log: Logger = LoggerFactory.getLogger(AltinnOppfolgingsplanConsumer::class.qualifiedName)
     private val kafkaListener: KafkaConsumer<String, ReceivedMessage>

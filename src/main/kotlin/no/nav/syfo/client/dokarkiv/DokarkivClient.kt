@@ -27,7 +27,7 @@ import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.createBearerToken
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class DokarkivClient(
     urls: UrlEnv,
@@ -48,14 +48,15 @@ class DokarkivClient(
         val orgName = eregClient.getEmployerOrganisationName(employerOrgnr)
         val avsenderMottaker = createAvsenderMottaker(employerOrgnr, orgName)
 
-        val journalpostRequest = createJournalpostRequest(
-            followUpPlan.employeeIdentificationNumber,
-            pdf,
-            navn = orgName ?: employerOrgnr ,
-            avsenderMottaker,
-            "NAV_NO",
-            uuid.toString(),
-        )
+        val journalpostRequest =
+            createJournalpostRequest(
+                followUpPlan.employeeIdentificationNumber,
+                pdf,
+                navn = orgName ?: employerOrgnr,
+                avsenderMottaker,
+                "NAV_NO",
+                uuid.toString(),
+            )
         return sendRequestToDokarkiv(journalpostRequest)
     }
 
@@ -64,57 +65,61 @@ class DokarkivClient(
         virksomhetsnavn: String,
     ): String {
         val avsenderMottaker = createAvsenderMottaker(lps.orgnummer)
-        val journalpostRequest = createJournalpostRequest(
-            lps.fnr!!,
-            lps.pdf!!,
-            virksomhetsnavn,
-            avsenderMottaker,
-            "ALTINN",
-            lps.uuid.toString(),
-        )
+        val journalpostRequest =
+            createJournalpostRequest(
+                lps.fnr!!,
+                lps.pdf!!,
+                virksomhetsnavn,
+                avsenderMottaker,
+                "ALTINN",
+                lps.uuid.toString(),
+            )
         return sendRequestToDokarkiv(journalpostRequest)
     }
 
     @Suppress("ThrowsCount")
     private suspend fun sendRequestToDokarkiv(journalpostRequest: JournalpostRequest): String {
-        val token = azureAdClient.getSystemToken(scope)?.accessToken
-            ?: throw RuntimeException("Failed to Journalfor: No token was found")
+        val token =
+            azureAdClient.getSystemToken(scope)?.accessToken
+                ?: throw RuntimeException("Failed to Journalfor: No token was found")
         val requestUrl = baseUrl + JOURNALPOST_API_PATH
-        val response = try {
-            client.post(requestUrl) {
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(HttpHeaders.Authorization, createBearerToken(token))
+        val response =
+            try {
+                client.post(requestUrl) {
+                    headers {
+                        append(HttpHeaders.ContentType, ContentType.Application.Json)
+                        append(HttpHeaders.Authorization, createBearerToken(token))
+                    }
+                    setBody(journalpostRequest)
                 }
-                setBody(journalpostRequest)
-            }
-        } catch (e: Exception) {
-            log.error("Could not send LPS plan to dokarkiv", e)
-            COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_FALSE.increment()
-            throw e
-        }
-
-        val responseBody = when (response.status) {
-            HttpStatusCode.Created -> {
-                COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_TRUE.increment()
-                runBlocking {
-                    response.body<JournalpostResponse>()
-                }
-            }
-
-            HttpStatusCode.Conflict -> {
-                log.warn("Journalpost for LPS plan already created!")
-                runBlocking {
-                    response.body<JournalpostResponse>()
-                }
-            }
-
-            else -> {
-                log.error("Call to Dokarkiv failed with status: ${response.status}, : ${response.bodyAsText()}")
+            } catch (e: Exception) {
+                log.error("Could not send LPS plan to dokarkiv", e)
                 COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_FALSE.increment()
-                throw RuntimeException("Internal server error")
+                throw e
             }
-        }
+
+        val responseBody =
+            when (response.status) {
+                HttpStatusCode.Created -> {
+                    COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_TRUE.increment()
+                    runBlocking {
+                        response.body<JournalpostResponse>()
+                    }
+                }
+
+                HttpStatusCode.Conflict -> {
+                    log.warn("Journalpost for LPS plan already created!")
+                    runBlocking {
+                        response.body<JournalpostResponse>()
+                    }
+                }
+
+                else -> {
+                    log.error("Call to Dokarkiv failed with status: ${response.status}, : ${response.bodyAsText()}")
+                    COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_FALSE.increment()
+                    throw RuntimeException("Internal server error")
+                }
+            }
 
         if (!responseBody.journalpostferdigstilt) {
             log.warn("Journalpost is not ferdigstilt with message " + responseBody.melding)
@@ -148,10 +153,11 @@ class DokarkivClient(
             kanal = kanal,
             sak = Sak(sakstype = SAKSTYPE_GENERELL_SAK),
             avsenderMottaker = avsenderMottaker,
-            bruker = Bruker(
-                id = fnr,
-                idType = FNR_TYPE,
-            ),
+            bruker =
+                Bruker(
+                    id = fnr,
+                    idType = FNR_TYPE,
+                ),
             dokumenter = makeDokumenter(dokumentnavn, pdf),
             eksternReferanseId = uuid,
         )
@@ -165,15 +171,16 @@ class DokarkivClient(
             dokumentKategori = DOKUMENT_KATEGORY_ES,
             brevkode = BREV_KODE_TYPE_OPPF_PLA,
             tittel = dokumentNavn,
-            dokumentvarianter = listOf(
-                Dokumentvariant(
-                    filnavn = dokumentNavn,
-                    filtype = FILE_TYPE_PDFA,
-                    variantformat = FORMAT_TYPE_ARKIV,
-                    fysiskDokument = dokumentPdf,
-                )
-            )
-        )
+            dokumentvarianter =
+                listOf(
+                    Dokumentvariant(
+                        filnavn = dokumentNavn,
+                        filtype = FILE_TYPE_PDFA,
+                        variantformat = FORMAT_TYPE_ARKIV,
+                        fysiskDokument = dokumentPdf,
+                    ),
+                ),
+        ),
     )
 
     companion object {

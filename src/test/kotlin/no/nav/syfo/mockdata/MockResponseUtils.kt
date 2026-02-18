@@ -29,53 +29,56 @@ fun <T> MockRequestHandleScope.respond(body: T): HttpResponseData =
     respond(
         mapper.writeValueAsString(body),
         HttpStatusCode.OK,
-        headersOf(HttpHeaders.ContentType, "application/json")
+        headersOf(HttpHeaders.ContentType, "application/json"),
     )
 
-fun MockRequestHandleScope.azureAdMockResponse(): HttpResponseData = respond(
-    AzureAdTokenResponse(
-        access_token = "token",
-        expires_in = 3600,
-        token_type = "type",
+fun MockRequestHandleScope.azureAdMockResponse(): HttpResponseData =
+    respond(
+        AzureAdTokenResponse(
+            access_token = "token",
+            expires_in = 3600,
+            token_type = "type",
+        ),
     )
-)
 
-fun MockRequestHandleScope.pdlPersonResponse(): HttpResponseData {
-    return respond(
-        (PdlPersonResponse(
-            errors = null, data = PdlHentPerson(
-                hentPerson = PdlPerson(
-                    adressebeskyttelse = listOf(Adressebeskyttelse(Gradering.UGRADERT)),
-                    navn = listOf(PersonNavn("Mavn", "Mellom", "Etternavn")),
-                    bostedsadresse = listOf(Bostedsadresse(Vegadresse("Gate", "1", "A", "1234")))
-                )
+fun MockRequestHandleScope.pdlPersonResponse(): HttpResponseData =
+    respond(
+        (
+            PdlPersonResponse(
+                errors = null,
+                data =
+                    PdlHentPerson(
+                        hentPerson =
+                            PdlPerson(
+                                adressebeskyttelse = listOf(Adressebeskyttelse(Gradering.UGRADERT)),
+                                navn = listOf(PersonNavn("Mavn", "Mellom", "Etternavn")),
+                                bostedsadresse = listOf(Bostedsadresse(Vegadresse("Gate", "1", "A", "1234"))),
+                            ),
+                    ),
             )
-        ))
+        ),
     )
-}
 
-fun MockRequestHandleScope.krrResponse(): HttpResponseData {
-    return respond(
+fun MockRequestHandleScope.krrResponse(): HttpResponseData =
+    respond(
         PostPersonerResponse(
-            personer = mapOf(
-                ARBEIDSTAKER_FNR to Kontaktinfo(
-                    kanVarsles = true,
-                    reservert = false,
-                    mobiltelefonnummer = "12121212",
-                    epostadresse = "epost@some.no"
-                )
-            )
-        )
+            personer =
+                mapOf(
+                    ARBEIDSTAKER_FNR to
+                        Kontaktinfo(
+                            kanVarsles = true,
+                            reservert = false,
+                            mobiltelefonnummer = "12121212",
+                            epostadresse = "epost@some.no",
+                        ),
+                ),
+        ),
     )
-}
 
-fun MockRequestHandleScope.opPdfGenResponse(): HttpResponseData {
-    return respond("<MOCK PDF CONTENT>".toByteArray())
-}
+fun MockRequestHandleScope.opPdfGenResponse(): HttpResponseData = respond("<MOCK PDF CONTENT>".toByteArray())
 
-fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequestData): HttpResponseData {
-    return when (request.headers[NAV_PERSONIDENT_HEADER]) {
+fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequestData): HttpResponseData =
+    when (request.headers[NAV_PERSONIDENT_HEADER]) {
         UserConstants.PERSONIDENT_VEILEDER_NO_ACCESS.value -> respond(Tilgang(erGodkjent = false))
         else -> respond(Tilgang(erGodkjent = true))
     }
-}

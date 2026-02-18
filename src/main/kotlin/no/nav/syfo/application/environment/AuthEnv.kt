@@ -5,6 +5,7 @@ data class AuthEnv(
     val basic: AuthBasic,
     val azuread: AzureAd,
 )
+
 data class AuthMaskinporten(
     val wellKnownUrl: String,
     val issuer: String,

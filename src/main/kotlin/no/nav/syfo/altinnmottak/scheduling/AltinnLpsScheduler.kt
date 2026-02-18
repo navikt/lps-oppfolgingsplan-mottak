@@ -43,41 +43,43 @@ class AltinnLpsScheduler(
     }
 
     private fun generateRetryProcessLpsPlanJob(): Pair<JobDetail, SimpleTrigger> {
-        val lpsRetryProcessLpsJob = newJob(AltinnLpsRetryProcessLpsJob::class.java)
-            .withIdentity(RETRY_PROCESSING_LPS_PLAN_JOB, ALTINN_LPS_PLAN_GROUP)
-            .build()
+        val lpsRetryProcessLpsJob =
+            newJob(AltinnLpsRetryProcessLpsJob::class.java)
+                .withIdentity(RETRY_PROCESSING_LPS_PLAN_JOB, ALTINN_LPS_PLAN_GROUP)
+                .build()
         lpsRetryProcessLpsJob.jobDataMap[DB_SHORTNAME] = database
         lpsRetryProcessLpsJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
         lpsRetryProcessLpsJob.jobDataMap[LEADER_ELECTION_SHORTNAME] = leaderElection
-        val lpsRetryProcessLpsTrigger = newTrigger()
-            .withIdentity(RETRY_PROCESSING_LPS_PLAN_TRIGGER, ALTINN_LPS_PLAN_GROUP)
-            .startNow()
-            .withSchedule(
-                simpleSchedule()
-                    .withIntervalInMinutes(RETRY_PROCESSING_LPS_PLAN_INTERVAL_IN_MINUTES)
-                    .repeatForever()
-            )
-            .build()
+        val lpsRetryProcessLpsTrigger =
+            newTrigger()
+                .withIdentity(RETRY_PROCESSING_LPS_PLAN_TRIGGER, ALTINN_LPS_PLAN_GROUP)
+                .startNow()
+                .withSchedule(
+                    simpleSchedule()
+                        .withIntervalInMinutes(RETRY_PROCESSING_LPS_PLAN_INTERVAL_IN_MINUTES)
+                        .repeatForever(),
+                ).build()
         return Pair(lpsRetryProcessLpsJob, lpsRetryProcessLpsTrigger)
     }
 
     private fun generateRetryForwardLpsPlanJob(): Pair<JobDetail, SimpleTrigger> {
-        val lpsRetryForwardLpsJob = newJob(AltinnLpsRetryForwardLpsJob::class.java)
-            .withIdentity(RETRY_FORWARD_LPS_PLAN_JOB, ALTINN_LPS_PLAN_GROUP)
-            .build()
+        val lpsRetryForwardLpsJob =
+            newJob(AltinnLpsRetryForwardLpsJob::class.java)
+                .withIdentity(RETRY_FORWARD_LPS_PLAN_JOB, ALTINN_LPS_PLAN_GROUP)
+                .build()
         lpsRetryForwardLpsJob.jobDataMap[DB_SHORTNAME] = database
         lpsRetryForwardLpsJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
         lpsRetryForwardLpsJob.jobDataMap[LEADER_ELECTION_SHORTNAME] = leaderElection
         lpsRetryForwardLpsJob.jobDataMap[TOGGLES_SHORTNAME] = toggles
-        val lpsRetryForwardLpsTrigger = newTrigger()
-            .withIdentity(RETRY_FORWARD_LPS_PLAN_TRIGGER, ALTINN_LPS_PLAN_GROUP)
-            .startNow()
-            .withSchedule(
-                simpleSchedule()
-                    .withIntervalInMinutes(RETRY_FORWARD_LPS_PLAN_INTERVAL_IN_MINUTES)
-                    .repeatForever()
-            )
-            .build()
+        val lpsRetryForwardLpsTrigger =
+            newTrigger()
+                .withIdentity(RETRY_FORWARD_LPS_PLAN_TRIGGER, ALTINN_LPS_PLAN_GROUP)
+                .startNow()
+                .withSchedule(
+                    simpleSchedule()
+                        .withIntervalInMinutes(RETRY_FORWARD_LPS_PLAN_INTERVAL_IN_MINUTES)
+                        .repeatForever(),
+                ).build()
         return Pair(lpsRetryForwardLpsJob, lpsRetryForwardLpsTrigger)
     }
 

@@ -16,8 +16,6 @@ import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig
-import java.time.Duration
-import java.util.*
 import no.nav.syfo.application.exception.ApiError
 import no.nav.syfo.application.exception.ApiError.BadRequestError
 import no.nav.syfo.application.exception.ApiError.EmployeeNotFoundError
@@ -39,6 +37,8 @@ import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.configure
 import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getConsumerClientId
+import java.time.Duration
+import java.util.UUID
 
 const val MAX_EXPECTED_VALUE_METRICS = 20L
 
@@ -51,16 +51,19 @@ fun Application.installContentNegotiation() {
 fun Application.installMetrics() {
     install(MicrometerMetrics) {
         registry = METRICS_REGISTRY
-        distributionStatisticConfig = DistributionStatisticConfig.Builder()
-            .percentilesHistogram(true)
-            .maximumExpectedValue(Duration.ofSeconds(MAX_EXPECTED_VALUE_METRICS).toNanos().toDouble())
-            .build()
-        meterBinders = listOf(
-            JvmMemoryMetrics(),
-            ProcessorMetrics(),
-            JvmThreadMetrics(),
-            // Do NOT include UptimeMetrics(), it is added by by ktor or another library already
-        )
+        distributionStatisticConfig =
+            DistributionStatisticConfig
+                .Builder()
+                .percentilesHistogram(true)
+                .maximumExpectedValue(Duration.ofSeconds(MAX_EXPECTED_VALUE_METRICS).toNanos().toDouble())
+                .build()
+        meterBinders =
+            listOf(
+                JvmMemoryMetrics(),
+                ProcessorMetrics(),
+                JvmThreadMetrics(),
+                // Do NOT include UptimeMetrics(), it is added by by ktor or another library already
+            )
     }
 }
 
@@ -73,7 +76,10 @@ fun Application.installCallId() {
     }
 }
 
-private fun logException(call: ApplicationCall, cause: Throwable) {
+private fun logException(
+    call: ApplicationCall,
+    cause: Throwable,
+) {
     val callId = call.getCallId()
     val consumerClientId = call.getConsumerClientId()
     val logExceptionMessage = "Caught exception, callId=$callId, consumerClientId=$consumerClientId"
@@ -83,17 +89,19 @@ private fun logException(call: ApplicationCall, cause: Throwable) {
         is GpNotFoundException,
         is NoActiveSentSykmeldingException,
         is FollowUpPlanDTOValidationException,
-        is NoActiveEmploymentException -> log.warn(logExceptionMessage, cause)
+        is NoActiveEmploymentException,
+        -> log.warn(logExceptionMessage, cause)
 
         else -> log.error(logExceptionMessage, cause)
     }
 }
 
-private fun determineApiError(cause: Throwable): ApiError {
-    return when (cause) {
-        is FollowUpPlanDTOValidationException -> FollowUpPlanDTOValidationError(
-            cause.message ?: "DTO validation failed"
-        )
+private fun determineApiError(cause: Throwable): ApiError =
+    when (cause) {
+        is FollowUpPlanDTOValidationException ->
+            FollowUpPlanDTOValidationError(
+                cause.message ?: "DTO validation failed",
+            )
 
         is EmployeeNotFoundException -> EmployeeNotFoundError
         is GpNotFoundException -> GeneralPractitionerNotFoundError
@@ -105,7 +113,6 @@ private fun determineApiError(cause: Throwable): ApiError {
         is NotFoundException -> NotFoundError(cause.message ?: "Not found")
         else -> InternalServerError(cause.message ?: "Internal server error")
     }
-}
 
 fun Application.installStatusPages() {
     install(StatusPages) {

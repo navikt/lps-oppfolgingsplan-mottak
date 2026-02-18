@@ -18,7 +18,10 @@ class FollowUpPlanValidator(
     private val arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient,
     private val isDev: Boolean,
 ) {
-    suspend fun validateFollowUpPlanDTO(followUpPlanDTO: FollowUpPlanDTO, employerOrgnr: String) {
+    suspend fun validateFollowUpPlanDTO(
+        followUpPlanDTO: FollowUpPlanDTO,
+        employerOrgnr: String,
+    ) {
         validatePlan(followUpPlanDTO)
 
         validateEmployeeInformation(followUpPlanDTO, employerOrgnr, isDev)
@@ -30,21 +33,21 @@ class FollowUpPlanValidator(
         }
         if (followUpPlanDTO.needsHelpFromNav == true && followUpPlanDTO.needsHelpFromNavDescription.isNullOrBlank()) {
             throw FollowUpPlanDTOValidationException(
-                "needsHelpFromNavDescription is obligatory if needsHelpFromNav is true"
+                "needsHelpFromNavDescription is obligatory if needsHelpFromNav is true",
             )
         }
         if (!followUpPlanDTO.employeeHasContributedToPlan &&
             followUpPlanDTO.employeeHasNotContributedToPlanDescription.isNullOrBlank()
         ) {
             throw FollowUpPlanDTOValidationException(
-                "employeeHasNotContributedToPlanDescription is mandatory if employeeHasContributedToPlan = false"
+                "employeeHasNotContributedToPlanDescription is mandatory if employeeHasContributedToPlan = false",
             )
         }
         if (followUpPlanDTO.employeeHasContributedToPlan &&
             followUpPlanDTO.employeeHasNotContributedToPlanDescription?.isNotEmpty() == true
         ) {
             throw FollowUpPlanDTOValidationException(
-                "employeeHasNotContributedToPlanDescription should not be set if employeeHasContributedToPlan = true"
+                "employeeHasNotContributedToPlanDescription should not be set if employeeHasContributedToPlan = true",
             )
         }
     }
@@ -52,7 +55,7 @@ class FollowUpPlanValidator(
     private suspend fun validateEmployeeInformation(
         followUpPlanDTO: FollowUpPlanDTO,
         employerOrgnr: String,
-        isDev: Boolean
+        isDev: Boolean,
     ) {
         if (!followUpPlanDTO.employeeIdentificationNumber.matches(Regex("\\d{11}"))) {
             throw FollowUpPlanDTOValidationException("Invalid employee identification number")
@@ -73,11 +76,12 @@ class FollowUpPlanValidator(
 
     private fun validateSykmelding(
         followUpPlanDTO: FollowUpPlanDTO,
-        validOrgnumbers: List<String?>
+        validOrgnumbers: List<String?>,
     ) {
-        val activeSykmeldinger: List<Sykmeldingsperiode> = sykmeldingService.getActiveSendtSykmeldingsperioder(
-            followUpPlanDTO.employeeIdentificationNumber,
-        )
+        val activeSykmeldinger: List<Sykmeldingsperiode> =
+            sykmeldingService.getActiveSendtSykmeldingsperioder(
+                followUpPlanDTO.employeeIdentificationNumber,
+            )
 
         val hasActiveSendtSykmelding = activeSykmeldinger.any { validOrgnumbers.contains(it.organizationNumber) }
         if (!hasActiveSendtSykmelding) {
@@ -87,26 +91,29 @@ class FollowUpPlanValidator(
 
     private suspend fun validateArbeidsforhold(
         followUpPlanDTO: FollowUpPlanDTO,
-        employerOrgnr: String
+        employerOrgnr: String,
     ): List<String?> {
         val arbeidsforholdOversikt =
             arbeidsforholdOversiktClient.getArbeidsforhold(followUpPlanDTO.employeeIdentificationNumber)
 
-        val matchingArbeidsforhold = arbeidsforholdOversikt?.arbeidsforholdoversikter?.filter {
-            it.opplysningspliktig.getJuridiskOrgnummer() == employerOrgnr ||
-                it.arbeidssted.getOrgnummer() == employerOrgnr
-        } ?: emptyList()
+        val matchingArbeidsforhold =
+            arbeidsforholdOversikt?.arbeidsforholdoversikter?.filter {
+                it.opplysningspliktig.getJuridiskOrgnummer() == employerOrgnr ||
+                    it.arbeidssted.getOrgnummer() == employerOrgnr
+            } ?: emptyList()
 
         if (matchingArbeidsforhold.isEmpty()) {
             throw NoActiveEmploymentException("No active employment relationship found for given orgnumber")
         }
 
-        val validOrgnumbers = matchingArbeidsforhold.flatMap {
-            listOf(
-                it.opplysningspliktig.getJuridiskOrgnummer(),
-                it.arbeidssted.getOrgnummer(),
-            )
-        }.distinct()
+        val validOrgnumbers =
+            matchingArbeidsforhold
+                .flatMap {
+                    listOf(
+                        it.opplysningspliktig.getJuridiskOrgnummer(),
+                        it.arbeidssted.getOrgnummer(),
+                    )
+                }.distinct()
         return validOrgnumbers
     }
 }

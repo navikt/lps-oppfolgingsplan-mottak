@@ -29,7 +29,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Suppress("LongParameterList")
 class AltinnLpsService(
@@ -56,23 +56,24 @@ class AltinnLpsService(
             oppfolgingsplan.skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege ?: false
         val now = LocalDateTime.now()
 
-        val lpsPlanToSave = AltinnLpsOppfolgingsplan(
-            uuid = UUID.randomUUID(),
-            lpsFnr = arbeidstakerFnr,
-            fnr = null,
-            orgnummer = orgnummer,
-            pdf = null,
-            xml = payload,
-            shouldSendToNav = shouldSendToNav,
-            shouldSendToFastlege = shouldSendToFastlege,
-            sentToNav = false,
-            sentToFastlege = false,
-            sendToFastlegeRetryCount = 0,
-            journalpostId = null,
-            archiveReference = archiveReference,
-            created = now,
-            lastChanged = now,
-        )
+        val lpsPlanToSave =
+            AltinnLpsOppfolgingsplan(
+                uuid = UUID.randomUUID(),
+                lpsFnr = arbeidstakerFnr,
+                fnr = null,
+                orgnummer = orgnummer,
+                pdf = null,
+                xml = payload,
+                shouldSendToNav = shouldSendToNav,
+                shouldSendToFastlege = shouldSendToFastlege,
+                sentToNav = false,
+                sentToFastlege = false,
+                sendToFastlegeRetryCount = 0,
+                journalpostId = null,
+                archiveReference = archiveReference,
+                created = now,
+                lastChanged = now,
+            )
         database.storeAltinnLpsOppfolgingsplan(lpsPlanToSave)
         return lpsPlanToSave.uuid
     }
@@ -85,7 +86,7 @@ class AltinnLpsService(
         if (mostRecentFnr == null) {
             log.warn(
                 "[ALTINN-KANAL-2]: Unable to determine most recent FNR for Altinn LPS " +
-                    "with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
+                    "with UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}",
             )
             return
         }
@@ -93,15 +94,16 @@ class AltinnLpsService(
         database.storeFnr(lpsUuid, mostRecentFnr)
 
         val skjemainnhold = xmlToSkjemainnhold(altinnLps.xml)
-        val lpsPdfModel = mapFormdataToFagmelding(
-            mostRecentFnr,
-            skjemainnhold,
-        )
+        val lpsPdfModel =
+            mapFormdataToFagmelding(
+                mostRecentFnr,
+                skjemainnhold,
+            )
         val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
         if (pdf == null) {
             log.warn(
                 "[ALTINN-KANAL-2]: Unable to generate PDF for Altinn-LPS with " +
-                    "UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}"
+                    "UUID ${altinnLps.uuid} and archive reference: ${altinnLps.archiveReference}",
             )
             return
         }
@@ -131,8 +133,8 @@ class AltinnLpsService(
     suspend fun retryStoreFnr(
         uuid: UUID,
         lpsFnr: String,
-    ): Boolean {
-        return try {
+    ): Boolean =
+        try {
             val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
             mostRecentFnr?.let {
                 database.storeFnr(uuid, mostRecentFnr)
@@ -143,20 +145,20 @@ class AltinnLpsService(
             log.error("Error encountered while retrying fnr fetch", e)
             false
         }
-    }
 
     suspend fun retryStorePdf(
         uuid: UUID,
         fnr: String,
         xml: String,
-    ): Boolean {
-        return try {
+    ): Boolean =
+        try {
             val skjemainnhold = xmlToSkjemainnhold(xml)
             val shouldNotBeSentToGP = !skjemainnhold.mottaksInformasjon.isOppfolgingsplanSendesTilFastlege
-            val lpsPdfModel = mapFormdataToFagmelding(
-                fnr,
-                skjemainnhold,
-            )
+            val lpsPdfModel =
+                mapFormdataToFagmelding(
+                    fnr,
+                    skjemainnhold,
+                )
             val pdf = opPdfGenConsumer.generatedPdfResponse(lpsPdfModel)
             pdf?.let {
                 database.storePdf(uuid, pdf)
@@ -170,7 +172,6 @@ class AltinnLpsService(
             log.error("Error encountered while retrying PDF-generation", e)
             false
         }
-    }
 
     fun sendToFastlegeRetryThreshold() = sendToFastlegeRetryThreshold
 
@@ -185,13 +186,14 @@ class AltinnLpsService(
         hasBehovForBistand: Boolean,
     ) {
         val todayInEpoch = LocalDate.now().toEpochDay().toInt()
-        val planToSendToNav = KAltinnOppfolgingsplan(
-            uuid.toString(),
-            mostRecentFnr,
-            orgnummer,
-            hasBehovForBistand,
-            todayInEpoch,
-        )
+        val planToSendToNav =
+            KAltinnOppfolgingsplan(
+                uuid.toString(),
+                mostRecentFnr,
+                orgnummer,
+                hasBehovForBistand,
+                todayInEpoch,
+            )
         navLpsProducer.sendAltinnLpsToNav(planToSendToNav)
         database.setSentToNavTrue(uuid)
         if (hasBehovForBistand) {

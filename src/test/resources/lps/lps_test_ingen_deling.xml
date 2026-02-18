@@ -1,13 +1,4 @@
 <ns5:melding
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:kodebib="http://kodebibliotek.brreg.no/xsd/kodebibliotek"
-        xmlns:seres="http://seres.no/xsd/forvaltningsdata"
-        xmlns:ns1="http://seres.no/xsd/NAV/Oppfølgingsplan_M/2011"
-        xmlns:ns2="http://seres.no/xsd/NAV/Oppfølgingsplan_M/2012"
-        xmlns:ns3="http://seres.no/xsd/NAV/Oppfølgingsplan2_M/2012"
-        xmlns:ns4="http://seres.no/xsd/NAV/Oppfølgingsplan2_M/2014"
-        xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-11-08T11:06:24"
-        xmlns:xd="http://schemas.microsoft.com/office/infopath/2003"
         xmlns:ns5="http://seres.no/xsd/NAV/Oppfoelgingsplan4_utfyllende_info_M/2016">
     <ns5:Skjemainnhold>
         <ns5:arbeidsgiver>

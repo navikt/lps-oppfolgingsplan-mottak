@@ -1,6 +1,6 @@
 package no.nav.syfo.application.environment
 
-data class ApplicationEnv (
+data class ApplicationEnv(
     val appName: String,
     val port: Int,
     val cluster: String,

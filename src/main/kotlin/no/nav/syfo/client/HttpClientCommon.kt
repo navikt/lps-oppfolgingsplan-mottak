@@ -3,14 +3,14 @@ package no.nav.syfo.client
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngineConfig
-import io.ktor.client.engine.apache.Apache
-import io.ktor.client.engine.apache.ApacheEngineConfig
+import io.ktor.client.engine.apache5.Apache5
+import io.ktor.client.engine.apache5.Apache5EngineConfig
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
 import no.nav.syfo.util.configure
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner
+import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner
 import java.net.ProxySelector
 
 const val REQUEST_RETRY_DELAY = 500L
@@ -27,7 +27,7 @@ val commonConfig: HttpClientConfig<out HttpClientEngineConfig>.() -> Unit = {
     }
 }
 
-val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
+val proxyConfig: HttpClientConfig<Apache5EngineConfig>.() -> Unit = {
     this.commonConfig()
     engine {
         customizeClient {
@@ -36,5 +36,6 @@ val proxyConfig: HttpClientConfig<ApacheEngineConfig>.() -> Unit = {
     }
 }
 
-fun httpClientDefault() = HttpClient(Apache, commonConfig)
-fun httpClientProxy() = HttpClient(Apache, proxyConfig)
+fun httpClientDefault() = HttpClient(Apache5, commonConfig)
+
+fun httpClientProxy() = HttpClient(Apache5, proxyConfig)

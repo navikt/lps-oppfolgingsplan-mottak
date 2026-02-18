@@ -15,7 +15,9 @@ import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.client.httpClientDefault
 import java.net.InetAddress
 
-class LeaderElection(val application: ApplicationEnv) {
+class LeaderElection(
+    val application: ApplicationEnv,
+) {
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     fun thisPodIsLeader(): Boolean {
@@ -23,9 +25,10 @@ class LeaderElection(val application: ApplicationEnv) {
         val electorPollUrl = "http://$electorPath"
         return runBlocking {
             val leaderPod = getLeaderPod(electorPollUrl)
-            val podHostname: String = withContext(Dispatchers.IO) {
-                InetAddress.getLocalHost()
-            }.hostName
+            val podHostname: String =
+                withContext(Dispatchers.IO) {
+                    InetAddress.getLocalHost()
+                }.hostName
             podHostname == leaderPod
         }
     }
@@ -37,11 +40,12 @@ class LeaderElection(val application: ApplicationEnv) {
 
     private suspend fun callElectorPath(path: String): String {
         val client = httpClientDefault()
-        val leaderResponse = client.get(path) {
-            headers {
-                append(HttpHeaders.Accept, ContentType.Application.Json)
+        val leaderResponse =
+            client.get(path) {
+                headers {
+                    append(HttpHeaders.Accept, ContentType.Application.Json)
+                }
             }
-        }
         return leaderResponse.body()
     }
 

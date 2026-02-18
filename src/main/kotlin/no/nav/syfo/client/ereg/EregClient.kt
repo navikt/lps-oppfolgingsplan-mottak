@@ -24,7 +24,6 @@ class EregClient(
     urls: UrlEnv,
     private val appEnv: ApplicationEnv,
     private val azureAdClient: AzureAdClient,
-
 ) {
     private val eregBaseUrl = urls.eregBaseUrl
     private val scope = urls.eregScope
@@ -32,21 +31,23 @@ class EregClient(
     private val log = LoggerFactory.getLogger(EregClient::class.qualifiedName)
 
     private suspend fun getOrganisationInformation(orgnr: String): EregOrganisasjonResponse? {
-        val response = try {
-            client.get("$eregBaseUrl/ereg/api/v2/organisasjon/$orgnr") {
-                val token = azureAdClient.getSystemToken(scope)?.accessToken
-                    ?: throw RuntimeException("Failed to fetch organization name from EREG: No token was found")
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json)
-                    append(HttpHeaders.Authorization, createBearerToken(token))
-                    append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
-                    append(NAV_CALL_ID_HEADER, createCallId())
+        val response =
+            try {
+                client.get("$eregBaseUrl/ereg/api/v2/organisasjon/$orgnr") {
+                    val token =
+                        azureAdClient.getSystemToken(scope)?.accessToken
+                            ?: throw RuntimeException("Failed to fetch organization name from EREG: No token was found")
+                    headers {
+                        append(HttpHeaders.ContentType, ContentType.Application.Json)
+                        append(HttpHeaders.Authorization, createBearerToken(token))
+                        append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
+                        append(NAV_CALL_ID_HEADER, createCallId())
+                    }
                 }
+            } catch (e: Exception) {
+                log.error("Could not fetch organization name form EREG", e)
+                throw e
             }
-        } catch (e: Exception) {
-            log.error("Could not fetch organization name form EREG", e)
-            throw e
-        }
         return when (response.status) {
             HttpStatusCode.OK -> {
                 response.body<EregOrganisasjonResponse>()
@@ -55,14 +56,12 @@ class EregClient(
             else -> {
                 log.error(
                     "Call to get name by virksomhetsnummer from EREG failed with status:" +
-                        " ${response.status}, response body: ${response.bodyAsText()}"
+                        " ${response.status}, response body: ${response.bodyAsText()}",
                 )
                 null
             }
         }
     }
 
-    suspend fun getEmployerOrganisationName(orgnr: String): String? {
-        return getOrganisationInformation(orgnr)?.getNavn()
-    }
+    suspend fun getEmployerOrganisationName(orgnr: String): String? = getOrganisationInformation(orgnr)?.getNavn()
 }

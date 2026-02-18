@@ -20,15 +20,14 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.syfo.application.Environment
 import no.nav.syfo.client.httpClientDefault
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 private const val TWO_MINUTES_IN_SECONDS = 120
 private const val CONSUMER_ORG = "889640782"
 private val httpClient = httpClientDefault()
 
-fun Routing.registerMaskinportenTokenApi(
-    env: Environment
-) {
+fun Routing.registerMaskinportenTokenApi(env: Environment) {
     route("/api/test/token") {
         authenticate("test-token") {
             get {
@@ -36,13 +35,15 @@ fun Routing.registerMaskinportenTokenApi(
                 val jwtGrant = generateJwtGrant(env)
                 val maskinportenTokenUrl = env.auth.maskinporten.tokenUrl
 
-                val response: HttpResponse = httpClient.submitForm(
-                    url = maskinportenTokenUrl,
-                    formParameters = parameters {
-                        append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        append("assertion", jwtGrant)
-                    }
-                )
+                val response: HttpResponse =
+                    httpClient.submitForm(
+                        url = maskinportenTokenUrl,
+                        formParameters =
+                            parameters {
+                                append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                                append("assertion", jwtGrant)
+                            },
+                    )
 
                 val maskinportenResponse: MaskinportenResponse = response.body()
 
@@ -55,7 +56,7 @@ fun Routing.registerMaskinportenTokenApi(
                     log.error("Token error: $maskinportenError Description: $maskinportenErrorDescription")
                     call.respond(
                         HttpStatusCode.InternalServerError,
-                        errorMsg(maskinportenError, maskinportenErrorDescription)
+                        errorMsg(maskinportenError, maskinportenErrorDescription),
                     )
                 }
             }
@@ -66,20 +67,22 @@ fun Routing.registerMaskinportenTokenApi(
 private fun generateJwtGrant(env: Environment): String {
     val authEnv = env.auth.maskinporten
     val rsaKey = RSAKey.parse(authEnv.clientJwk)
-    val signedJwt = SignedJWT(
-        rsaSignatureFromKey(rsaKey),
-        jwtClaimSet(
-            authEnv.scope,
-            authEnv.issuer,
-            authEnv.clientId,
+    val signedJwt =
+        SignedJWT(
+            rsaSignatureFromKey(rsaKey),
+            jwtClaimSet(
+                authEnv.scope,
+                authEnv.issuer,
+                authEnv.clientId,
+            ),
         )
-    )
     signedJwt.sign(RSASSASigner(rsaKey.toPrivateKey()))
     return signedJwt.serialize()
 }
 
 private fun rsaSignatureFromKey(key: RSAKey) =
-    JWSHeader.Builder(JWSAlgorithm.RS256)
+    JWSHeader
+        .Builder(JWSAlgorithm.RS256)
         .keyID(key.keyID)
         .type(JOSEObjectType.JWT)
         .build()
@@ -90,7 +93,8 @@ private fun jwtClaimSet(
     clientId: String,
 ): JWTClaimsSet {
     val now = Date()
-    return JWTClaimsSet.Builder()
+    return JWTClaimsSet
+        .Builder()
         .audience(audience)
         .issuer(clientId)
         .claim("scope", scope)
@@ -107,5 +111,7 @@ private fun setExpirationTimeTwoMinutesAhead(issuedAt: Date): Date {
     return calendar.time
 }
 
-private fun errorMsg(error: String?, description: String?) =
-    "Got error while attempting to exchange JWT-grant for access token: $error --- $description"
+private fun errorMsg(
+    error: String?,
+    description: String?,
+) = "Got error while attempting to exchange JWT-grant for access token: $error --- $description"

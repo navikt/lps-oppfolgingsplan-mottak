@@ -117,8 +117,11 @@ class SendtSykmeldingServiceTest :
                 activeSykmeldingsperioder[0].employeeIdentificationNumber shouldBe employeeIdentificationNumber
             }
 
-            it("""Should return false for active sendt sykmelding if 
-                  period does not exist between fom and tom plus 16 days""".trimMargin()) {
+            it(
+                """Should return false for active sendt sykmelding if 
+                  period does not exist between fom and tom plus 16 days
+                """.trimMargin(),
+            ) {
                 val sykmeldingId = "123"
                 val orgnumber = "456"
                 val employeeIdentificationNumber = "789"

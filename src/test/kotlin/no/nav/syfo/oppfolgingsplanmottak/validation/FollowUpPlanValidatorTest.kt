@@ -22,7 +22,7 @@ import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 const val UNDERENHET_ORGNUMBER = "123456789"
 const val HOVEDENHET_ORGNUMBER = "987654321"
@@ -31,204 +31,209 @@ const val OTHER_COMPANY_HOVEDENHET_ORGNUMBER = "876543219"
 const val SECOND_UNDERENHET_ORGNUMBER = "111222333"
 const val EMPLOYEE_SSN = "12345678901"
 
-class FollowUpPlanValidatorTest : DescribeSpec({
-    val pdlClient = mockk<PdlClient>()
-    val sykmeldingService = mockk<SendtSykmeldingService>()
-    val arbeidsforholdOversiktClient = mockk<ArbeidsforholdOversiktClient>()
-    val validator = FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, false)
+class FollowUpPlanValidatorTest :
+    DescribeSpec({
+        val pdlClient = mockk<PdlClient>()
+        val sykmeldingService = mockk<SendtSykmeldingService>()
+        val arbeidsforholdOversiktClient = mockk<ArbeidsforholdOversiktClient>()
+        val validator = FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, false)
 
-    describe("FollowUpPlanValidator") {
-        context("validateFollowUpPlanDTO") {
-            it("should throw exception if needsHelpFromNav is true and sendPlanToNav is false") {
-                val followUpPlanDTO = createFollowUpPlanDTO(needsHelpFromNav = true, sendPlanToNav = false)
-                shouldThrow<FollowUpPlanDTOValidationException> {
+        describe("FollowUpPlanValidator") {
+            context("validateFollowUpPlanDTO") {
+                it("should throw exception if needsHelpFromNav is true and sendPlanToNav is false") {
+                    val followUpPlanDTO = createFollowUpPlanDTO(needsHelpFromNav = true, sendPlanToNav = false)
+                    shouldThrow<FollowUpPlanDTOValidationException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it("should throw exception if needsHelpFromNav is true and needsHelpFromNavDescription is null") {
+                    val followUpPlanDTO = createFollowUpPlanDTO(needsHelpFromNav = true, needsHelpFromNavDescription = null)
+                    shouldThrow<FollowUpPlanDTOValidationException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it(
+                    "should throw exception if employeeHasContributedToPlan is false " +
+                        "and employeeHasNotContributedToPlanDescription is null",
+                ) {
+                    val followUpPlanDTO =
+                        createFollowUpPlanDTO(
+                            employeeHasContributedToPlan = false,
+                            employeeHasNotContributedToPlanDescription = null,
+                        )
+                    shouldThrow<FollowUpPlanDTOValidationException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it(
+                    "should throw exception if employeeHasContributedToPlan is true " +
+                        "and employeeHasNotContributedToPlanDescription is not empty",
+                ) {
+                    val followUpPlanDTO =
+                        createFollowUpPlanDTO(
+                            employeeHasContributedToPlan = true,
+                            employeeHasNotContributedToPlanDescription = "Some description",
+                        )
+                    shouldThrow<FollowUpPlanDTOValidationException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it("should throw exception if employee identification number is invalid") {
+                    val followUpPlanDTO = createFollowUpPlanDTO(employeeIdentificationNumber = "invalid")
+                    coEvery { pdlClient.getPersonInfo(any()) } returns null
+                    shouldThrow<FollowUpPlanDTOValidationException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it("should throw exception if no active sykmelding is found") {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+                    coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns emptyList()
+                    coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
+                    shouldThrow<NoActiveSentSykmeldingException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it("should throw exception if no active employment relationship is found") {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns listOf(mockk())
+                    coEvery { arbeidsforholdOversiktClient.getArbeidsforhold(any()) } returns null
+                    coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
+                    shouldThrow<NoActiveEmploymentException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it("should throw exception if works in another company") {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns listOf(mockk())
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns
+                        createAaregArbeidsforhold(
+                            OTHER_COMPANY_HOVEDENHET_ORGNUMBER,
+                            OTHER_COMPANY_UNDERENHET_ORGNUMBER,
+                        )
+                    coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
+                    shouldThrow<NoActiveEmploymentException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it(
+                    "should pass validation for valid FollowUpPlanDTO, sykmelding and " +
+                        "arbeidsforhold if orgnumber from token is the hovedenhet",
+                ) {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                    } returns createValidSykmeldingsperioder()
+
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+
+                    coEvery {
+                        pdlClient.getPersonInfo(any())
+                    } returns mockk()
+
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
-            }
 
-            it("should throw exception if needsHelpFromNav is true and needsHelpFromNavDescription is null") {
-                val followUpPlanDTO = createFollowUpPlanDTO(needsHelpFromNav = true, needsHelpFromNavDescription = null)
-                shouldThrow<FollowUpPlanDTOValidationException> {
+                it(
+                    "should pass validation for valid FollowUpPlanDTO, sykmelding and " +
+                        "arbeidsforhold if orgnumber from token is the underenhet",
+                ) {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                    } returns createValidSykmeldingsperioder()
+
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+
+                    coEvery {
+                        pdlClient.getPersonInfo(any())
+                    } returns mockk()
+
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, UNDERENHET_ORGNUMBER)
+                }
+
+                it(
+                    "should not pass validation for valid FollowUpPlanDTO, sykmelding and " +
+                        "arbeidsforhold if orgnumber from token is some other company",
+                ) {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                    } returns createValidSykmeldingsperioder()
+
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+
+                    coEvery {
+                        pdlClient.getPersonInfo(any())
+                    } returns mockk()
+
+                    shouldThrow<NoActiveEmploymentException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, OTHER_COMPANY_HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it(
+                    "should pass validation when employee has multiple arbeidsforhold with same hovedenhet " +
+                        "and sykmelding is sent to any of the underenheter",
+                ) {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                    } returns createSykmeldingsperioder(organizationNumber = SECOND_UNDERENHET_ORGNUMBER)
+
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createMultipleAaregArbeidsforhold()
+
+                    coEvery {
+                        pdlClient.getPersonInfo(any())
+                    } returns mockk()
+
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
                 }
-            }
 
-            it(
-                "should throw exception if employeeHasContributedToPlan is false " +
-                    "and employeeHasNotContributedToPlanDescription is null"
-            ) {
-                val followUpPlanDTO = createFollowUpPlanDTO(
-                    employeeHasContributedToPlan = false,
-                    employeeHasNotContributedToPlanDescription = null
-                )
-                shouldThrow<FollowUpPlanDTOValidationException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
-                }
-            }
+                it(
+                    "should throw exception when employee has multiple arbeidsforhold but " +
+                        "sykmelding is sent to orgnumber not in any of them",
+                ) {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                    } returns createSykmeldingsperioder(organizationNumber = OTHER_COMPANY_UNDERENHET_ORGNUMBER)
 
-            it(
-                "should throw exception if employeeHasContributedToPlan is true " +
-                    "and employeeHasNotContributedToPlanDescription is not empty"
-            ) {
-                val followUpPlanDTO = createFollowUpPlanDTO(
-                    employeeHasContributedToPlan = true,
-                    employeeHasNotContributedToPlanDescription = "Some description"
-                )
-                shouldThrow<FollowUpPlanDTOValidationException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
-                }
-            }
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createMultipleAaregArbeidsforhold()
 
-            it("should throw exception if employee identification number is invalid") {
-                val followUpPlanDTO = createFollowUpPlanDTO(employeeIdentificationNumber = "invalid")
-                coEvery { pdlClient.getPersonInfo(any()) } returns null
-                shouldThrow<FollowUpPlanDTOValidationException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
-                }
-            }
+                    coEvery {
+                        pdlClient.getPersonInfo(any())
+                    } returns mockk()
 
-            it("should throw exception if no active sykmelding is found") {
-                val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery {
-                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
-                coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns emptyList()
-                coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
-                shouldThrow<NoActiveSentSykmeldingException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
-                }
-            }
-
-            it("should throw exception if no active employment relationship is found") {
-                val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns listOf(mockk())
-                coEvery { arbeidsforholdOversiktClient.getArbeidsforhold(any()) } returns null
-                coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
-                shouldThrow<NoActiveEmploymentException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
-                }
-            }
-
-            it("should throw exception if works in another company") {
-                val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery { sykmeldingService.getActiveSendtSykmeldingsperioder(any()) } returns listOf(mockk())
-                coEvery {
-                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforhold(
-                    OTHER_COMPANY_HOVEDENHET_ORGNUMBER, OTHER_COMPANY_UNDERENHET_ORGNUMBER
-                )
-                coEvery { pdlClient.getPersonInfo(any()) } returns mockk()
-                shouldThrow<NoActiveEmploymentException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
-                }
-            }
-
-            it(
-                "should pass validation for valid FollowUpPlanDTO, sykmelding and " +
-                    "arbeidsforhold if orgnumber from token is the hovedenhet"
-            ) {
-                val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery {
-                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
-                } returns createValidSykmeldingsperioder()
-
-                coEvery {
-                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
-
-                coEvery {
-                    pdlClient.getPersonInfo(any())
-                } returns mockk()
-
-                validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
-            }
-
-            it(
-                "should pass validation for valid FollowUpPlanDTO, sykmelding and " +
-                    "arbeidsforhold if orgnumber from token is the underenhet"
-            ) {
-                val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery {
-                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
-                } returns createValidSykmeldingsperioder()
-
-                coEvery {
-                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
-
-                coEvery {
-                    pdlClient.getPersonInfo(any())
-                } returns mockk()
-
-                validator.validateFollowUpPlanDTO(followUpPlanDTO, UNDERENHET_ORGNUMBER)
-            }
-
-            it(
-                "should not pass validation for valid FollowUpPlanDTO, sykmelding and " +
-                    "arbeidsforhold if orgnumber from token is some other company"
-            ) {
-                val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery {
-                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
-                } returns createValidSykmeldingsperioder()
-
-                coEvery {
-                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
-
-                coEvery {
-                    pdlClient.getPersonInfo(any())
-                } returns mockk()
-
-                shouldThrow<NoActiveEmploymentException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, OTHER_COMPANY_HOVEDENHET_ORGNUMBER)
-                }
-            }
-
-            it(
-                "should pass validation when employee has multiple arbeidsforhold with same hovedenhet " +
-                    "and sykmelding is sent to any of the underenheter"
-            ) {
-                val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery {
-                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
-                } returns createSykmeldingsperioder(organizationNumber = SECOND_UNDERENHET_ORGNUMBER)
-
-                coEvery {
-                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createMultipleAaregArbeidsforhold()
-
-                coEvery {
-                    pdlClient.getPersonInfo(any())
-                } returns mockk()
-
-                validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
-            }
-
-            it(
-                "should throw exception when employee has multiple arbeidsforhold but " +
-                    "sykmelding is sent to orgnumber not in any of them"
-            ) {
-                val followUpPlanDTO = createFollowUpPlanDTO()
-                coEvery {
-                    sykmeldingService.getActiveSendtSykmeldingsperioder(any())
-                } returns createSykmeldingsperioder(organizationNumber = OTHER_COMPANY_UNDERENHET_ORGNUMBER)
-
-                coEvery {
-                    arbeidsforholdOversiktClient.getArbeidsforhold(any())
-                } returns createMultipleAaregArbeidsforhold()
-
-                coEvery {
-                    pdlClient.getPersonInfo(any())
-                } returns mockk()
-
-                shouldThrow<NoActiveSentSykmeldingException> {
-                    validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    shouldThrow<NoActiveSentSykmeldingException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
                 }
             }
         }
-    }
-})
+    })
 
 fun createFollowUpPlanDTO(
     employeeIdentificationNumber: String = "12345678901",
@@ -236,9 +241,9 @@ fun createFollowUpPlanDTO(
     needsHelpFromNavDescription: String? = null,
     sendPlanToNav: Boolean = true,
     employeeHasContributedToPlan: Boolean = true,
-    employeeHasNotContributedToPlanDescription: String? = null
-): FollowUpPlanDTO {
-    return FollowUpPlanDTO(
+    employeeHasNotContributedToPlanDescription: String? = null,
+): FollowUpPlanDTO =
+    FollowUpPlanDTO(
         employeeIdentificationNumber = employeeIdentificationNumber,
         typicalWorkday = "Typical workday",
         tasksThatCanStillBeDone = "Tasks that can still be done",
@@ -262,50 +267,48 @@ fun createFollowUpPlanDTO(
         lpsName = "LPS Name",
         lpsEmail = "lps@lps.no",
     )
-}
 
 fun createArbeidsforholdoversikt(
     underenhetOrgNr: String,
-    hovedEnhetOrgNr: String
-): Arbeidsforholdoversikt {
-    return Arbeidsforholdoversikt(
-        arbeidssted = Arbeidssted(
-            type = ArbeidsstedType.Underenhet,
-            identer = listOf(
-                Ident(type = IdentType.ORGANISASJONSNUMMER, ident = underenhetOrgNr, gjeldende = true)
-            )
-        ),
-        opplysningspliktig = Opplysningspliktig(
-            type = OpplysningspliktigType.Hovedenhet,
-            identer = listOf(
-                Ident(type = IdentType.ORGANISASJONSNUMMER, ident = hovedEnhetOrgNr, gjeldende = true)
-            )
-        )
+    hovedEnhetOrgNr: String,
+): Arbeidsforholdoversikt =
+    Arbeidsforholdoversikt(
+        arbeidssted =
+            Arbeidssted(
+                type = ArbeidsstedType.Underenhet,
+                identer =
+                    listOf(
+                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = underenhetOrgNr, gjeldende = true),
+                    ),
+            ),
+        opplysningspliktig =
+            Opplysningspliktig(
+                type = OpplysningspliktigType.Hovedenhet,
+                identer =
+                    listOf(
+                        Ident(type = IdentType.ORGANISASJONSNUMMER, ident = hovedEnhetOrgNr, gjeldende = true),
+                    ),
+            ),
     )
-}
 
 fun createAaregArbeidsforhold(
     hovedEnhetOrgNr: String,
-    underenhetOrgNr: String
-): AaregArbeidsforholdOversikt {
-    return AaregArbeidsforholdOversikt(
-        listOf(createArbeidsforholdoversikt(underenhetOrgNr, hovedEnhetOrgNr))
+    underenhetOrgNr: String,
+): AaregArbeidsforholdOversikt =
+    AaregArbeidsforholdOversikt(
+        listOf(createArbeidsforholdoversikt(underenhetOrgNr, hovedEnhetOrgNr)),
     )
-}
 
-fun createMultipleAaregArbeidsforhold(): AaregArbeidsforholdOversikt {
-    return AaregArbeidsforholdOversikt(
+fun createMultipleAaregArbeidsforhold(): AaregArbeidsforholdOversikt =
+    AaregArbeidsforholdOversikt(
         listOf(
             createArbeidsforholdoversikt(UNDERENHET_ORGNUMBER, HOVEDENHET_ORGNUMBER),
-            createArbeidsforholdoversikt(SECOND_UNDERENHET_ORGNUMBER, HOVEDENHET_ORGNUMBER)
-        )
+            createArbeidsforholdoversikt(SECOND_UNDERENHET_ORGNUMBER, HOVEDENHET_ORGNUMBER),
+        ),
     )
-}
 
-fun createSykmeldingsperioder(
-    organizationNumber: String = UNDERENHET_ORGNUMBER
-): List<Sykmeldingsperiode> {
-    return listOf(
+fun createSykmeldingsperioder(organizationNumber: String = UNDERENHET_ORGNUMBER): List<Sykmeldingsperiode> =
+    listOf(
         Sykmeldingsperiode(
             uuid = UUID.randomUUID(),
             sykmeldingId = "sykmelding123",
@@ -313,9 +316,8 @@ fun createSykmeldingsperioder(
             employeeIdentificationNumber = EMPLOYEE_SSN,
             fom = LocalDate.now().minusDays(10),
             tom = LocalDate.now().plusDays(10),
-            createdAt = LocalDateTime.now()
-        )
+            createdAt = LocalDateTime.now(),
+        ),
     )
-}
 
 fun createValidSykmeldingsperioder(): List<Sykmeldingsperiode> = createSykmeldingsperioder()

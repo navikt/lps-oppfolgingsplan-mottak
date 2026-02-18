@@ -12,7 +12,9 @@ interface DatabaseInterface {
     val connection: Connection
 }
 
-class Database(private val env: DbEnv) : DatabaseInterface {
+class Database(
+    private val env: DbEnv,
+) : DatabaseInterface {
     private val hikariDataSource =
         HikariDataSource(
             HikariConfig().apply {
@@ -42,9 +44,7 @@ class Database(private val env: DbEnv) : DatabaseInterface {
         }
 }
 
-fun generateJdbcUrlFromEnv(env: DbEnv): String {
-    return "$POSTGRES_JDBC_PREFIX://${env.dbHost}:${env.dbPort}/${env.dbName}"
-}
+fun generateJdbcUrlFromEnv(env: DbEnv): String = "$POSTGRES_JDBC_PREFIX://${env.dbHost}:${env.dbPort}/${env.dbName}"
 
 fun DatabaseInterface.grantAccessToIAMUsers() {
     val statement =

@@ -9,7 +9,6 @@ import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
-import java.util.*
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.exception.ForbiddenAccessVeilederException
@@ -21,6 +20,7 @@ import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getPersonIdent
 import no.nav.syfo.veileder.database.getOppfolgingsplanPdf
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
+import java.util.UUID
 
 const val VEILEDER_LPS_BASE_PATH = "/api/internad/v1/oppfolgingsplan/lps"
 const val VEILEDER_LPS_UUID_PARAM = "uuid"
@@ -37,11 +37,12 @@ fun Routing.registerVeilederApi(
                 val personIdent = call.personIdent()
                 val token = call.bearerHeader()
 
-                val hasAccess = veilederTilgangskontrollClient.hasAccess(
-                    callId = callId,
-                    personIdent = personIdent,
-                    token = token,
-                )
+                val hasAccess =
+                    veilederTilgangskontrollClient.hasAccess(
+                        callId = callId,
+                        personIdent = personIdent,
+                        token = token,
+                    )
 
                 if (!hasAccess) {
                     throw ForbiddenAccessVeilederException(
@@ -49,8 +50,9 @@ fun Routing.registerVeilederApi(
                     )
                 }
 
-                val plansSharedWithNAV = database
-                    .getOppfolgingsplanerMetadataForVeileder(personIdent)
+                val plansSharedWithNAV =
+                    database
+                        .getOppfolgingsplanerMetadataForVeileder(personIdent)
                 call.respond(plansSharedWithNAV)
             }
 
@@ -73,13 +75,16 @@ fun Routing.registerVeilederApi(
     }
 }
 
-private fun ApplicationCall.uuid(): UUID = UUID.fromString(this.parameters[VEILEDER_LPS_UUID_PARAM])
-    ?: throw IllegalArgumentException("Failed to $API_ACTION: No valid $VEILEDER_LPS_UUID_PARAM supplied in request ")
+private fun ApplicationCall.uuid(): UUID =
+    UUID.fromString(this.parameters[VEILEDER_LPS_UUID_PARAM])
+        ?: throw IllegalArgumentException("Failed to $API_ACTION: No valid $VEILEDER_LPS_UUID_PARAM supplied in request ")
 
-private fun ApplicationCall.personIdent(): PersonIdent = this.getPersonIdent()
-    ?: throw IllegalArgumentException("Failed to $API_ACTION: No $NAV_PERSONIDENT_HEADER supplied in request header")
+private fun ApplicationCall.personIdent(): PersonIdent =
+    this.getPersonIdent()
+        ?: throw IllegalArgumentException("Failed to $API_ACTION: No $NAV_PERSONIDENT_HEADER supplied in request header")
 
-private fun ApplicationCall.bearerHeader(): String = this.getBearerHeader()
-    ?: throw IllegalArgumentException(
-        "Failed to complete the following action: $API_ACTION. No Authorization header supplied"
-    )
+private fun ApplicationCall.bearerHeader(): String =
+    this.getBearerHeader()
+        ?: throw IllegalArgumentException(
+            "Failed to complete the following action: $API_ACTION. No Authorization header supplied",
+        )
