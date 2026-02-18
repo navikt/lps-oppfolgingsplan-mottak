@@ -17,6 +17,7 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.altinnmottak.database.storeAltinnLpsOppfolgingsplan
 import no.nav.syfo.altinnmottak.database.storePdf
@@ -35,6 +36,7 @@ import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import no.nav.syfo.client.azuread.AzureAdToken
 
 val altinnLpsPlan =
     AltinnLpsOppfolgingsplan(
@@ -101,7 +103,14 @@ class VeilederApiTest :
                         }
                     }
                 application {
-                    testApiModule(ExternalMockEnvironment.instance, testDb)
+                val externalMockEnvironment = ExternalMockEnvironment.instance
+                coEvery {
+                    externalMockEnvironment.azureAdClient.getOnBehalfOfToken(
+                        any(),
+                        any()
+                    )
+                } returns AzureAdToken("token", LocalDateTime.now())
+                testApiModule(externalMockEnvironment, testDb)
                 }
                 block(client)
             }
