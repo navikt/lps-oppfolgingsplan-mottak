@@ -12,7 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 const val ALTINNKANAL_TOPIC = "alf.aapen-altinn-oppfolgingsplan-mottatt-v2"
 

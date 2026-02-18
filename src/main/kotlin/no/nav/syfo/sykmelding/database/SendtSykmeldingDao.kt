@@ -7,7 +7,7 @@ import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 fun DatabaseInterface.persistSykmeldingsperiode(
     sykmeldingId: String,

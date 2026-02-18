@@ -1,7 +1,7 @@
 package no.nav.syfo.veileder.domain
 
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class OppfolgingsplanLPS(
     val uuid: UUID,

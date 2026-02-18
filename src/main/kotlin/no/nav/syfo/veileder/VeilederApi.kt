@@ -20,7 +20,7 @@ import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getPersonIdent
 import no.nav.syfo.veileder.database.getOppfolgingsplanPdf
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
-import java.util.*
+import java.util.UUID
 
 const val VEILEDER_LPS_BASE_PATH = "/api/internad/v1/oppfolgingsplan/lps"
 const val VEILEDER_LPS_UUID_PARAM = "uuid"

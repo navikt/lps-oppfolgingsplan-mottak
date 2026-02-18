@@ -2,7 +2,7 @@ package no.nav.syfo.sykmelding.domain
 
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Sykmeldingsperiode(
     val uuid: UUID,

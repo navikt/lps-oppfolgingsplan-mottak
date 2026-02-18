@@ -8,7 +8,7 @@ import no.nav.syfo.oppfolgingsplanmottak.kafka.domain.KFollowUpPlan
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class FollowUpPlanProducer(
     env: KafkaEnv,

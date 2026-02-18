@@ -36,7 +36,7 @@ import no.nav.syfo.veileder.domain.OppfolgingsplanLPS
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 val altinnLpsPlan =
     AltinnLpsOppfolgingsplan(

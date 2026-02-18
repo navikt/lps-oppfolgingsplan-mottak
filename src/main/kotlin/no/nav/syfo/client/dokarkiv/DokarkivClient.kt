@@ -27,7 +27,7 @@ import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.util.createBearerToken
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class DokarkivClient(
     urls: UrlEnv,

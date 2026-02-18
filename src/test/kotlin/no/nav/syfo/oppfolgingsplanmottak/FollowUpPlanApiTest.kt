@@ -30,7 +30,7 @@ import no.nav.syfo.util.customMaskinportenToken
 import no.nav.syfo.util.validMaskinportenToken
 import no.nav.syfo.veileder.database.getOppfolgingsplanerMetadataForVeileder
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class FollowUpPlanApiTest :
     DescribeSpec({

@@ -38,7 +38,7 @@ import no.nav.syfo.util.configure
 import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getConsumerClientId
 import java.time.Duration
-import java.util.*
+import java.util.UUID
 
 const val MAX_EXPECTED_VALUE_METRICS = 20L
 

@@ -19,7 +19,7 @@ import no.nav.syfo.client.krrproxy.domain.PostPersonerRequest
 import no.nav.syfo.client.krrproxy.domain.PostPersonerResponse
 import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class KrrProxyClient(
     private val urlEnv: UrlEnv,

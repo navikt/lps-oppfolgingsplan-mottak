@@ -22,7 +22,7 @@ import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 const val UNDERENHET_ORGNUMBER = "123456789"
 const val HOVEDENHET_ORGNUMBER = "987654321"

@@ -20,7 +20,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.syfo.application.Environment
 import no.nav.syfo.client.httpClientDefault
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 private const val TWO_MINUTES_IN_SECONDS = 120
 private const val CONSUMER_ORG = "889640782"

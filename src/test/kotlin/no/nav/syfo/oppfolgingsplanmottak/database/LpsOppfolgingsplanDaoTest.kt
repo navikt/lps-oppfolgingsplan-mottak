@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.syfo.db.TestDB
 import no.nav.syfo.mockdata.createDefaultFollowUpPlan
-import java.util.*
+import java.util.UUID
 
 class LpsOppfolgingsplanDaoTest :
     DescribeSpec({

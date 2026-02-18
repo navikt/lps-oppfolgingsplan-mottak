@@ -8,7 +8,7 @@ import java.sql.Date
 import java.sql.ResultSet
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 fun DatabaseInterface.storeFollowUpPlan(
     uuid: UUID,

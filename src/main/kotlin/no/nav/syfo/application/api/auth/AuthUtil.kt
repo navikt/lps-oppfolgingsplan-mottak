@@ -7,7 +7,7 @@ import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.request.header
 import no.nav.syfo.application.exception.AuthenticationException
 import java.net.URI
-import java.util.*
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 private const val JWK_CACHE_SIZE = 10L

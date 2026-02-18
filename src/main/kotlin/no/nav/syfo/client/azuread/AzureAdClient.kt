@@ -14,7 +14,6 @@ import no.nav.syfo.application.environment.AuthEnv
 import no.nav.syfo.client.httpClientProxy
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.set
 
 @Suppress("ThrowsCount")
 class AzureAdClient(

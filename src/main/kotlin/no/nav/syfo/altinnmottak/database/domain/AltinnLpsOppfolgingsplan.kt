@@ -1,7 +1,7 @@
 package no.nav.syfo.altinnmottak.database.domain
 
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class AltinnLpsOppfolgingsplan(
     val uuid: UUID,

@@ -8,7 +8,7 @@ import no.nav.syfo.application.database.toList
 import no.nav.syfo.application.database.toObject
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 fun DatabaseInterface.storeAltinnLpsOppfolgingsplan(altinnLpsPlan: AltinnLpsOppfolgingsplan) {
     val insertStatement =

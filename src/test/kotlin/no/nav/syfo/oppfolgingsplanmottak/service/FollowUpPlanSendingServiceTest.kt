@@ -11,7 +11,7 @@ import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
 import no.nav.syfo.mockdata.randomFollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
-import java.util.*
+import java.util.UUID
 
 class FollowUpPlanSendingServiceTest :
     DescribeSpec({

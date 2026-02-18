@@ -13,7 +13,8 @@ import java.nio.file.Paths
 import java.text.ParseException
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
+import java.util.Date
+import java.util.UUID
 
 fun validVeilederToken(navIdent: String = UserConstants.VEILEDER_IDENT) =
     generateAzureAdJWT(

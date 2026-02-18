@@ -8,7 +8,7 @@ import no.nav.syfo.application.metric.COUNT_METRIKK_DELT_MED_NAV_TRUE
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 const val OPPFOLGINGSPLAN_LPS_NAV_TOPIC = "team-esyfo.aapen-syfo-oppfolgingsplan-lps-nav-v2"
 

@@ -5,7 +5,7 @@ import no.nav.syfo.application.database.toList
 import no.nav.syfo.domain.PersonIdent
 import no.nav.syfo.veileder.domain.OppfolgingsplanLPS
 import java.sql.ResultSet
-import java.util.*
+import java.util.UUID
 
 fun DatabaseInterface.getOppfolgingsplanerMetadataForVeileder(ident: PersonIdent): List<OppfolgingsplanLPS> {
     val queryStatement =

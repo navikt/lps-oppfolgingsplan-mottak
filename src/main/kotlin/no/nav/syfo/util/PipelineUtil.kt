@@ -3,7 +3,6 @@ package no.nav.syfo.util
 import com.auth0.jwt.JWT
 import io.ktor.http.HttpHeaders
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
 import io.ktor.server.routing.RoutingContext

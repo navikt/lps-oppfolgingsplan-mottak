@@ -2,7 +2,7 @@ package no.nav.syfo.altinnmottak.database
 
 import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import java.sql.ResultSet
-import java.util.*
+import java.util.UUID
 
 fun ResultSet.toAltinnLpsOppfolgingsplan() =
     AltinnLpsOppfolgingsplan(
