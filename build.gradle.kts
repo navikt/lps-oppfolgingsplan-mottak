@@ -9,7 +9,7 @@ val micrometerVersion = "1.16.3"
 val slf4jVersion = "2.0.17"
 val logbackVersion = "1.5.29"
 val javaxVersion = "2.1.1"
-val logstashEncoderVersion = "8.1"
+val logstashEncoderVersion = "9.0"
 val jacksonVersion = "2.21.0"
 val jacksonDatabindVersion = "2.13.2.2"
 val javaJwtVersion = "4.5.0"
@@ -21,7 +21,7 @@ val kotlinVersion = "2.3.10"
 val mockkVersion = "1.14.9"
 val postgresVersion = "42.7.9"
 val hikariVersion = "7.0.2"
-val flywayVersion = "11.20.3"
+val flywayVersion = "12.0.0"
 val gsonVersion = "2.13.2"
 val kafkaVersion = "4.1.1"
 val altinnKanalSchemasVersion = "2.0.0"
@@ -40,7 +40,7 @@ plugins {
     kotlin("jvm") version "2.2.21"
     id("org.jetbrains.kotlin.plugin.allopen") version "2.2.21"
     id("com.diffplug.spotless") version "8.2.1"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
@@ -155,9 +155,10 @@ java.toolchain {
 
 tasks {
     withType<ShadowJar> {
-        mergeServiceFiles {
-            setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+        filesMatching("META-INF/services/**") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
         }
+        mergeServiceFiles()
         isZip64 = true
         manifest {
             attributes(

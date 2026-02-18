@@ -36,6 +36,7 @@ class Database(private val env: DbEnv) : DatabaseInterface {
 
     private fun runFlywayMigrations(hikariDataSource: HikariDataSource) =
         Flyway.configure().run {
+            locations("classpath:db")
             dataSource(hikariDataSource)
             load().migrate().migrationsExecuted
         }
