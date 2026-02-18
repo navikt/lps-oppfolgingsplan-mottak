@@ -40,7 +40,7 @@ plugins {
     kotlin("jvm") version "2.2.21"
     id("org.jetbrains.kotlin.plugin.allopen") version "2.2.21"
     id("com.diffplug.spotless") version "8.2.1"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
@@ -155,9 +155,10 @@ java.toolchain {
 
 tasks {
     withType<ShadowJar> {
-        mergeServiceFiles {
-            setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+        filesMatching("META-INF/services/**") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
         }
+        mergeServiceFiles()
         isZip64 = true
         manifest {
             attributes(
