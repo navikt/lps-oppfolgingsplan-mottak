@@ -108,9 +108,9 @@ Please refer
 to [NAV's guide for testing API's](https://github.com/navikt/nav-ekstern-api-dok/blob/main/api-dok/teste-api/teste-api.md)
 
 ## 🧪 Test users
-`
+
 Testdata for employee users: We have created 2 test users that skip the requirements for valid work relationship, and valid sick leave. Work relationship and sick leave testdata requires manual setup from us in Nav, so we have made these two users to make it easier testing without our involvement. The employeeIdentificationNumbers are 05908399546 and 01898299631.
-`
+
 ## Error Codes
 
 If you get an error, we will provide an ApiError object in the response body.
