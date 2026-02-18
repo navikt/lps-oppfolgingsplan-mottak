@@ -13,6 +13,9 @@
 
 [🛠️ Development](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no)
 
+## OpenAPI
+The OpenAPI specification for the API is available at https://lps-oppfolgingsplan-mottak.nav.no/swagger
+
 This API allows for the submission of
 a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general
 practitioner. This API supports <i>delegation</i>,

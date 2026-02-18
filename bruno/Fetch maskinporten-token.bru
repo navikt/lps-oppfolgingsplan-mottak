@@ -1,5 +1,5 @@
 meta {
-  name: maskinporten-token
+  name: Fetch maskinporten-token
   type: http
   seq: 1
 }
@@ -13,6 +13,11 @@ post {
 body:form-urlencoded {
   grant_type: urn:ietf:params:oauth:grant-type:jwt-bearer
   assertion: {{jwt_signed}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.access_token: isNotEmpty
 }
 
 script:pre-request {
@@ -53,6 +58,12 @@ script:pre-request {
   
   bru.setEnvVar("jwt_signed", token);
   
+}
+
+script:post-response {
+  const data = res.getBody();
+  const accessToken = data.access_token; 
+  bru.setEnvVar("maskinportenToken", accessToken, { persist: true });
 }
 
 settings {
