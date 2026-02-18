@@ -1,0 +1,56 @@
+meta {
+  name: Fetch followupplan sendingstatus
+  type: http
+  seq: 4
+}
+
+get {
+  url: https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no/api/v1/followupplan/{{followupplanUuid}}/sendingstatus
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/json
+}
+
+auth:bearer {
+  token: {{maskinportenToken}}
+}
+
+body:json {
+  {
+    "employeeIdentificationNumber": "{{employeeIdentificationNumber}}",
+    "typicalWorkday": "Leading the Galactic Empire, attending strategic meetings, lightsaber training",
+    "tasksThatCanStillBeDone": "Attending meetings, strategic planning",
+    "tasksThatCanNotBeDone": "Lightsaber training",
+    "previousFacilitation": "Provided ergonomic chair and voice amplifier",
+    "plannedFacilitation": "Flexible working hours, remote command options",
+    "otherFacilitationOptions": "Job rotation, task automation",
+    "followUp": "Weekly check-ins to discuss progress and adjustments",
+    "evaluationDate": "{{$randomDateFuture}}",
+    "sendPlanToNav": true,
+    "needsHelpFromNav": true,
+    "needsHelpFromNavDescription": "Need assistance with job placement",
+    "sendPlanToGeneralPractitioner": true,
+    "messageToGeneralPractitioner": "Please review the follow-up plan for the patient",
+    "additionalInformation": "Darth Vader prefers to work in the evening due to health condition",
+    "contactPersonFullName": "Emperor Palpatine",
+    "contactPersonPhoneNumber": "99999999",
+    "contactPersonEmail": "emperor@empire.com",
+    "employeeHasContributedToPlan": false,
+    "employeeHasNotContributedToPlanDescription": "Employee was not available due to Sith business",
+    "lpsName": "Empire HR System",
+    "lpsEmail": "empirehrsystem@empire.com"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.uuid: length 36
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

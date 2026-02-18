@@ -1,5 +1,21 @@
 # LPS follow-up plan API: Consumer guide
 
+[![Build Status](https://github.com/navikt/lps-oppfolgingsplan-mottak/actions/workflows/build-and-deploy.yaml/badge.svg)](https://github.com/navikt/lps-oppfolgingsplan-mottak/actions/workflows/build-and-deploy.yaml)
+
+[![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=Kotlin&logoColor=white)](https://kotlinlang.org/)
+[![Ktor](https://img.shields.io/badge/Ktor-%23087CFA.svg?style=for-the-badge&logo=Ktor&logoColor=white)](https://ktor.io/)
+[![Postgresql](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Kafka](https://img.shields.io/badge/Apache_Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white)](https://kafka.apache.org/g/)
+
+## Environments
+
+[🚀 Productions](https://lps-oppfolgingsplan-mottak.nav.n)
+
+[🛠️ Development](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no)
+
+## OpenAPI
+The OpenAPI specification for the API is available at https://lps-oppfolgingsplan-mottak.nav.no/swagger
+
 This API allows for the submission of
 a [follow-up plan (oppfølgingsplan)](https://www.nav.no/arbeidsgiver/oppfolgingsplan) to NAV and/or the general
 practitioner. This API supports <i>delegation</i>,
@@ -17,7 +33,7 @@ NAV for submitting follow-up plans.
 
 ### 1. The employer must delegate rights to act on their behalf (optional)
 
-<i>This step is not neccessary if you are acting on behalf of your own company.</i>
+<i>This step is not necessary if you are acting on behalf of your own company.</i>
 
 To submit a follow-up plan on behalf of an employer, the employer must delegate rights to the API (scope) to you as an
 LPS system. This is done
