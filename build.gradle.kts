@@ -37,7 +37,7 @@ val githubPassword: String by project
 
 plugins {
     kotlin("jvm") version "2.2.21"
-    id("org.jetbrains.kotlin.plugin.allopen") version "2.2.21"
+    id("org.jetbrains.kotlin.plugin.allopen") version "2.3.10"
     id("com.diffplug.spotless") version "8.2.1"
     id("com.gradleup.shadow") version "9.3.1"
     id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
