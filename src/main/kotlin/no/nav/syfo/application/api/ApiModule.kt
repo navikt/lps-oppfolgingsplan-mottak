@@ -18,7 +18,7 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.environment.isDev
 import no.nav.syfo.application.metric.registerPrometheusApi
 import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
-import no.nav.syfo.client.pdl.PdlClient
+import no.nav.syfo.client.oppdfgen.PdlUtils
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
@@ -37,7 +37,7 @@ fun Application.apiModule(
     wellKnownInternalAzureAD: WellKnown,
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
     followUpPlanSendingService: FollowUpPlanSendingService,
-    pdlClient: PdlClient,
+    pdlUtils: PdlUtils,
     sykmeldingService: SendtSykmeldingService,
     arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient,
 ) {
@@ -78,7 +78,7 @@ fun Application.apiModule(
         registerFollowUpPlanApi(
             database,
             followUpPlanSendingService,
-            FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, environment.isDev()),
+            FollowUpPlanValidator(pdlUtils, sykmeldingService, arbeidsforholdOversiktClient, environment.isDev()),
         )
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,
