@@ -38,6 +38,7 @@ import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import no.nav.syfo.client.oppdfgen.PdlUtils
 
 const val SERVER_SHUTDOWN_GRACE_PERIOD = 10L
 const val SERVER_SHUTDOWN_TIMEOUT = 10L
@@ -101,6 +102,7 @@ private fun setModule(
         val azureAdClient = AzureAdClient(env.auth)
         val isdialogmeldingClient = IsdialogmeldingClient(env.urls, azureAdClient)
         val pdlClient = PdlClient(env.urls, azureAdClient)
+        val pdlUtils = PdlUtils(pdlClient)
         val krrProxyClient = KrrProxyClient(env.urls, azureAdClient)
         val eregClient = EregClient(env.urls, env.application, azureAdClient)
         val pdfGenClient = OpPdfGenClient(env.urls, env.application, pdlClient, krrProxyClient)
@@ -158,7 +160,8 @@ private fun setModule(
             wellKnownInternalAzureAD,
             veilederTilgangskontrollClient,
             followUpPlanSendingService,
-            pdlClient,
+
+            pdlUtils,
             sykmeldingService,
             arbeidsforholdOversiktClient,
         )
