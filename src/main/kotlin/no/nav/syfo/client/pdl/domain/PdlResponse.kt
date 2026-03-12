@@ -98,7 +98,7 @@ data class PdlErrorLocation(
 data class PdlErrorExtension(
     val code: String?,
     val classification: String,
-    val details: PdlUnauthorizedErrorDetails
+    val details: PdlUnauthorizedErrorDetails,
 )
 
 data class PdlUnauthorizedErrorDetails(

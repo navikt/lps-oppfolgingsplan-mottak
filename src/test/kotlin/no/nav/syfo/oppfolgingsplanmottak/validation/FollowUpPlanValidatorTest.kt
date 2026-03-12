@@ -4,9 +4,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.NoActiveEmploymentException
 import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
@@ -207,7 +204,7 @@ class FollowUpPlanValidatorTest :
                     } returns createMultipleAaregArbeidsforhold()
 
                     coEvery {
-                        pdlClient.getPersonInfo(any())
+                        pdlUtils.getPersonInfoWithRetry(any())
                     } returns mockk()
 
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
@@ -227,7 +224,7 @@ class FollowUpPlanValidatorTest :
                     } returns createMultipleAaregArbeidsforhold()
 
                     coEvery {
-                        pdlClient.getPersonInfo(any())
+                        pdlUtils.getPersonInfoWithRetry(any())
                     } returns mockk()
 
                     shouldThrow<NoActiveSentSykmeldingException> {

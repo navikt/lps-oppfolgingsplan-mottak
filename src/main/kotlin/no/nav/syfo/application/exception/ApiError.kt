@@ -47,11 +47,9 @@ sealed class ApiError(
         override val message: String,
     ) : ApiError(HttpStatusCode.Unauthorized, ErrorType.AUTHENTICATION_ERROR, message)
 
-    data class ServiceUnavailableError(override val message: String) :
-        ApiError(HttpStatusCode.ServiceUnavailable, ErrorType.SERVICE_UNAVAILABLE, message)
-
-    data class ServiceUnavailableError(override val message: String) :
-        ApiError(HttpStatusCode.ServiceUnavailable, ErrorType.SERVICE_UNAVAILABLE, message)
+    data class ServiceUnavailableError(
+        override val message: String,
+    ) : ApiError(HttpStatusCode.ServiceUnavailable, ErrorType.SERVICE_UNAVAILABLE, message)
 
     data object GeneralPractitionerNotFoundError :
         ApiError(
@@ -99,13 +97,6 @@ sealed class ApiError(
         ApiError(
             HttpStatusCode.ServiceUnavailable,
             ErrorType.SERVICE_UNAVAILABLE,
-            "Person lookup service temporarily unavailable. Please try again later."
-        )
-
-    data object PdlServiceUnavailableError :
-        ApiError(
-            HttpStatusCode.ServiceUnavailable,
-            ErrorType.SERVICE_UNAVAILABLE,
-            "Person lookup service temporarily unavailable. Please try again later."
+            "Person lookup service temporarily unavailable. Please try again later.",
         )
 }

@@ -102,7 +102,7 @@ class PdlUtilsTest :
 
                 val address = pdlUtils.getPersonAdressString("11111111111")
 
-                address shouldBe "Fancy gate 1A 1234 "
+                address shouldBe "Fancy gate 1A 1234"
             }
 
             it("Should return null if person is gradert") {
@@ -119,185 +119,191 @@ class PdlUtilsTest :
                     )
                 coEvery { pdlClient.getPoststed(any()) } returns null
 
-            val address = pdlUtils.getPersonAdressString("11111111111")
-            address shouldBe null
-        }
+                val address = pdlUtils.getPersonAdressString("11111111111")
+                address shouldBe null
+            }
             it("Should return null if bostedsadresse list is empty") {
                 coEvery { pdlClient.getPersonInfo(any()) } returns
-                        PdlHentPerson(
-                            PdlPerson(
-                                adressebeskyttelse =
-                                    listOf(
-                                        Adressebeskyttelse(gradering = Gradering.UGRADERT),
-                                    ),
-                                listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
-                                emptyList(),
-                            ),
-                        )
+                    PdlHentPerson(
+                        PdlPerson(
+                            adressebeskyttelse =
+                                listOf(
+                                    Adressebeskyttelse(gradering = Gradering.UGRADERT),
+                                ),
+                            listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
+                            emptyList(),
+                        ),
+                    )
 
                 val address = pdlUtils.getPersonAdressString("11111111111")
 
                 address shouldBe null
             }
-    }
-
-    describe("getPersonNameString") {
-        it("Should return person name when available") {
-            val pdlPerson = PdlHentPerson(
-                PdlPerson(
-                    adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
-                    listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
-                    emptyList()
-                )
-            )
-
-            val result = pdlUtils.getPersonNameString(pdlPerson, "12345678901")
-
-            result shouldBe "Ola Veldig Nordmann"
         }
 
-        it("Should return FNR when name is not available") {
-            val fnr = "12345678901"
+        describe("getPersonNameString") {
+            it("Should return person name when available") {
+                val pdlPerson =
+                    PdlHentPerson(
+                        PdlPerson(
+                            adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
+                            listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
+                            emptyList(),
+                        ),
+                    )
 
-            val result = pdlUtils.getPersonNameString(null, fnr)
+                val result = pdlUtils.getPersonNameString(pdlPerson, "12345678901")
 
-            result shouldBe fnr
-        }
-    }
+                result shouldBe "Ola Veldig Nordmann"
+            }
 
-    describe("getPersonInfoWithRetry") {
-        it("Should return person info on first successful attempt") {
-            val fnr = "12345678901"
-            val pdlPerson = PdlHentPerson(
-                PdlPerson(
-                    adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
-                    listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
-                    emptyList()
-                )
-            )
-            coEvery { pdlClient.getPersonInfo(fnr) } returns pdlPerson
+            it("Should return FNR when name is not available") {
+                val fnr = "12345678901"
 
-            val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+                val result = pdlUtils.getPersonNameString(null, fnr)
 
-            result shouldBe pdlPerson
-            coVerify(exactly = 1) { pdlClient.getPersonInfo(fnr) }
+                result shouldBe fnr
+            }
         }
 
-        it("Should retry on server error and succeed on second attempt") {
-            val fnr = "12345678901"
-            val pdlPerson = PdlHentPerson(
-                PdlPerson(
-                    adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
-                    listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
-                    emptyList()
-                )
-            )
-            coEvery { pdlClient.getPersonInfo(fnr) } throws PdlServerException("Server error") andThen pdlPerson
+        describe("getPersonInfoWithRetry") {
+            it("Should return person info on first successful attempt") {
+                val fnr = "12345678901"
+                val pdlPerson =
+                    PdlHentPerson(
+                        PdlPerson(
+                            adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
+                            listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
+                            emptyList(),
+                        ),
+                    )
+                coEvery { pdlClient.getPersonInfo(fnr) } returns pdlPerson
 
-            val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+                val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
 
-            result shouldBe pdlPerson
-            coVerify(exactly = 2) { pdlClient.getPersonInfo(fnr) }
+                result shouldBe pdlPerson
+                coVerify(exactly = 1) { pdlClient.getPersonInfo(fnr) }
+            }
+
+            it("Should retry on server error and succeed on second attempt") {
+                val fnr = "12345678901"
+                val pdlPerson =
+                    PdlHentPerson(
+                        PdlPerson(
+                            adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
+                            listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
+                            emptyList(),
+                        ),
+                    )
+                coEvery { pdlClient.getPersonInfo(fnr) } throws PdlServerException("Server error") andThen pdlPerson
+
+                val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+
+                result shouldBe pdlPerson
+                coVerify(exactly = 2) { pdlClient.getPersonInfo(fnr) }
+            }
+
+            it("Should not retry on client errors like PdlNotFoundException") {
+                val fnr = "12345678901"
+                coEvery { pdlClient.getPersonInfo(fnr) } throws PdlNotFoundException("Not found")
+
+                val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+
+                result shouldBe null
+                coVerify(exactly = 1) { pdlClient.getPersonInfo(fnr) }
+            }
+
+            it("Should return null after exhausting all retries") {
+                val fnr = "12345678901"
+                coEvery { pdlClient.getPersonInfo(fnr) } throws PdlServerException("Server error")
+
+                val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+
+                result shouldBe null
+                coVerify(exactly = 3) { pdlClient.getPersonInfo(fnr) }
+            }
         }
 
-        it("Should not retry on client errors like PdlNotFoundException") {
-            val fnr = "12345678901"
-            coEvery { pdlClient.getPersonInfo(fnr) } throws PdlNotFoundException("Not found")
+        describe("getPersonNameString") {
+            it("Should return person name when available") {
+                val pdlPerson =
+                    PdlHentPerson(
+                        PdlPerson(
+                            adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
+                            listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
+                            emptyList(),
+                        ),
+                    )
 
-            val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+                val result = pdlUtils.getPersonNameString(pdlPerson, "12345678901")
 
-            result shouldBe null
-            coVerify(exactly = 1) { pdlClient.getPersonInfo(fnr) }
+                result shouldBe "Ola Veldig Nordmann"
+            }
+
+            it("Should return FNR when name is not available") {
+                val fnr = "12345678901"
+
+                val result = pdlUtils.getPersonNameString(null, fnr)
+
+                result shouldBe fnr
+            }
         }
 
-        it("Should return null after exhausting all retries") {
-            val fnr = "12345678901"
-            coEvery { pdlClient.getPersonInfo(fnr) } throws PdlServerException("Server error")
+        describe("getPersonInfoWithRetry") {
+            it("Should return person info on first successful attempt") {
+                val fnr = "12345678901"
+                val pdlPerson =
+                    PdlHentPerson(
+                        PdlPerson(
+                            adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
+                            listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
+                            emptyList(),
+                        ),
+                    )
+                coEvery { pdlClient.getPersonInfo(fnr) } returns pdlPerson
 
-            val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+                val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
 
-            result shouldBe null
-            coVerify(exactly = 3) { pdlClient.getPersonInfo(fnr) }
+                result shouldBe pdlPerson
+                coVerify(exactly = 1) { pdlClient.getPersonInfo(fnr) }
+            }
+
+            it("Should retry on server error and succeed on second attempt") {
+                val fnr = "12345678901"
+                val pdlPerson =
+                    PdlHentPerson(
+                        PdlPerson(
+                            adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
+                            listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
+                            emptyList(),
+                        ),
+                    )
+                coEvery { pdlClient.getPersonInfo(fnr) } throws PdlServerException("Server error") andThen pdlPerson
+
+                val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+
+                result shouldBe pdlPerson
+                coVerify(exactly = 2) { pdlClient.getPersonInfo(fnr) }
+            }
+
+            it("Should not retry on client errors like PdlNotFoundException") {
+                val fnr = "12345678901"
+                coEvery { pdlClient.getPersonInfo(fnr) } throws PdlNotFoundException("Not found")
+
+                val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+
+                result shouldBe null
+                coVerify(exactly = 1) { pdlClient.getPersonInfo(fnr) }
+            }
+
+            it("Should return null after exhausting all retries") {
+                val fnr = "12345678901"
+                coEvery { pdlClient.getPersonInfo(fnr) } throws PdlServerException("Server error")
+
+                val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
+
+                result shouldBe null
+                coVerify(exactly = 3) { pdlClient.getPersonInfo(fnr) }
+            }
         }
-    }
-
-    describe("getPersonNameString") {
-        it("Should return person name when available") {
-            val pdlPerson = PdlHentPerson(
-                PdlPerson(
-                    adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
-                    listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
-                    emptyList()
-                )
-            )
-
-            val result = pdlUtils.getPersonNameString(pdlPerson, "12345678901")
-
-            result shouldBe "Ola Veldig Nordmann"
-        }
-
-        it("Should return FNR when name is not available") {
-            val fnr = "12345678901"
-
-            val result = pdlUtils.getPersonNameString(null, fnr)
-
-            result shouldBe fnr
-        }
-    }
-
-    describe("getPersonInfoWithRetry") {
-        it("Should return person info on first successful attempt") {
-            val fnr = "12345678901"
-            val pdlPerson = PdlHentPerson(
-                PdlPerson(
-                    adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
-                    listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
-                    emptyList()
-                )
-            )
-            coEvery { pdlClient.getPersonInfo(fnr) } returns pdlPerson
-
-            val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
-
-            result shouldBe pdlPerson
-            coVerify(exactly = 1) { pdlClient.getPersonInfo(fnr) }
-        }
-
-        it("Should retry on server error and succeed on second attempt") {
-            val fnr = "12345678901"
-            val pdlPerson = PdlHentPerson(
-                PdlPerson(
-                    adressebeskyttelse = listOf(Adressebeskyttelse(gradering = Gradering.UGRADERT)),
-                    listOf(PersonNavn("Ola", "Veldig", "Nordmann")),
-                    emptyList()
-                )
-            )
-            coEvery { pdlClient.getPersonInfo(fnr) } throws PdlServerException("Server error") andThen pdlPerson
-
-            val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
-
-            result shouldBe pdlPerson
-            coVerify(exactly = 2) { pdlClient.getPersonInfo(fnr) }
-        }
-
-        it("Should not retry on client errors like PdlNotFoundException") {
-            val fnr = "12345678901"
-            coEvery { pdlClient.getPersonInfo(fnr) } throws PdlNotFoundException("Not found")
-
-            val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
-
-            result shouldBe null
-            coVerify(exactly = 1) { pdlClient.getPersonInfo(fnr) }
-        }
-
-        it("Should return null after exhausting all retries") {
-            val fnr = "12345678901"
-            coEvery { pdlClient.getPersonInfo(fnr) } throws PdlServerException("Server error")
-
-            val result = pdlUtils.getPersonInfoWithRetry(fnr, 3)
-
-            result shouldBe null
-            coVerify(exactly = 3) { pdlClient.getPersonInfo(fnr) }
-        }
-    }
-})
+    })

@@ -142,11 +142,14 @@ fun Application.testApiModule(
         wellKnownInternalAzureAD = externalMockEnvironment.wellKnownInternalAzureAD,
         veilederTilgangskontrollClient = veilederTilgangskontrollClient,
         followUpPlanSendingService = followUpPlanSendingService,
-        pdlUtils = PdlUtils( PdlClient(
-            externalMockEnvironment.environment.urls,
-            externalMockEnvironment.azureAdClient,
-            externalMockEnvironment.mockHttpClient)
-        ),
+        pdlUtils =
+            PdlUtils(
+                PdlClient(
+                    externalMockEnvironment.environment.urls,
+                    externalMockEnvironment.azureAdClient,
+                    externalMockEnvironment.mockHttpClient,
+                ),
+            ),
         sykmeldingService = sykmeldingService,
         arbeidsforholdOversiktClient = arbeidsforholdOversiktClient,
     )
