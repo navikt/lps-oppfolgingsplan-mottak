@@ -136,11 +136,15 @@ class AltinnLpsService(
     ): Boolean =
         try {
             val mostRecentFnr = pdlConsumer.mostRecentFnr(lpsFnr)
-            mostRecentFnr?.let {
+
+            if (mostRecentFnr == null) {
+                log.error("Unable to determine most recent fnr on retry attempt for altinn-lps with UUID: $uuid")
+                false
+            } else {
                 database.storeFnr(uuid, mostRecentFnr)
                 log.info("Successfully stored fnr on retry attempt for altinn-lps with UUID: $uuid")
                 true
-            } ?: false
+            }
         } catch (e: RuntimeException) {
             log.error("Error encountered while retrying fnr fetch", e)
             false
