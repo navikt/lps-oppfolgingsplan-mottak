@@ -59,20 +59,10 @@ class PdlClient(
             null
         }
 
-    suspend fun getPersonInfo(fnr: String): PdlHentPerson? =
-        try {
-            val response = getPerson(fnr)
-            handlePersonResponse(response)
-        } catch (e: PdlNotFoundException) {
-            log.warn("Person not found in PDL with FNR", e)
-            null
-        } catch (e: PdlException) {
-            log.error("Error getting person info from PDL", e)
-            null
-        } catch (e: Exception) {
-            log.error("Unexpected error getting person info from PDL", e)
-            null
-        }
+    suspend fun getPersonInfo(fnr: String): PdlHentPerson? {
+        val response = getPerson(fnr)
+        return handlePersonResponse(response)
+    }
 
     suspend fun getPoststed(postnummer: String): String? =
         try {
@@ -223,8 +213,8 @@ class PdlClient(
             "unauthorized" -> throw PdlUnauthorizedException(
                 "Could not $operation: 'Gyldig, men feil type token eller ikke tilgang til tjenesten'. " +
                     "Message: $errorMessage; " +
-                    "Cause: ${error.extensions.details.cause}",
-                error.extensions.details.policy,
+                    "Cause: ${error.extensions.details?.cause}",
+                error.extensions.details?.policy,
             )
             else -> throw PdlGenericException("Could not $operation: Message: $errorMessage")
         }

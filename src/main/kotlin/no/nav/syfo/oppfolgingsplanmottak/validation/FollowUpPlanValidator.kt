@@ -82,37 +82,38 @@ class FollowUpPlanValidator(
     }
 
     private suspend fun validatePersonExists(fnr: String) {
-        try {
-            val personInfo = pdlUtils.getPersonInfoWithRetry(fnr)
-
-            if (personInfo == null) {
-                log.warn("Person with fnr not found in PDL after retry attempts")
+        val personInfo =
+            try {
+                pdlUtils.getPersonInfoWithRetry(fnr)
+            } catch (e: PdlNotFoundException) {
+                // This is the correct case for EmployeeNotFoundException
+                log.warn("Person with fnr not found in PDL")
                 throw EmployeeNotFoundException("Could not find requested person in our systems")
+            } catch (e: PdlBadRequestException) {
+                // Bad input data - likely an invalid FNR format that passed regex check
+                log.error("Bad request when checking person in PDL: ${e.message}")
+                throw FollowUpPlanDTOValidationException("Invalid employee identification number format")
+            } catch (e: PdlUnauthorizedException) {
+                // Authorization issues
+                log.error("Unauthorized access to PDL: ${e.message}")
+                throw PdlServiceException("Authentication issue when validating employee. Try again later.")
+            } catch (e: PdlServerException) {
+                // Server-side PDL issues - temporary error
+                log.error("PDL server error: ${e.message}")
+                throw PdlServiceException("Temporary issue with person lookup service. Try again later.")
+            } catch (e: PdlException) {
+                // Other PDL issues
+                log.error("PDL error when validating employee: ${e.message}")
+                throw PdlServiceException("Error occurred during person validation. Please try again later.")
+            } catch (e: Exception) {
+                // Unexpected errors
+                log.error("Unexpected error during person validation: ${e.message}", e)
+                throw PdlServiceException("Unexpected error during validation. Please try again later.")
             }
-        } catch (e: PdlNotFoundException) {
-            // This is the correct case for EmployeeNotFoundException
-            log.warn("Person with fnr not found in PDL")
+
+        if (personInfo == null) {
+            log.warn("Person with fnr not found in PDL after retry attempts")
             throw EmployeeNotFoundException("Could not find requested person in our systems")
-        } catch (e: PdlBadRequestException) {
-            // Bad input data - likely an invalid FNR format that passed regex check
-            log.error("Bad request when checking person in PDL: ${e.message}")
-            throw FollowUpPlanDTOValidationException("Invalid employee identification number format")
-        } catch (e: PdlUnauthorizedException) {
-            // Authorization issues
-            log.error("Unauthorized access to PDL: ${e.message}")
-            throw PdlServiceException("Authentication issue when validating employee. Try again later.")
-        } catch (e: PdlServerException) {
-            // Server-side PDL issues - temporary error
-            log.error("PDL server error: ${e.message}")
-            throw PdlServiceException("Temporary issue with person lookup service. Try again later.")
-        } catch (e: PdlException) {
-            // Other PDL issues
-            log.error("PDL error when validating employee: ${e.message}")
-            throw PdlServiceException("Error occurred during person validation. Please try again later.")
-        } catch (e: Exception) {
-            // Unexpected errors
-            log.error("Unexpected error during person validation: ${e.message}", e)
-            throw PdlServiceException("Unexpected error during validation. Please try again later.")
         }
     }
 

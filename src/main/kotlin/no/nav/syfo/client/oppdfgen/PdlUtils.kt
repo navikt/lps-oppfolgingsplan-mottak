@@ -1,6 +1,7 @@
 package no.nav.syfo.client.oppdfgen
 
 import no.nav.syfo.application.exception.PdlException
+import no.nav.syfo.application.exception.PdlHttpException
 import no.nav.syfo.application.exception.PdlNotFoundException
 import no.nav.syfo.application.exception.PdlServerException
 import no.nav.syfo.client.pdl.PdlClient
@@ -27,7 +28,7 @@ class PdlUtils(
                 val vegadresse =
                     personInfo.hentPerson
                         ?.bostedsadresse
-                        ?.first()
+                        ?.firstOrNull()
                         ?.vegadresse
 
                 if (vegadresse != null && !vegadresse.postnummer.isNullOrEmpty()) {
@@ -67,29 +68,43 @@ class PdlUtils(
         maxRetries: Int = 3,
     ): PdlHentPerson? {
         var retries = 0
-        var lastError: Exception? = null
+        var lastServerError: PdlServerException? = null
 
         while (retries < maxRetries) {
             try {
                 return pdlClient.getPersonInfo(fnr)
             } catch (e: PdlServerException) {
-                // Only retry on server errors
-                lastError = e
+                lastServerError = e
                 retries++
                 if (retries < maxRetries) {
                     log.info("Retrying getPersonInfo after server error (attempt $retries/$maxRetries)")
-                    kotlinx.coroutines.delay(1000L * retries) // Exponential backoff
+                    kotlinx.coroutines.delay(1000L * retries) // Linear backoff
                 }
+            } catch (e: PdlHttpException) {
+                if (e.status.value in 500..599) {
+                    lastServerError =
+                        PdlServerException("PDL returned HTTP ${e.status.value} while fetching person info: ${e.message}")
+                    retries++
+                    if (retries < maxRetries) {
+                        log.info("Retrying getPersonInfo after HTTP ${e.status.value} (attempt $retries/$maxRetries)")
+                        kotlinx.coroutines.delay(1000L * retries) // Linear backoff
+                    }
+                } else {
+                    throw e
+                }
+            } catch (e: PdlNotFoundException) {
+                log.info("Person not found in PDL")
+                return null
             } catch (e: PdlException) {
                 log.error("Failed to get person info: ${e.message}", e)
-                return null
+                throw e
             } catch (e: Exception) {
                 log.error("Unexpected error in getPersonInfoWithRetry: ${e.message}", e)
-                return null
+                throw e
             }
         }
 
-        log.error("Failed to get person info after $maxRetries retries", lastError)
-        return null
+        log.error("Failed to get person info after $maxRetries retries", lastServerError)
+        throw lastServerError ?: PdlServerException("Failed to get person info after $maxRetries retries")
     }
 }
