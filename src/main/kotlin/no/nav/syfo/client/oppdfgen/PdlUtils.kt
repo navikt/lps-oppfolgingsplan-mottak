@@ -1,52 +1,57 @@
 package no.nav.syfo.client.oppdfgen
 
 import no.nav.syfo.application.exception.PdlException
+import no.nav.syfo.application.exception.PdlNotFoundException
 import no.nav.syfo.application.exception.PdlServerException
 import no.nav.syfo.client.pdl.PdlClient
-import no.nav.syfo.client.pdl.*
 import no.nav.syfo.client.pdl.domain.PdlHentPerson
 import no.nav.syfo.client.pdl.domain.isNotGradert
 import no.nav.syfo.client.pdl.domain.toPersonName
 import org.slf4j.LoggerFactory
 
-class PdlUtils(private val pdlClient: PdlClient) {
+class PdlUtils(
+    private val pdlClient: PdlClient,
+) {
     private val log = LoggerFactory.getLogger(PdlUtils::class.qualifiedName)
 
-    fun getPersonNameString(pdlPerson: PdlHentPerson?, fnr: String): String {
-        return pdlPerson?.toPersonName() ?: fnr
-    }
+    fun getPersonNameString(
+        pdlPerson: PdlHentPerson?,
+        fnr: String,
+    ): String = pdlPerson?.toPersonName() ?: fnr
 
     suspend fun getPersonAdressString(fnr: String): String? {
-        val personInfo = getPersonInfoWithRetry(fnr) ?: return null
+        return try {
+            val personInfo = getPersonInfoWithRetry(fnr) ?: return null
 
-        if (personInfo != null && personInfo.isNotGradert()) {
-            val vegadresse = personInfo.hentPerson?.bostedsadresse?.first()?.vegadresse
-            val bosted: String
+            if (personInfo.isNotGradert()) {
+                val vegadresse =
+                    personInfo.hentPerson
+                        ?.bostedsadresse
+                        ?.first()
+                        ?.vegadresse
 
-            return if (vegadresse != null && !vegadresse.postnummer.isNullOrEmpty()) {
-                bosted = pdlClient.getPoststed(vegadresse.postnummer) ?: ""
+                if (vegadresse != null && !vegadresse.postnummer.isNullOrEmpty()) {
+                    val bosted = pdlClient.getPoststed(vegadresse.postnummer) ?: ""
 
-                "${vegadresse.adressenavn ?: ""} ${vegadresse.husnummer ?: ""}" +
-                        "${vegadresse.husbokstav ?: ""} ${vegadresse.postnummer} $bosted"
+                    buildString {
+                        append(vegadresse.adressenavn ?: "")
+                        append(" ")
+                        append(vegadresse.husnummer ?: "")
+                        append(vegadresse.husbokstav ?: "")
+                        append(" ")
+                        append(vegadresse.postnummer)
+                        append(" ")
+                        append(bosted)
+                    }.trim()
+                } else {
+                    log.info("Can not get person's address string due to vegadresse or postnummer are null")
+                    null
+                }
             } else {
-                log.info("Can not get person's address string due to vegadresse or postnummer are null")
-                return null
+                null
             }
-
-            val bosted = pdlClient.getPoststed(vegadresse.postnummer) ?: ""
-
-            buildString {
-                append(vegadresse.adressenavn ?: "")
-                append(" ")
-                append(vegadresse.husnummer ?: "")
-                append(vegadresse.husbokstav ?: "")
-                append(" ")
-                append(vegadresse.postnummer)
-                append(" ")
-                append(bosted)
-            }.trim()
         } catch (e: PdlNotFoundException) {
-            log.info("Person with FNR $fnr not found in PDL")
+            log.info("Person not found in PDL")
             null
         } catch (e: PdlException) {
             log.error("Error getting person address information: ${e.message}", e)
@@ -57,7 +62,10 @@ class PdlUtils(private val pdlClient: PdlClient) {
         }
     }
 
-    suspend fun getPersonInfoWithRetry(fnr: String, maxRetries: Int = 3): PdlHentPerson? {
+    suspend fun getPersonInfoWithRetry(
+        fnr: String,
+        maxRetries: Int = 3,
+    ): PdlHentPerson? {
         var retries = 0
         var lastError: Exception? = null
 
