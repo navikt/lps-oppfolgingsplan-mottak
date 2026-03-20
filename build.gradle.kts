@@ -40,7 +40,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen") version "2.3.10"
     id("com.diffplug.spotless") version "8.3.0"
     id("com.gradleup.shadow") version "9.3.2"
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 allOpen {
