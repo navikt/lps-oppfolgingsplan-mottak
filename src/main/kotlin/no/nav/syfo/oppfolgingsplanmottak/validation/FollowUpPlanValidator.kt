@@ -99,12 +99,6 @@ class FollowUpPlanValidator(
         val arbeidsforholdOversikt =
             arbeidsforholdOversiktClient.getArbeidsforhold(followUpPlanDTO.employeeIdentificationNumber)
 
-        if(arbeidsforholdOversikt!= null && arbeidsforholdOversikt.arbeidsforholdoversikter.isNotEmpty()) {
-            arbeidsforholdOversikt.arbeidsforholdoversikter.forEach {
-                log.info("Found arbeidsforhold in orgnumber:" +
-                        " ${it.opplysningspliktig.getJuridiskOrgnummer()} and ${it.arbeidssted.getOrgnummer()}")
-            }
-        }
         val matchingArbeidsforhold =
             arbeidsforholdOversikt?.arbeidsforholdoversikter?.filter {
                 it.opplysningspliktig.getJuridiskOrgnummer() == employerOrgnr ||
@@ -112,8 +106,14 @@ class FollowUpPlanValidator(
             } ?: emptyList()
 
         if (matchingArbeidsforhold.isEmpty()) {
+            arbeidsforholdOversikt?.arbeidsforholdoversikter?.forEach {
+                log.info(
+                    "Found arbeidsforhold in orgnumber:" +
+                        " ${it.opplysningspliktig.getJuridiskOrgnummer()} and ${it.arbeidssted.getOrgnummer()}",
+                )
+            }
             throw NoActiveEmploymentException(
-                "No active employment relationship found for given orgnumber: $employerOrgnr"
+                "No active employment relationship found for given orgnumber: $employerOrgnr",
             )
         }
 
