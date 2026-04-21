@@ -9,6 +9,7 @@ import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
+import org.slf4j.LoggerFactory
 
 val TEST_FNR_LIST = listOf("05908399546", "01898299631")
 
@@ -18,6 +19,8 @@ class FollowUpPlanValidator(
     private val arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient,
     private val isDev: Boolean,
 ) {
+    private val log = LoggerFactory.getLogger(FollowUpPlanValidator::class.java)
+
     suspend fun validateFollowUpPlanDTO(
         followUpPlanDTO: FollowUpPlanDTO,
         employerOrgnr: String,
@@ -96,6 +99,12 @@ class FollowUpPlanValidator(
         val arbeidsforholdOversikt =
             arbeidsforholdOversiktClient.getArbeidsforhold(followUpPlanDTO.employeeIdentificationNumber)
 
+        if(arbeidsforholdOversikt!= null && arbeidsforholdOversikt.arbeidsforholdoversikter.isNotEmpty()) {
+            arbeidsforholdOversikt.arbeidsforholdoversikter.forEach {
+                log.info("Found arbeidsforhold in orgnumber:" +
+                        " ${it.opplysningspliktig.getJuridiskOrgnummer()} and ${it.arbeidssted.getOrgnummer()}")
+            }
+        }
         val matchingArbeidsforhold =
             arbeidsforholdOversikt?.arbeidsforholdoversikter?.filter {
                 it.opplysningspliktig.getJuridiskOrgnummer() == employerOrgnr ||
@@ -103,7 +112,9 @@ class FollowUpPlanValidator(
             } ?: emptyList()
 
         if (matchingArbeidsforhold.isEmpty()) {
-            throw NoActiveEmploymentException("No active employment relationship found for given orgnumber")
+            throw NoActiveEmploymentException(
+                "No active employment relationship found for given orgnumber: $employerOrgnr"
+            )
         }
 
         val validOrgnumbers =
