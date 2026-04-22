@@ -38,7 +38,7 @@ NAV for submitting follow-up plans.
 To submit a follow-up plan on behalf of an employer, the employer must delegate rights to the API (scope) to you as an
 LPS system. This is done
 in Altinn. Please refer to
-the [Altinn documentation](https://altinn.github.io/docs/utviklingsguider/api-delegering/tilgangsstyrer/). Please note
+the [Altinn documentation](https://docs.altinn.studio/nb/api/authentication/delegate-scopes/). Please note
 that the employer can find our API by searching for <i>"Oppfølgingsplan"</i> in Altinn, in the menu for <i>"Tilgang til
 programmeringsgrensesnitt - API"</i>.
 
