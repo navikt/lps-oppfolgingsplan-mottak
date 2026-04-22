@@ -1,9 +1,11 @@
 package no.nav.syfo.oppfolgingsplanmottak
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
-import io.ktor.server.request.receive
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
@@ -12,17 +14,24 @@ import io.ktor.server.routing.route
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.exception.ApiError.FollowupPlanNotFoundError
+import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_INBOX_MOTTATT
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET
 import no.nav.syfo.oppfolgingsplanmottak.database.findFollowUpPlanResponseById
 import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
+import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.database.updateSentAt
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
+import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanInbox
+import no.nav.syfo.oppfolgingsplanmottak.domain.InboxStatus
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
+import no.nav.syfo.util.configuredJacksonMapper
+import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.UUID
 
 fun Routing.registerFollowUpPlanApi(
@@ -37,11 +46,36 @@ fun Routing.registerFollowUpPlanApi(
         authenticate(JwtIssuerType.MASKINPORTEN.name) {
             post {
                 log.info("Received follow-up plan")
-                val followUpPlanDTO = call.receive<FollowUpPlanDTO>()
+                val rawPayload = call.receiveText()
                 val planUuid = UUID.randomUUID()
 
+                val correlationId = call.getCallId()
                 val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
+                val receivedAt = LocalDateTime.now()
+
+                database.storeFollowUpPlanInbox(
+                    FollowUpPlanInbox(
+                        correlationId = correlationId,
+                        organizationNumber = employerOrgnr,
+                        lpsOrgnumber = lpsOrgnumber,
+                        rawPayload = rawPayload,
+                        status = InboxStatus.RECEIVED,
+                        statusMessage = null,
+                        receivedAt = receivedAt,
+                        validatedAt = null,
+                        processedAt = null,
+                        updatedAt = receivedAt,
+                    ),
+                )
+                COUNT_METRIKK_FOLLOWUP_LPS_INBOX_MOTTATT.increment()
+
+                val followUpPlanDTO =
+                    try {
+                        configuredJacksonMapper().readValue<FollowUpPlanDTO>(rawPayload)
+                    } catch (exception: Exception) {
+                        throw BadRequestException("Failed to convert request body", exception)
+                    }
 
                 log.info("Validating follow-up plan for employer $employerOrgnr and LPS orgnumber $lpsOrgnumber")
                 validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr)

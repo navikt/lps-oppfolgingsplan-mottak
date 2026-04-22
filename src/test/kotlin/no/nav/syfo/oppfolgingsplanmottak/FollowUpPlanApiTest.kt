@@ -22,9 +22,12 @@ import no.nav.syfo.mockdata.UserConstants.ARBEIDSTAKER_FNR_NO_ARBEIDSFORHOLD
 import no.nav.syfo.mockdata.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
+import no.nav.syfo.oppfolgingsplanmottak.database.getFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
+import no.nav.syfo.oppfolgingsplanmottak.domain.InboxStatus
 import no.nav.syfo.sykmelding.database.persistSykmeldingsperiode
+import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.customMaskinportenToken
 import no.nav.syfo.util.validMaskinportenToken
@@ -54,11 +57,13 @@ class FollowUpPlanApiTest :
                     )
 
                     val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(ARBEIDSTAKER_FNR)
+                    val callId = "call-id-1"
 
                     val response =
                         client.post("/api/v1/followupplan") {
                             bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
                             contentType(ContentType.Application.Json)
+                            headers.append(NAV_CALL_ID_HEADER, callId)
                             setBody(followUpPlanDTO)
                         }
 
@@ -71,6 +76,8 @@ class FollowUpPlanApiTest :
                     storedMetaData.size shouldBe 1
                     storedMetaData[0].fnr shouldBe ARBEIDSTAKER_FNR
                     storedMetaData[0].virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
+                    embeddedDatabase.getFollowUpPlanInbox(callId)?.status shouldBe InboxStatus.RECEIVED
+                    embeddedDatabase.getFollowUpPlanInbox(callId)?.organizationNumber shouldBe VIRKSOMHETSNUMMER
 
                     response shouldHaveStatus HttpStatusCode.OK
                 }

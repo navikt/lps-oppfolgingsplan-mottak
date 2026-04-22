@@ -82,6 +82,7 @@ class TestDB private constructor() {
                     .prepareStatement(
                         """
                     DELETE FROM FOLLOW_UP_PLAN_LPS_V1;
+                    DELETE FROM FOLLOW_UP_PLAN_INBOX;
                     DELETE FROM SYKMELDINGSPERIODE;
                     DELETE FROM ALTINN_LPS;
                 """,
