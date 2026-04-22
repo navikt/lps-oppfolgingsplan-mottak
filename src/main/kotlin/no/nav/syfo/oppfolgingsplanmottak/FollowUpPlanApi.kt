@@ -43,6 +43,7 @@ fun Routing.registerFollowUpPlanApi(
                 val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
 
+                log.info("Validating follow-up plan for employer $employerOrgnr and LPS orgnumber $lpsOrgnumber")
                 validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr)
                 log.info("Follow-up plan is valid. Attempting to store plan.")
 
