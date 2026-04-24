@@ -79,6 +79,7 @@ class FollowUpPlanApiTest :
                     storedMetaData[0].virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
                     inbox.organizationNumber shouldBe VIRKSOMHETSNUMMER
                     inbox.lpsOrgnumber shouldBe VIRKSOMHETSNUMMER
+                    inbox.employeeIdentificationNumber shouldBe ARBEIDSTAKER_FNR
                     inbox.rawPayload shouldContain ARBEIDSTAKER_FNR
 
                     response shouldHaveStatus HttpStatusCode.OK
@@ -145,6 +146,8 @@ class FollowUpPlanApiTest :
                     response shouldHaveStatus HttpStatusCode.BadRequest
                     responseMessage shouldContain "Failed to convert request body"
                     embeddedDatabase.getLatestFollowUpPlanInbox()?.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.employeeIdentificationNumber shouldBe
+                        followUpPlanDTO.employeeIdentificationNumber
                     embeddedDatabase.getLatestFollowUpPlanInbox()?.rawPayload shouldContain
                         followUpPlanDTO.employeeIdentificationNumber.shouldNotBeNull()
                 }
@@ -241,6 +244,8 @@ class FollowUpPlanApiTest :
                             "if employeeHasContributedToPlan = false"
                     )
                     embeddedDatabase.getLatestFollowUpPlanInbox()?.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.employeeIdentificationNumber shouldBe
+                        followUpPlanDTO.employeeIdentificationNumber
                     embeddedDatabase.getLatestFollowUpPlanInbox()?.rawPayload shouldContain
                         followUpPlanDTO.employeeIdentificationNumber.shouldNotBeNull()
                 }
@@ -262,6 +267,7 @@ class FollowUpPlanApiTest :
                     response shouldHaveStatus HttpStatusCode.BadRequest
                     responseMessage shouldContain "Failed to convert request body"
                     embeddedDatabase.getLatestFollowUpPlanInbox()?.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.employeeIdentificationNumber shouldBe null
                     embeddedDatabase.getLatestFollowUpPlanInbox()?.rawPayload shouldBe malformedPayload
                 }
             }

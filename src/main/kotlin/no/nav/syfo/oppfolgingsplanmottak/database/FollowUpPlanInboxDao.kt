@@ -13,9 +13,10 @@ fun DatabaseInterface.storeFollowUpPlanInbox(followUpPlanInbox: FollowUpPlanInbo
             correlation_id,
             organization_number,
             lps_orgnumber,
+            employee_identification_number,
             raw_payload,
             received_at
-        ) VALUES (?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?)
         """.trimIndent()
 
     connection.use { connection ->
@@ -23,8 +24,9 @@ fun DatabaseInterface.storeFollowUpPlanInbox(followUpPlanInbox: FollowUpPlanInbo
             it.setString(1, followUpPlanInbox.correlationId)
             it.setString(2, followUpPlanInbox.organizationNumber)
             it.setString(3, followUpPlanInbox.lpsOrgnumber)
-            it.setString(4, followUpPlanInbox.rawPayload)
-            it.setTimestamp(5, Timestamp.valueOf(followUpPlanInbox.receivedAt))
+            it.setString(4, followUpPlanInbox.employeeIdentificationNumber)
+            it.setString(5, followUpPlanInbox.rawPayload)
+            it.setTimestamp(6, Timestamp.valueOf(followUpPlanInbox.receivedAt))
             it.executeUpdate()
         }
         connection.commit()
@@ -68,6 +70,7 @@ fun ResultSet.toFollowUpPlanInbox() =
         correlationId = getString("correlation_id"),
         organizationNumber = getString("organization_number"),
         lpsOrgnumber = getString("lps_orgnumber"),
+        employeeIdentificationNumber = getString("employee_identification_number"),
         rawPayload = getString("raw_payload"),
         receivedAt = getTimestamp("received_at").toLocalDateTime(),
     )

@@ -22,6 +22,7 @@ class FollowUpPlanInboxDaoTest :
                         correlationId = "call-id-1",
                         organizationNumber = "123456789",
                         lpsOrgnumber = "987654321",
+                        employeeIdentificationNumber = "12345678901",
                         rawPayload = """{"payload":"raw"}""",
                         receivedAt = receivedAt,
                     )
@@ -40,6 +41,7 @@ class FollowUpPlanInboxDaoTest :
                         correlationId = "call-id-2",
                         organizationNumber = "123456789",
                         lpsOrgnumber = "987654321",
+                        employeeIdentificationNumber = null,
                         rawPayload = """{"payload":"raw"}""",
                         receivedAt = receivedAt,
                     ),
@@ -50,6 +52,7 @@ class FollowUpPlanInboxDaoTest :
                         correlationId = "call-id-3",
                         organizationNumber = "111111111",
                         lpsOrgnumber = "222222222",
+                        employeeIdentificationNumber = "10987654321",
                         rawPayload = """{"payload":"newest"}""",
                         receivedAt = receivedAt.plusMinutes(1),
                     ),

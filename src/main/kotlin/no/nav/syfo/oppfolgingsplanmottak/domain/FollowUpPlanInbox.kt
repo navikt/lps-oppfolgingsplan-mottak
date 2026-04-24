@@ -6,6 +6,7 @@ data class FollowUpPlanInbox(
     val correlationId: String,
     val organizationNumber: String,
     val lpsOrgnumber: String,
+    val employeeIdentificationNumber: String?,
     val rawPayload: String,
     val receivedAt: LocalDateTime,
 )

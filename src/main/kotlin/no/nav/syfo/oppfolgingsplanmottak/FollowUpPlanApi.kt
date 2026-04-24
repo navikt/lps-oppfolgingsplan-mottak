@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
 
+private const val EMPLOYEE_IDENTIFICATION_NUMBER_FIELD = "employeeIdentificationNumber"
+
 fun Routing.registerFollowUpPlanApi(
     database: DatabaseInterface,
     followUpPlanSendingService: FollowUpPlanSendingService,
@@ -53,6 +55,7 @@ fun Routing.registerFollowUpPlanApi(
                         correlationId = planUuid.toString(),
                         organizationNumber = employerOrgnr,
                         lpsOrgnumber = lpsOrgnumber,
+                        employeeIdentificationNumber = rawPayload.toEmployeeIdentificationNumber(),
                         rawPayload = rawPayload,
                         receivedAt = LocalDateTime.now(),
                     ),
@@ -121,3 +124,13 @@ private fun ApplicationCall.uuid(): UUID =
         ?: throw IllegalArgumentException(
             "Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request",
         )
+
+private fun String.toEmployeeIdentificationNumber(): String? =
+    try {
+        configuredJacksonMapper()
+            .readTree(this)
+            .path(EMPLOYEE_IDENTIFICATION_NUMBER_FIELD)
+            .textValue()
+    } catch (_: Exception) {
+        null
+    }
