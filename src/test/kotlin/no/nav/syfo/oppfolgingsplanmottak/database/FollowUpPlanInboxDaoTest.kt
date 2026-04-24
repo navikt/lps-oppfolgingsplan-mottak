@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import no.nav.syfo.db.TestDB
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanInbox
-import no.nav.syfo.oppfolgingsplanmottak.domain.InboxStatus
 import java.time.LocalDateTime
 
 class FollowUpPlanInboxDaoTest :
@@ -24,58 +23,39 @@ class FollowUpPlanInboxDaoTest :
                         organizationNumber = "123456789",
                         lpsOrgnumber = "987654321",
                         rawPayload = """{"payload":"raw"}""",
-                        status = InboxStatus.RECEIVED,
-                        statusMessage = null,
                         receivedAt = receivedAt,
-                        validatedAt = null,
-                        processedAt = null,
-                        updatedAt = receivedAt,
                     )
 
                 testDb.storeFollowUpPlanInbox(followUpPlanInbox)
 
                 testDb.getFollowUpPlanInbox(followUpPlanInbox.correlationId) shouldBe followUpPlanInbox
+                testDb.getLatestFollowUpPlanInbox() shouldBe followUpPlanInbox
             }
 
-            it("updates status and timestamps for processed follow up plans") {
+            it("returns the latest stored inbox entry") {
                 val receivedAt = LocalDateTime.of(2024, 1, 10, 12, 0, 0)
-                val validatedAt = receivedAt.plusMinutes(1)
-                val processedAt = validatedAt.plusMinutes(1)
-                val correlationId = "call-id-2"
 
                 testDb.storeFollowUpPlanInbox(
                     FollowUpPlanInbox(
-                        correlationId = correlationId,
+                        correlationId = "call-id-2",
                         organizationNumber = "123456789",
                         lpsOrgnumber = "987654321",
                         rawPayload = """{"payload":"raw"}""",
-                        status = InboxStatus.RECEIVED,
-                        statusMessage = null,
                         receivedAt = receivedAt,
-                        validatedAt = null,
-                        processedAt = null,
-                        updatedAt = receivedAt,
                     ),
                 )
 
-                val rowsUpdated =
-                    testDb.updateFollowUpPlanInboxStatus(
-                        correlationId = correlationId,
-                        status = InboxStatus.PROCESSED,
-                        statusMessage = "Processed successfully",
-                        validatedAt = validatedAt,
-                        processedAt = processedAt,
-                    )
+                testDb.storeFollowUpPlanInbox(
+                    FollowUpPlanInbox(
+                        correlationId = "call-id-3",
+                        organizationNumber = "111111111",
+                        lpsOrgnumber = "222222222",
+                        rawPayload = """{"payload":"newest"}""",
+                        receivedAt = receivedAt.plusMinutes(1),
+                    ),
+                )
 
-                rowsUpdated shouldBe 1
-
-                val updatedInbox = testDb.getFollowUpPlanInbox(correlationId)
-                updatedInbox?.status shouldBe InboxStatus.PROCESSED
-                updatedInbox?.statusMessage shouldBe "Processed successfully"
-                updatedInbox?.validatedAt shouldBe validatedAt
-                updatedInbox?.processedAt shouldBe processedAt
-                updatedInbox?.organizationNumber shouldBe "123456789"
-                updatedInbox?.lpsOrgnumber shouldBe "987654321"
+                testDb.getLatestFollowUpPlanInbox()?.correlationId shouldBe "call-id-3"
             }
         }
     })

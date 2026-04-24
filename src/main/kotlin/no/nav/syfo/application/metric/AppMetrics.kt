@@ -26,9 +26,6 @@ const val METRIKK_BISTAND_FRA_NAV = "${METRICS_NS}_lps_plan_behov_for_bistand_fr
 const val METRIKK_DELT_MED_NAV = "${METRICS_NS}_lps_plan_delt_med_nav"
 
 const val METRIKK_FOLLOWUP_LPS_PROSSESERING_VELLYKKET = "${METRICS_NS}_prosessering_av_followup_lps_plan_vellykket"
-const val METRIKK_FOLLOWUP_LPS_INBOX_MOTTATT = "${METRICS_NS}_followup_lps_inbox_mottatt"
-const val METRIKK_FOLLOWUP_LPS_INBOX_TEKNISK_PROSESSERINGSFEIL =
-    "${METRICS_NS}_followup_lps_inbox_teknisk_prosesseringsfeil"
 const val METRIKK_FOLLOWUP_LPS_DELT_MED_FASTLEGE = "${METRICS_NS}_followup_lps_plan_delt_med_fastlege"
 const val METRIKK_FOLLOWUP_LPS_JOURNALFORT_TIL_GOSYS = "${METRICS_NS}_followup_lps_opprettet_journal_gosys"
 const val METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV = "${METRICS_NS}_followup_lps_plan_behov_for_bistand_fra_nav"
@@ -45,16 +42,6 @@ val COUNT_METRIKK_PROSSESERING_VELLYKKET: Counter =
 val COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET: Counter =
     Counter
         .builder(METRIKK_FOLLOWUP_LPS_PROSSESERING_VELLYKKET)
-        .register(METRICS_REGISTRY)
-
-val COUNT_METRIKK_FOLLOWUP_LPS_INBOX_MOTTATT: Counter =
-    Counter
-        .builder(METRIKK_FOLLOWUP_LPS_INBOX_MOTTATT)
-        .register(METRICS_REGISTRY)
-
-val COUNT_METRIKK_FOLLOWUP_LPS_INBOX_TEKNISK_PROSESSERINGSFEIL: Counter =
-    Counter
-        .builder(METRIKK_FOLLOWUP_LPS_INBOX_TEKNISK_PROSESSERINGSFEIL)
         .register(METRICS_REGISTRY)
 
 val COUNT_METRIKK_DELT_MED_FASTLEGE_ETTER_FEILET_SENDING: Counter =

@@ -2,6 +2,7 @@ package no.nav.syfo.oppfolgingsplanmottak
 
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.body
@@ -23,11 +24,10 @@ import no.nav.syfo.mockdata.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
 import no.nav.syfo.oppfolgingsplanmottak.database.getFollowUpPlanInbox
+import no.nav.syfo.oppfolgingsplanmottak.database.getLatestFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
-import no.nav.syfo.oppfolgingsplanmottak.domain.InboxStatus
 import no.nav.syfo.sykmelding.database.persistSykmeldingsperiode
-import no.nav.syfo.util.NAV_CALL_ID_HEADER
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.customMaskinportenToken
 import no.nav.syfo.util.validMaskinportenToken
@@ -37,9 +37,6 @@ import java.util.UUID
 
 class FollowUpPlanApiTest :
     DescribeSpec({
-        beforeSpec {
-        }
-
         beforeTest {
             clearAllMocks()
         }
@@ -57,13 +54,16 @@ class FollowUpPlanApiTest :
                     )
 
                     val followUpPlanDTO = createDefaultFollowUpPlanMockDTO(ARBEIDSTAKER_FNR)
-                    val callId = "call-id-1"
 
                     val response =
                         client.post("/api/v1/followupplan") {
-                            bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
+                            bearerAuth(
+                                validMaskinportenToken(
+                                    consumerOrgnumber = VIRKSOMHETSNUMMER,
+                                    supplierOrgnumber = VIRKSOMHETSNUMMER,
+                                ),
+                            )
                             contentType(ContentType.Application.Json)
-                            headers.append(NAV_CALL_ID_HEADER, callId)
                             setBody(followUpPlanDTO)
                         }
 
@@ -72,12 +72,14 @@ class FollowUpPlanApiTest :
 
                     val storedMetaData =
                         embeddedDatabase.getOppfolgingsplanerMetadataForVeileder(PersonIdent(ARBEIDSTAKER_FNR))
+                    val inbox = embeddedDatabase.getFollowUpPlanInbox(responseBody.uuid).shouldNotBeNull()
 
                     storedMetaData.size shouldBe 1
                     storedMetaData[0].fnr shouldBe ARBEIDSTAKER_FNR
                     storedMetaData[0].virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
-                    embeddedDatabase.getFollowUpPlanInbox(callId)?.status shouldBe InboxStatus.RECEIVED
-                    embeddedDatabase.getFollowUpPlanInbox(callId)?.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    inbox.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    inbox.lpsOrgnumber shouldBe VIRKSOMHETSNUMMER
+                    inbox.rawPayload shouldContain ARBEIDSTAKER_FNR
 
                     response shouldHaveStatus HttpStatusCode.OK
                 }
@@ -125,7 +127,7 @@ class FollowUpPlanApiTest :
 
             it("Missing lpsName in follow-up plan should return bad request") {
                 testApplication {
-                    val (_, client) = configureTestApplication()
+                    val (embeddedDatabase, client) = configureTestApplication()
 
                     val followUpPlanDTO =
                         randomFollowUpPlanMockDTO.copy(
@@ -142,6 +144,9 @@ class FollowUpPlanApiTest :
 
                     response shouldHaveStatus HttpStatusCode.BadRequest
                     responseMessage shouldContain "Failed to convert request body"
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.rawPayload shouldContain
+                        followUpPlanDTO.employeeIdentificationNumber.shouldNotBeNull()
                 }
             }
 
@@ -189,9 +194,7 @@ class FollowUpPlanApiTest :
                 }
             }
 
-            it(
-                "employeeIdentificationNumber with letters returns bad request",
-            ) {
+            it("employeeIdentificationNumber with letters returns bad request") {
                 testApplication {
                     val (_, client) = configureTestApplication()
 
@@ -215,7 +218,7 @@ class FollowUpPlanApiTest :
 
             it("Fails when employee has not contributed, but description is missing") {
                 testApplication {
-                    val (_, client) = configureTestApplication()
+                    val (embeddedDatabase, client) = configureTestApplication()
 
                     val followUpPlanDTO =
                         randomFollowUpPlanMockDTO.copy(
@@ -237,6 +240,29 @@ class FollowUpPlanApiTest :
                         "employeeHasNotContributedToPlanDescription is mandatory " +
                             "if employeeHasContributedToPlan = false"
                     )
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.rawPayload shouldContain
+                        followUpPlanDTO.employeeIdentificationNumber.shouldNotBeNull()
+                }
+            }
+
+            it("Malformed payload should still be stored in inbox") {
+                testApplication {
+                    val (embeddedDatabase, client) = configureTestApplication()
+                    val malformedPayload = """{"lpsName":"""
+
+                    val response =
+                        client.post("/api/v1/followupplan") {
+                            bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
+                            contentType(ContentType.Application.Json)
+                            setBody(malformedPayload)
+                        }
+                    val responseMessage = response.body<String>()
+
+                    response shouldHaveStatus HttpStatusCode.BadRequest
+                    responseMessage shouldContain "Failed to convert request body"
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    embeddedDatabase.getLatestFollowUpPlanInbox()?.rawPayload shouldBe malformedPayload
                 }
             }
 

@@ -14,7 +14,6 @@ import io.ktor.server.routing.route
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.exception.ApiError.FollowupPlanNotFoundError
-import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_INBOX_MOTTATT
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET
 import no.nav.syfo.oppfolgingsplanmottak.database.findFollowUpPlanResponseById
 import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
@@ -22,11 +21,9 @@ import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.database.updateSentAt
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanInbox
-import no.nav.syfo.oppfolgingsplanmottak.domain.InboxStatus
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
 import no.nav.syfo.util.configuredJacksonMapper
-import no.nav.syfo.util.getCallId
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
@@ -48,27 +45,18 @@ fun Routing.registerFollowUpPlanApi(
                 log.info("Received follow-up plan")
                 val rawPayload = call.receiveText()
                 val planUuid = UUID.randomUUID()
-
-                val correlationId = call.getCallId()
                 val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
-                val receivedAt = LocalDateTime.now()
 
                 database.storeFollowUpPlanInbox(
                     FollowUpPlanInbox(
-                        correlationId = correlationId,
+                        correlationId = planUuid.toString(),
                         organizationNumber = employerOrgnr,
                         lpsOrgnumber = lpsOrgnumber,
                         rawPayload = rawPayload,
-                        status = InboxStatus.RECEIVED,
-                        statusMessage = null,
-                        receivedAt = receivedAt,
-                        validatedAt = null,
-                        processedAt = null,
-                        updatedAt = receivedAt,
+                        receivedAt = LocalDateTime.now(),
                     ),
                 )
-                COUNT_METRIKK_FOLLOWUP_LPS_INBOX_MOTTATT.increment()
 
                 val followUpPlanDTO =
                     try {
@@ -109,7 +97,6 @@ fun Routing.registerFollowUpPlanApi(
 
                 log.info("Follow-up plan received and sent successfully.")
                 call.respond(followUpPlan.toFollowUpPlanResponse())
-
                 COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET.increment()
             }
 
