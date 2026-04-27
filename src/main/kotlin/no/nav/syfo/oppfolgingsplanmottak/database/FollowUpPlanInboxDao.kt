@@ -65,6 +65,23 @@ fun DatabaseInterface.getLatestFollowUpPlanInbox(): FollowUpPlanInbox? {
     }
 }
 
+fun DatabaseInterface.deleteFollowUpPlanInboxRowsOlderThan14Days(): Int {
+    val deleteStatement =
+        """
+        DELETE FROM FOLLOW_UP_PLAN_INBOX
+        WHERE received_at < CURRENT_TIMESTAMP - INTERVAL '14 days'
+        """.trimIndent()
+
+    return connection.use { connection ->
+        val deletedRows =
+            connection.prepareStatement(deleteStatement).use {
+                it.executeUpdate()
+            }
+        connection.commit()
+        deletedRows
+    }
+}
+
 fun ResultSet.toFollowUpPlanInbox() =
     FollowUpPlanInbox(
         correlationId = getString("correlation_id"),

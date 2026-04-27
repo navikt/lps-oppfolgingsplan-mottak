@@ -6,6 +6,7 @@ import no.nav.syfo.application.environment.ToggleEnv
 import no.nav.syfo.application.scheduling.DB_SHORTNAME
 import no.nav.syfo.application.scheduling.LEADER_ELECTION_SHORTNAME
 import no.nav.syfo.application.scheduling.TOGGLES_SHORTNAME
+import no.nav.syfo.oppfolgingsplanmottak.scheduling.FollowUpPlanInboxCleanupJob
 import no.nav.syfo.util.LeaderElection
 import org.quartz.JobBuilder.newJob
 import org.quartz.JobDetail
@@ -32,8 +33,10 @@ class AltinnLpsScheduler(
             scheduler.start()
             val retryProcessLpsPlanJob = generateRetryProcessLpsPlanJob()
             val retryForwardLpsPlanJob = generateRetryForwardLpsPlanJob()
+            val followUpPlanInboxCleanupJob = generateFollowUpPlanInboxCleanupJob()
             scheduler.scheduleJob(retryProcessLpsPlanJob.first, retryProcessLpsPlanJob.second)
             scheduler.scheduleJob(retryForwardLpsPlanJob.first, retryForwardLpsPlanJob.second)
+            scheduler.scheduleJob(followUpPlanInboxCleanupJob.first, followUpPlanInboxCleanupJob.second)
             return scheduler
         } catch (e: SchedulerException) {
             log.error("[SCHEDULER]: SchedulerException encounter while running job ${e.message}", e)
@@ -83,8 +86,28 @@ class AltinnLpsScheduler(
         return Pair(lpsRetryForwardLpsJob, lpsRetryForwardLpsTrigger)
     }
 
+    private fun generateFollowUpPlanInboxCleanupJob(): Pair<JobDetail, SimpleTrigger> {
+        val followUpPlanInboxCleanupJob =
+            newJob(FollowUpPlanInboxCleanupJob::class.java)
+                .withIdentity(FOLLOW_UP_PLAN_INBOX_CLEANUP_JOB, FOLLOW_UP_PLAN_INBOX_GROUP)
+                .build()
+        followUpPlanInboxCleanupJob.jobDataMap[DB_SHORTNAME] = database
+        followUpPlanInboxCleanupJob.jobDataMap[LEADER_ELECTION_SHORTNAME] = leaderElection
+        val followUpPlanInboxCleanupTrigger =
+            newTrigger()
+                .withIdentity(FOLLOW_UP_PLAN_INBOX_CLEANUP_TRIGGER, FOLLOW_UP_PLAN_INBOX_GROUP)
+                .startNow()
+                .withSchedule(
+                    simpleSchedule()
+                        .withIntervalInMinutes(FOLLOW_UP_PLAN_INBOX_CLEANUP_INTERVAL_IN_MINUTES)
+                        .repeatForever(),
+                ).build()
+        return Pair(followUpPlanInboxCleanupJob, followUpPlanInboxCleanupTrigger)
+    }
+
     companion object {
         const val ALTINN_LPS_PLAN_GROUP = "AltinnLpsPlanGroup"
+        const val FOLLOW_UP_PLAN_INBOX_GROUP = "FollowUpPlanInboxGroup"
 
         const val RETRY_PROCESSING_LPS_PLAN_TRIGGER = "RetryProccesingLpsPlanTrigger"
         const val RETRY_PROCESSING_LPS_PLAN_JOB = "RetryProccesingLpsPlanJob"
@@ -93,5 +116,9 @@ class AltinnLpsScheduler(
         const val RETRY_FORWARD_LPS_PLAN_TRIGGER = "RetryForwardLpsPlanTrigger"
         const val RETRY_FORWARD_LPS_PLAN_JOB = "RetryForwardLpsPlanJob"
         const val RETRY_FORWARD_LPS_PLAN_INTERVAL_IN_MINUTES = 10
+
+        const val FOLLOW_UP_PLAN_INBOX_CLEANUP_TRIGGER = "FollowUpPlanInboxCleanupTrigger"
+        const val FOLLOW_UP_PLAN_INBOX_CLEANUP_JOB = "FollowUpPlanInboxCleanupJob"
+        const val FOLLOW_UP_PLAN_INBOX_CLEANUP_INTERVAL_IN_MINUTES = 24 * 60
     }
 }
