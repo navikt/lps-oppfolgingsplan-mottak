@@ -14,28 +14,31 @@ import io.ktor.server.routing.route
 import no.nav.syfo.application.api.auth.JwtIssuerType
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.exception.ApiError.FollowupPlanNotFoundError
+import no.nav.syfo.application.exception.EmployeeNotFoundException
+import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
+import no.nav.syfo.application.exception.NoActiveEmploymentException
+import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
 import no.nav.syfo.application.metric.COUNT_METRIKK_PROSSESERING_FOLLOWUP_LPS_PROSSESERING_VELLYKKET
 import no.nav.syfo.oppfolgingsplanmottak.database.findFollowUpPlanResponseById
 import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlan
-import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.database.updateSentAt
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
-import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanInbox
+import no.nav.syfo.oppfolgingsplanmottak.logging.FollowUpPlanSupportLogger
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
 import no.nav.syfo.util.configuredJacksonMapper
+import no.nav.syfo.util.getCallId
+import no.nav.syfo.util.getConsumerClientId
 import no.nav.syfo.util.getLpsOrgnumberFromClaims
 import no.nav.syfo.util.getOrgnumberFromClaims
 import no.nav.syfo.util.getSendingTimestamp
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 import java.util.UUID
-
-private const val EMPLOYEE_IDENTIFICATION_NUMBER_FIELD = "employeeIdentificationNumber"
 
 fun Routing.registerFollowUpPlanApi(
     database: DatabaseInterface,
     followUpPlanSendingService: FollowUpPlanSendingService,
+    supportLogger: FollowUpPlanSupportLogger,
     validator: FollowUpPlanValidator,
 ) {
     val log = LoggerFactory.getLogger("FollowUpPlanApi")
@@ -49,27 +52,81 @@ fun Routing.registerFollowUpPlanApi(
                 val planUuid = UUID.randomUUID()
                 val employerOrgnr = getOrgnumberFromClaims()
                 val lpsOrgnumber = getLpsOrgnumberFromClaims() ?: employerOrgnr
-
-                database.storeFollowUpPlanInbox(
-                    FollowUpPlanInbox(
-                        correlationId = planUuid.toString(),
-                        organizationNumber = employerOrgnr,
-                        lpsOrgnumber = lpsOrgnumber,
-                        employeeIdentificationNumber = rawPayload.toEmployeeIdentificationNumber(),
-                        rawPayload = rawPayload,
-                        receivedAt = LocalDateTime.now(),
-                    ),
+                val callId = call.getCallId()
+                val consumerClientId = call.getConsumerClientId()
+                supportLogger.logReceived(
+                    rawPayload = rawPayload,
+                    callId = callId,
+                    planUuid = planUuid.toString(),
+                    consumerClientId = consumerClientId,
+                    organizationNumber = employerOrgnr,
+                    lpsOrgnumber = lpsOrgnumber,
                 )
 
                 val followUpPlanDTO =
                     try {
                         configuredJacksonMapper().readValue<FollowUpPlanDTO>(rawPayload)
                     } catch (exception: Exception) {
+                        supportLogger.logParseFailed(
+                            rawPayload = rawPayload,
+                            callId = callId,
+                            planUuid = planUuid.toString(),
+                            consumerClientId = consumerClientId,
+                            organizationNumber = employerOrgnr,
+                            lpsOrgnumber = lpsOrgnumber,
+                            errorMessage = "Failed to convert request body",
+                        )
                         throw BadRequestException("Failed to convert request body", exception)
                     }
 
                 log.info("Validating follow-up plan for employer $employerOrgnr and LPS orgnumber $lpsOrgnumber")
-                validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr)
+                try {
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr)
+                } catch (exception: FollowUpPlanDTOValidationException) {
+                    supportLogger.logValidationFailed(
+                        rawPayload = rawPayload,
+                        callId = callId,
+                        planUuid = planUuid.toString(),
+                        consumerClientId = consumerClientId,
+                        organizationNumber = employerOrgnr,
+                        lpsOrgnumber = lpsOrgnumber,
+                        errorMessage = exception.message ?: "Validation failed",
+                    )
+                    throw exception
+                } catch (exception: NoActiveEmploymentException) {
+                    supportLogger.logValidationFailed(
+                        rawPayload = rawPayload,
+                        callId = callId,
+                        planUuid = planUuid.toString(),
+                        consumerClientId = consumerClientId,
+                        organizationNumber = employerOrgnr,
+                        lpsOrgnumber = lpsOrgnumber,
+                        errorMessage = exception.message ?: "Validation failed",
+                    )
+                    throw exception
+                } catch (exception: NoActiveSentSykmeldingException) {
+                    supportLogger.logValidationFailed(
+                        rawPayload = rawPayload,
+                        callId = callId,
+                        planUuid = planUuid.toString(),
+                        consumerClientId = consumerClientId,
+                        organizationNumber = employerOrgnr,
+                        lpsOrgnumber = lpsOrgnumber,
+                        errorMessage = exception.message ?: "Validation failed",
+                    )
+                    throw exception
+                } catch (exception: EmployeeNotFoundException) {
+                    supportLogger.logValidationFailed(
+                        rawPayload = rawPayload,
+                        callId = callId,
+                        planUuid = planUuid.toString(),
+                        consumerClientId = consumerClientId,
+                        organizationNumber = employerOrgnr,
+                        lpsOrgnumber = lpsOrgnumber,
+                        errorMessage = exception.message ?: "Validation failed",
+                    )
+                    throw exception
+                }
                 log.info("Follow-up plan is valid. Attempting to store plan.")
 
                 database.storeFollowUpPlan(
@@ -124,13 +181,3 @@ private fun ApplicationCall.uuid(): UUID =
         ?: throw IllegalArgumentException(
             "Failed to fetch follow-up plan sending status: No valid follow-up plan uuid supplied in request",
         )
-
-private fun String.toEmployeeIdentificationNumber(): String? =
-    try {
-        configuredJacksonMapper()
-            .readTree(this)
-            .path(EMPLOYEE_IDENTIFICATION_NUMBER_FIELD)
-            .textValue()
-    } catch (_: Exception) {
-        null
-    }
