@@ -119,6 +119,6 @@ class AltinnLpsScheduler(
 
         const val FOLLOW_UP_PLAN_INBOX_CLEANUP_TRIGGER = "FollowUpPlanInboxCleanupTrigger"
         const val FOLLOW_UP_PLAN_INBOX_CLEANUP_JOB = "FollowUpPlanInboxCleanupJob"
-        const val FOLLOW_UP_PLAN_INBOX_CLEANUP_INTERVAL_IN_MINUTES = 1
+        const val FOLLOW_UP_PLAN_INBOX_CLEANUP_INTERVAL_IN_MINUTES = 60 * 24
     }
 }
