@@ -2,8 +2,10 @@ package no.nav.syfo.oppfolgingsplanmottak
 
 import io.kotest.assertions.ktor.client.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -24,6 +26,7 @@ import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
+import no.nav.syfo.oppfolgingsplanmottak.logging.RecordingFollowUpPlanSupportLogger
 import no.nav.syfo.sykmelding.database.persistSykmeldingsperiode
 import no.nav.syfo.util.configureTestApplication
 import no.nav.syfo.util.customMaskinportenToken
@@ -34,9 +37,6 @@ import java.util.UUID
 
 class FollowUpPlanApiTest :
     DescribeSpec({
-        beforeSpec {
-        }
-
         beforeTest {
             clearAllMocks()
         }
@@ -44,7 +44,8 @@ class FollowUpPlanApiTest :
         describe("Retrieval of oppfølgingsplaner") {
             it("Submits and stores a follow-up plan") {
                 testApplication {
-                    val (embeddedDatabase, client) = configureTestApplication()
+                    val supportLogger = RecordingFollowUpPlanSupportLogger()
+                    val (embeddedDatabase, client) = configureTestApplication(supportLogger)
                     embeddedDatabase.persistSykmeldingsperiode(
                         sykmeldingId = "12345",
                         orgnummer = VIRKSOMHETSNUMMER,
@@ -57,7 +58,12 @@ class FollowUpPlanApiTest :
 
                     val response =
                         client.post("/api/v1/followupplan") {
-                            bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
+                            bearerAuth(
+                                validMaskinportenToken(
+                                    consumerOrgnumber = VIRKSOMHETSNUMMER,
+                                    supplierOrgnumber = VIRKSOMHETSNUMMER,
+                                ),
+                            )
                             contentType(ContentType.Application.Json)
                             setBody(followUpPlanDTO)
                         }
@@ -67,10 +73,17 @@ class FollowUpPlanApiTest :
 
                     val storedMetaData =
                         embeddedDatabase.getOppfolgingsplanerMetadataForVeileder(PersonIdent(ARBEIDSTAKER_FNR))
+                    val supportEvent = supportLogger.events.single()
 
                     storedMetaData.size shouldBe 1
                     storedMetaData[0].fnr shouldBe ARBEIDSTAKER_FNR
                     storedMetaData[0].virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
+                    supportEvent.planUuid shouldBe responseBody.uuid
+                    supportEvent.organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    supportEvent.lpsOrgnumber shouldBe VIRKSOMHETSNUMMER
+                    supportEvent.eventType shouldBe "follow_up_plan_received"
+                    supportEvent.sanitizedPayload.shouldNotBeNull() shouldContain """"employeeIdentificationNumber":"[REDACTED]""""
+                    supportEvent.sanitizedPayload.shouldNotBeNull().shouldNotContain(ARBEIDSTAKER_FNR)
 
                     response shouldHaveStatus HttpStatusCode.OK
                 }
@@ -118,7 +131,8 @@ class FollowUpPlanApiTest :
 
             it("Missing lpsName in follow-up plan should return bad request") {
                 testApplication {
-                    val (_, client) = configureTestApplication()
+                    val supportLogger = RecordingFollowUpPlanSupportLogger()
+                    val (_, client) = configureTestApplication(supportLogger)
 
                     val followUpPlanDTO =
                         randomFollowUpPlanMockDTO.copy(
@@ -135,6 +149,10 @@ class FollowUpPlanApiTest :
 
                     response shouldHaveStatus HttpStatusCode.BadRequest
                     responseMessage shouldContain "Failed to convert request body"
+                    supportLogger.events.size shouldBe 2
+                    supportLogger.events.last().eventType shouldBe "follow_up_plan_parse_failed"
+                    supportLogger.events.last().organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    supportLogger.events.last().errorMessage shouldBe "Failed to convert request body"
                 }
             }
 
@@ -182,9 +200,7 @@ class FollowUpPlanApiTest :
                 }
             }
 
-            it(
-                "employeeIdentificationNumber with letters returns bad request",
-            ) {
+            it("employeeIdentificationNumber with letters returns bad request") {
                 testApplication {
                     val (_, client) = configureTestApplication()
 
@@ -208,7 +224,8 @@ class FollowUpPlanApiTest :
 
             it("Fails when employee has not contributed, but description is missing") {
                 testApplication {
-                    val (_, client) = configureTestApplication()
+                    val supportLogger = RecordingFollowUpPlanSupportLogger()
+                    val (_, client) = configureTestApplication(supportLogger)
 
                     val followUpPlanDTO =
                         randomFollowUpPlanMockDTO.copy(
@@ -230,6 +247,33 @@ class FollowUpPlanApiTest :
                         "employeeHasNotContributedToPlanDescription is mandatory " +
                             "if employeeHasContributedToPlan = false"
                     )
+                    supportLogger.events.size shouldBe 2
+                    supportLogger.events.last().eventType shouldBe "follow_up_plan_validation_failed"
+                    supportLogger.events.last().organizationNumber shouldBe VIRKSOMHETSNUMMER
+                    supportLogger.events.last().errorMessage shouldBe responseMessage.message
+                }
+            }
+
+            it("Malformed payload should still be logged for support") {
+                testApplication {
+                    val supportLogger = RecordingFollowUpPlanSupportLogger()
+                    val (_, client) = configureTestApplication(supportLogger)
+                    val malformedPayload = """{"lpsName":"""
+
+                    val response =
+                        client.post("/api/v1/followupplan") {
+                            bearerAuth(validMaskinportenToken(consumerOrgnumber = VIRKSOMHETSNUMMER))
+                            contentType(ContentType.Application.Json)
+                            setBody(malformedPayload)
+                        }
+                    val responseMessage = response.body<String>()
+
+                    response shouldHaveStatus HttpStatusCode.BadRequest
+                    responseMessage shouldContain "Failed to convert request body"
+                    supportLogger.events.size shouldBe 2
+                    supportLogger.events.first().payloadSizeBytes shouldBe malformedPayload.toByteArray().size
+                    supportLogger.events.first().sanitizedPayload shouldBe null
+                    supportLogger.events.last().eventType shouldBe "follow_up_plan_parse_failed"
                 }
             }
 

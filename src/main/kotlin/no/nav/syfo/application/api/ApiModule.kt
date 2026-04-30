@@ -22,6 +22,7 @@ import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.WellKnown
 import no.nav.syfo.maskinporten.registerMaskinportenTokenApi
+import no.nav.syfo.oppfolgingsplanmottak.logging.FollowUpPlanSupportLogger
 import no.nav.syfo.oppfolgingsplanmottak.registerFollowUpPlanApi
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.oppfolgingsplanmottak.validation.FollowUpPlanValidator
@@ -37,6 +38,7 @@ fun Application.apiModule(
     wellKnownInternalAzureAD: WellKnown,
     veilederTilgangskontrollClient: VeilederTilgangskontrollClient,
     followUpPlanSendingService: FollowUpPlanSendingService,
+    followUpPlanSupportLogger: FollowUpPlanSupportLogger,
     pdlClient: PdlClient,
     sykmeldingService: SendtSykmeldingService,
     arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient,
@@ -78,6 +80,7 @@ fun Application.apiModule(
         registerFollowUpPlanApi(
             database,
             followUpPlanSendingService,
+            followUpPlanSupportLogger,
             FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, environment.isDev()),
         )
         registerVeilederApi(
