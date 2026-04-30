@@ -29,39 +29,12 @@ class FollowUpPlanInboxDaoTest :
 
                 testDb.storeFollowUpPlanInbox(followUpPlanInbox)
 
-                testDb.getFollowUpPlanInbox(followUpPlanInbox.correlationId) shouldBe followUpPlanInbox
+                testDb.countFollowUpPlanInboxRows() shouldBe 1
                 testDb.getLatestFollowUpPlanInbox() shouldBe followUpPlanInbox
             }
 
-            it("returns the latest stored inbox entry") {
-                val receivedAt = LocalDateTime.of(2024, 1, 10, 12, 0, 0)
-
-                testDb.storeFollowUpPlanInbox(
-                    FollowUpPlanInbox(
-                        correlationId = "call-id-2",
-                        organizationNumber = "123456789",
-                        lpsOrgnumber = "987654321",
-                        employeeIdentificationNumber = null,
-                        rawPayload = """{"payload":"raw"}""",
-                        receivedAt = receivedAt,
-                    ),
-                )
-
-                testDb.storeFollowUpPlanInbox(
-                    FollowUpPlanInbox(
-                        correlationId = "call-id-3",
-                        organizationNumber = "111111111",
-                        lpsOrgnumber = "222222222",
-                        employeeIdentificationNumber = "10987654321",
-                        rawPayload = """{"payload":"newest"}""",
-                        receivedAt = receivedAt.plusMinutes(1),
-                    ),
-                )
-
-                testDb.getLatestFollowUpPlanInbox()?.correlationId shouldBe "call-id-3"
-            }
-
             it("deletes inbox entries older than 14 days and returns number of deleted rows") {
+                val now = LocalDateTime.now().withNano(0)
                 val oldInboxEntry =
                     FollowUpPlanInbox(
                         correlationId = "call-id-old",
@@ -69,7 +42,7 @@ class FollowUpPlanInboxDaoTest :
                         lpsOrgnumber = "987654321",
                         employeeIdentificationNumber = "12345678901",
                         rawPayload = """{"payload":"old"}""",
-                        receivedAt = LocalDateTime.now().minusDays(14).minusMinutes(1),
+                        receivedAt = now.minusDays(14).minusMinutes(1),
                     )
                 val freshInboxEntry =
                     FollowUpPlanInbox(
@@ -78,15 +51,15 @@ class FollowUpPlanInboxDaoTest :
                         lpsOrgnumber = "987654321",
                         employeeIdentificationNumber = "12345678901",
                         rawPayload = """{"payload":"fresh"}""",
-                        receivedAt = LocalDateTime.now().minusDays(14).plusMinutes(1),
+                        receivedAt = now.minusDays(14).plusMinutes(1),
                     )
 
                 testDb.storeFollowUpPlanInbox(oldInboxEntry)
                 testDb.storeFollowUpPlanInbox(freshInboxEntry)
 
                 testDb.deleteFollowUpPlanInboxRowsOlderThan14Days() shouldBe 1
-                testDb.getFollowUpPlanInbox(oldInboxEntry.correlationId) shouldBe null
-                testDb.getFollowUpPlanInbox(freshInboxEntry.correlationId) shouldBe freshInboxEntry
+                testDb.countFollowUpPlanInboxRows() shouldBe 1
+                testDb.getLatestFollowUpPlanInbox()?.correlationId shouldBe freshInboxEntry.correlationId
             }
 
             it("returns zero when there are no expired inbox entries") {

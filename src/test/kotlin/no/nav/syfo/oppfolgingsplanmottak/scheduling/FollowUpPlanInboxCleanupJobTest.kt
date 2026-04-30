@@ -7,7 +7,8 @@ import io.mockk.mockk
 import no.nav.syfo.application.scheduling.DB_SHORTNAME
 import no.nav.syfo.application.scheduling.LEADER_ELECTION_SHORTNAME
 import no.nav.syfo.db.TestDB
-import no.nav.syfo.oppfolgingsplanmottak.database.getFollowUpPlanInbox
+import no.nav.syfo.oppfolgingsplanmottak.database.countFollowUpPlanInboxRows
+import no.nav.syfo.oppfolgingsplanmottak.database.getLatestFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.database.storeFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanInbox
 import no.nav.syfo.util.LeaderElection
@@ -52,26 +53,28 @@ class FollowUpPlanInboxCleanupJobTest :
 
         describe("FollowUpPlanInboxCleanupJob") {
             it("deletes old inbox rows when pod is leader") {
-                val oldInboxEntry = followUpPlanInbox("call-id-old", LocalDateTime.now().minusDays(15))
-                val freshInboxEntry = followUpPlanInbox("call-id-fresh", LocalDateTime.now().minusDays(13))
+                val now = LocalDateTime.now().withNano(0)
+                val oldInboxEntry = followUpPlanInbox("call-id-old", now.minusDays(15))
+                val freshInboxEntry = followUpPlanInbox("call-id-fresh", now.minusDays(13))
                 database.storeFollowUpPlanInbox(oldInboxEntry)
                 database.storeFollowUpPlanInbox(freshInboxEntry)
                 every { leaderElection.thisPodIsLeader() } returns true
 
                 job.execute(jobExecutionContext())
 
-                database.getFollowUpPlanInbox(oldInboxEntry.correlationId) shouldBe null
-                database.getFollowUpPlanInbox(freshInboxEntry.correlationId) shouldBe freshInboxEntry
+                database.countFollowUpPlanInboxRows() shouldBe 1
+                database.getLatestFollowUpPlanInbox()?.correlationId shouldBe freshInboxEntry.correlationId
             }
 
             it("does not delete old inbox rows when pod is not leader") {
-                val oldInboxEntry = followUpPlanInbox("call-id-old", LocalDateTime.now().minusDays(15))
+                val oldInboxEntry = followUpPlanInbox("call-id-old", LocalDateTime.now().withNano(0).minusDays(15))
                 database.storeFollowUpPlanInbox(oldInboxEntry)
                 every { leaderElection.thisPodIsLeader() } returns false
 
                 job.execute(jobExecutionContext())
 
-                database.getFollowUpPlanInbox(oldInboxEntry.correlationId) shouldBe oldInboxEntry
+                database.countFollowUpPlanInboxRows() shouldBe 1
+                database.getLatestFollowUpPlanInbox()?.correlationId shouldBe oldInboxEntry.correlationId
             }
         }
     })

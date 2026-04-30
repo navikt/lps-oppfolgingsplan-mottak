@@ -1,7 +1,6 @@
 package no.nav.syfo.oppfolgingsplanmottak.database
 
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.application.database.toNullableObject
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanInbox
 import java.sql.ResultSet
 import java.sql.Timestamp
@@ -30,38 +29,6 @@ fun DatabaseInterface.storeFollowUpPlanInbox(followUpPlanInbox: FollowUpPlanInbo
             it.executeUpdate()
         }
         connection.commit()
-    }
-}
-
-fun DatabaseInterface.getFollowUpPlanInbox(correlationId: String): FollowUpPlanInbox? {
-    val queryStatement =
-        """
-        SELECT *
-        FROM FOLLOW_UP_PLAN_INBOX
-        WHERE correlation_id = ?
-        """.trimIndent()
-
-    return connection.use { connection ->
-        connection.prepareStatement(queryStatement).use {
-            it.setString(1, correlationId)
-            it.executeQuery().toNullableObject { toFollowUpPlanInbox() }
-        }
-    }
-}
-
-fun DatabaseInterface.getLatestFollowUpPlanInbox(): FollowUpPlanInbox? {
-    val queryStatement =
-        """
-        SELECT *
-        FROM FOLLOW_UP_PLAN_INBOX
-        ORDER BY received_at DESC
-        LIMIT 1
-        """.trimIndent()
-
-    return connection.use { connection ->
-        connection.prepareStatement(queryStatement).use {
-            it.executeQuery().toNullableObject { toFollowUpPlanInbox() }
-        }
     }
 }
 

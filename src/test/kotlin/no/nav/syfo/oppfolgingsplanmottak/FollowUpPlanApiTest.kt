@@ -23,7 +23,6 @@ import no.nav.syfo.mockdata.UserConstants.ARBEIDSTAKER_FNR_NO_ARBEIDSFORHOLD
 import no.nav.syfo.mockdata.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.mockdata.createDefaultFollowUpPlanMockDTO
 import no.nav.syfo.mockdata.randomFollowUpPlanMockDTO
-import no.nav.syfo.oppfolgingsplanmottak.database.getFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.database.getLatestFollowUpPlanInbox
 import no.nav.syfo.oppfolgingsplanmottak.database.storeLpsPdf
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanResponse
@@ -72,11 +71,12 @@ class FollowUpPlanApiTest :
 
                     val storedMetaData =
                         embeddedDatabase.getOppfolgingsplanerMetadataForVeileder(PersonIdent(ARBEIDSTAKER_FNR))
-                    val inbox = embeddedDatabase.getFollowUpPlanInbox(responseBody.uuid).shouldNotBeNull()
+                    val inbox = embeddedDatabase.getLatestFollowUpPlanInbox().shouldNotBeNull()
 
                     storedMetaData.size shouldBe 1
                     storedMetaData[0].fnr shouldBe ARBEIDSTAKER_FNR
                     storedMetaData[0].virksomhetsnummer shouldBe VIRKSOMHETSNUMMER
+                    inbox.correlationId shouldBe responseBody.uuid
                     inbox.organizationNumber shouldBe VIRKSOMHETSNUMMER
                     inbox.lpsOrgnumber shouldBe VIRKSOMHETSNUMMER
                     inbox.employeeIdentificationNumber shouldBe ARBEIDSTAKER_FNR
