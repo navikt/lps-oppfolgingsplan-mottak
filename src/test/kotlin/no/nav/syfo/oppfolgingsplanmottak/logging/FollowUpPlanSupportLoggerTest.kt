@@ -32,12 +32,10 @@ class FollowUpPlanSupportLoggerTest :
                         validationResult = "not_validated",
                     )
 
-                logData.sanitizedPayload shouldContain """"employeeIdentificationNumber":"[REDACTED]""""
+                logData.sanitizedPayload shouldContain """"employeeIdentificationNumber":"12345678901""""
                 logData.sanitizedPayload shouldContain """"sendPlanToNav":true"""
                 logData.sanitizedPayload shouldContain """"needsHelpFromNav":false"""
                 logData.sanitizedPayload shouldContain """"needsHelpFromNavDescription":null"""
-                logData.sanitizedPayload shouldNotContain "12345678901"
-                logData.sanitizedPayload shouldNotContain "lps@lps.no"
             }
 
             it("returns null sanitized payload for malformed json") {

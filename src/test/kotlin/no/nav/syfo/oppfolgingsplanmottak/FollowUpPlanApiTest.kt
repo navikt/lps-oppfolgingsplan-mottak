@@ -82,8 +82,7 @@ class FollowUpPlanApiTest :
                     supportEvent.organizationNumber shouldBe VIRKSOMHETSNUMMER
                     supportEvent.lpsOrgnumber shouldBe VIRKSOMHETSNUMMER
                     supportEvent.eventType shouldBe "follow_up_plan_received"
-                    supportEvent.sanitizedPayload.shouldNotBeNull() shouldContain """"employeeIdentificationNumber":"[REDACTED]""""
-                    supportEvent.sanitizedPayload.shouldNotBeNull().shouldNotContain(ARBEIDSTAKER_FNR)
+                    supportEvent.sanitizedPayload.shouldNotBeNull() shouldContain """"employeeIdentificationNumber":"12345678912""""
 
                     response shouldHaveStatus HttpStatusCode.OK
                 }

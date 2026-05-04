@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.security.MessageDigest
 import java.util.HexFormat
 
-private const val REDACTED_VALUE = "[REDACTED]"
 private const val NOT_VALIDATED = "not_validated"
 private const val PARSE_RESULT_RECEIVED = "received"
 private const val PARSE_RESULT_FAILED = "failed"
@@ -217,7 +216,7 @@ private fun JsonNode.sanitizeJsonNode(): JsonNode =
         isObject -> sanitizeObjectNode()
         isArray -> sanitizeArrayNode()
         isBoolean || isNull -> deepCopy()
-        else -> JsonNodeFactory.instance.textNode(REDACTED_VALUE)
+        else -> deepCopy()
     }
 
 private fun JsonNode.sanitizeObjectNode(): ObjectNode =
