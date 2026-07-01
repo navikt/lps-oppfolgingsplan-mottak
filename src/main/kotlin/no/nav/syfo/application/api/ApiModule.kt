@@ -18,6 +18,7 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.environment.isDev
 import no.nav.syfo.application.metric.registerPrometheusApi
 import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
+import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.WellKnown
@@ -40,6 +41,7 @@ fun Application.apiModule(
     pdlClient: PdlClient,
     sykmeldingService: SendtSykmeldingService,
     arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient,
+    eregClient: EregClient,
 ) {
     installMetrics()
     installCallId()
@@ -78,7 +80,13 @@ fun Application.apiModule(
         registerFollowUpPlanApi(
             database,
             followUpPlanSendingService,
-            FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, environment.isDev()),
+            FollowUpPlanValidator(
+                pdlClient,
+                sykmeldingService,
+                arbeidsforholdOversiktClient,
+                eregClient,
+                environment.isDev(),
+            ),
         )
         registerVeilederApi(
             veilederTilgangskontrollClient = veilederTilgangskontrollClient,

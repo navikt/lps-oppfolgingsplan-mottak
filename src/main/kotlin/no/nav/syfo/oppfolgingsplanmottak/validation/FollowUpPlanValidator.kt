@@ -5,6 +5,8 @@ import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.NoActiveEmploymentException
 import no.nav.syfo.application.exception.NoActiveSentSykmeldingException
 import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
+import no.nav.syfo.client.aareg.domain.Arbeidsforholdoversikt
+import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
@@ -17,6 +19,7 @@ class FollowUpPlanValidator(
     private val pdlClient: PdlClient,
     private val sykmeldingService: SendtSykmeldingService,
     private val arbeidsforholdOversiktClient: ArbeidsforholdOversiktClient,
+    private val eregClient: EregClient,
     private val isDev: Boolean,
 ) {
     private val log = LoggerFactory.getLogger(FollowUpPlanValidator::class.java)
@@ -96,17 +99,16 @@ class FollowUpPlanValidator(
         followUpPlanDTO: FollowUpPlanDTO,
         employerOrgnr: String,
     ): List<String?> {
-        val arbeidsforholdOversikt =
-            arbeidsforholdOversiktClient.getArbeidsforhold(followUpPlanDTO.employeeIdentificationNumber)
+        val arbeidsforhold =
+            arbeidsforholdOversiktClient
+                .getArbeidsforhold(followUpPlanDTO.employeeIdentificationNumber)
+                ?.arbeidsforholdoversikter
+                ?: emptyList()
 
-        val matchingArbeidsforhold =
-            arbeidsforholdOversikt?.arbeidsforholdoversikter?.filter {
-                it.opplysningspliktig.getJuridiskOrgnummer() == employerOrgnr ||
-                    it.arbeidssted.getOrgnummer() == employerOrgnr
-            } ?: emptyList()
+        val matchingArbeidsforhold = findMatchingArbeidsforhold(arbeidsforhold, employerOrgnr)
 
         if (matchingArbeidsforhold.isEmpty()) {
-            arbeidsforholdOversikt?.arbeidsforholdoversikter?.forEach {
+            arbeidsforhold.forEach {
                 log.info(
                     "Found arbeidsforhold in orgnumber:" +
                         " ${it.opplysningspliktig.getJuridiskOrgnummer()} and ${it.arbeidssted.getOrgnummer()}",
@@ -117,14 +119,48 @@ class FollowUpPlanValidator(
             )
         }
 
-        val validOrgnumbers =
-            matchingArbeidsforhold
-                .flatMap {
-                    listOf(
-                        it.opplysningspliktig.getJuridiskOrgnummer(),
-                        it.arbeidssted.getOrgnummer(),
-                    )
-                }.distinct()
-        return validOrgnumbers
+        return matchingArbeidsforhold
+            .flatMap {
+                listOf(
+                    it.opplysningspliktig.getJuridiskOrgnummer(),
+                    it.arbeidssted.getOrgnummer(),
+                )
+            }.distinct()
+    }
+
+    /**
+     * Finner arbeidsforhold som hører til [employerOrgnr]. Først direkte match mot juridisk enhet
+     * (opplysningspliktig) eller arbeidssted (underenhet). Hvis ingen direkte match: slår opp
+     * arbeidsstedets hierarki i ereg og godtar arbeidsforhold der [employerOrgnr] er en gyldig
+     * overordnet enhet — typisk et organisasjonsledd som ligger mellom underenhet og juridisk enhet,
+     * og som ikke finnes i aaregs to-nivå-modell.
+     */
+    private suspend fun findMatchingArbeidsforhold(
+        arbeidsforhold: List<Arbeidsforholdoversikt>,
+        employerOrgnr: String,
+    ): List<Arbeidsforholdoversikt> {
+        val directMatches =
+            arbeidsforhold.filter {
+                it.opplysningspliktig.getJuridiskOrgnummer() == employerOrgnr ||
+                    it.arbeidssted.getOrgnummer() == employerOrgnr
+            }
+        if (directMatches.isNotEmpty()) {
+            return directMatches
+        }
+
+        // Ett ereg-oppslag per unikt arbeidssted (ikke per arbeidsforhold) for å unngå duplikate kall.
+        val matchendeArbeidssteder = mutableSetOf<String>()
+        for (arbeidsstedOrgnr in arbeidsforhold.mapNotNull { it.arbeidssted.getOrgnummer() }.distinct()) {
+            val hierarkiOrgnumre =
+                eregClient.getOrganisasjonHierarki(arbeidsstedOrgnr)?.aggregerOrgnummereFraHierarki().orEmpty()
+            if (employerOrgnr in hierarkiOrgnumre) {
+                log.info(
+                    "Matched employer $employerOrgnr as overordnet enhet for arbeidssted" +
+                        " $arbeidsstedOrgnr via ereg hierarki",
+                )
+                matchendeArbeidssteder.add(arbeidsstedOrgnr)
+            }
+        }
+        return arbeidsforhold.filter { it.arbeidssted.getOrgnummer() in matchendeArbeidssteder }
     }
 }
