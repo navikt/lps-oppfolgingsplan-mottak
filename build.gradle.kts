@@ -23,7 +23,6 @@ val hikariVersion = "7.1.0"
 val flywayVersion = "12.9.0"
 val gsonVersion = "2.14.0"
 val kafkaVersion = "4.3.1"
-val altinnKanalSchemasVersion = "2.0.0"
 val avroVersion = "1.12.1"
 val confluentVersion = "8.1.1"
 val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
@@ -108,7 +107,6 @@ dependencies {
     implementation("org.apache.kafka:kafka_2.13:$kafkaVersion") {
         exclude(group = "log4j")
     }
-    implementation("no.nav.altinnkanal.avro:altinnkanal-schemas:$altinnKanalSchemasVersion")
     implementation("org.apache.avro:avro:$avroVersion")
     implementation("io.confluent:kafka-avro-serializer:$confluentVersion") {
         exclude(group = "log4j", module = "log4j")

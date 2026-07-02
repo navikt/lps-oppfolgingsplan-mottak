@@ -165,7 +165,6 @@ private fun setModule(
         kafkaModule(
             appState,
             backgroundTasksContext,
-            altinnLpsService,
             sykmeldingService,
             env,
         )
