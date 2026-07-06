@@ -57,7 +57,7 @@ information.
 
 - Scope to be used when requesting token: `nav:oppfolgingsplan/lps.write`
 
- 
+
 🧪 OR use Bruno API Collections
 
 We provide API collections to help you test and explore the API.
@@ -169,7 +169,7 @@ Questions about maskinporten or Altinn must be directed to Digdir/Altinn.
 - Installer og konfigurer [Detect IDEA plugin](https://plugins.jetbrains.com/plugin/10761-detekt) for live kodeanalyse
 - Installer [Kotest IDEA plugin](https://plugins.jetbrains.com/plugin/14080-kotest) for å kjøre tester
 
-Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings) til 21.
+Set [target JVM version](https://www.jetbrains.com/help/idea/compiler-kotlin-compiler.html#kotlin-compiler-jvm-settings) til 25.
 
 ### 🛠️ Hvordan sette opp sendt sykmelding for en ansatt
 
