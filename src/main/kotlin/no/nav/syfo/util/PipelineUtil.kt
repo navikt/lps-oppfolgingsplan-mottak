@@ -5,6 +5,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.principal
+import io.ktor.server.plugins.callid.callId
 import io.ktor.server.routing.RoutingContext
 import no.nav.syfo.application.exception.ConsumerClaimMissing
 import no.nav.syfo.domain.PersonIdent
@@ -12,7 +13,7 @@ import no.nav.syfo.domain.PersonIdent
 const val JWT_CLAIM_AZP = "azp"
 const val JWT_CLAIM_NAVIDENT = "NAVident"
 
-fun ApplicationCall.getCallId(): String = this.request.headers[NAV_CALL_ID_HEADER].toString()
+fun ApplicationCall.getCallId(): String = this.callId ?: this.request.headers[NAV_CALL_ID_HEADER] ?: "missing-call-id"
 
 fun ApplicationCall.getPersonIdent(): PersonIdent? = this.request.headers[NAV_PERSONIDENT_HEADER]?.let { PersonIdent(it) }
 
