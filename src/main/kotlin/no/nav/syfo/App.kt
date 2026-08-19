@@ -161,6 +161,7 @@ private fun setModule(
             pdlClient,
             sykmeldingService,
             arbeidsforholdOversiktClient,
+            eregClient,
         )
         kafkaModule(
             appState,

@@ -2,7 +2,9 @@ package no.nav.syfo.oppfolgingsplanmottak.validation
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.mockk.clearMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.syfo.application.exception.FollowUpPlanDTOValidationException
 import no.nav.syfo.application.exception.NoActiveEmploymentException
@@ -16,6 +18,11 @@ import no.nav.syfo.client.aareg.domain.Ident
 import no.nav.syfo.client.aareg.domain.IdentType
 import no.nav.syfo.client.aareg.domain.Opplysningspliktig
 import no.nav.syfo.client.aareg.domain.OpplysningspliktigType
+import no.nav.syfo.client.ereg.EregClient
+import no.nav.syfo.client.ereg.domain.EregEnhetsRelasjon
+import no.nav.syfo.client.ereg.domain.EregOrganisasjon
+import no.nav.syfo.client.ereg.domain.EregOrganisasjonsledd
+import no.nav.syfo.client.ereg.domain.EregOrganisasjonsleddWrapper
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.sykmelding.domain.Sykmeldingsperiode
@@ -29,6 +36,7 @@ const val HOVEDENHET_ORGNUMBER = "987654321"
 const val OTHER_COMPANY_UNDERENHET_ORGNUMBER = "234567890"
 const val OTHER_COMPANY_HOVEDENHET_ORGNUMBER = "876543219"
 const val SECOND_UNDERENHET_ORGNUMBER = "111222333"
+const val ORGANISASJONSLEDD_ORGNUMBER = "456789012"
 const val EMPLOYEE_SSN = "12345678901"
 
 class FollowUpPlanValidatorTest :
@@ -36,9 +44,17 @@ class FollowUpPlanValidatorTest :
         val pdlClient = mockk<PdlClient>()
         val sykmeldingService = mockk<SendtSykmeldingService>()
         val arbeidsforholdOversiktClient = mockk<ArbeidsforholdOversiktClient>()
-        val validator = FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, false)
+        val eregClient = mockk<EregClient>()
+        val validator =
+            FollowUpPlanValidator(pdlClient, sykmeldingService, arbeidsforholdOversiktClient, eregClient, false)
 
         describe("FollowUpPlanValidator") {
+            // Reset eregClient before each test so per-test stubs cannot leak across the shared spec instance.
+            beforeTest {
+                clearMocks(eregClient)
+                coEvery { eregClient.getOrganisasjonHierarki(any()) } returns null
+            }
+
             context("validateFollowUpPlanDTO") {
                 it("should throw exception if needsHelpFromNav is true and sendPlanToNav is false") {
                     val followUpPlanDTO = createFollowUpPlanDTO(needsHelpFromNav = true, sendPlanToNav = false)
@@ -166,6 +182,129 @@ class FollowUpPlanValidatorTest :
                     } returns mockk()
 
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, UNDERENHET_ORGNUMBER)
+                }
+
+                it(
+                    "should pass validation when orgnumber from token is an organisasjonsledd " +
+                        "between underenhet and hovedenhet (resolved via ereg hierarchy)",
+                ) {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                    } returns createValidSykmeldingsperioder()
+
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+
+                    coEvery {
+                        eregClient.getOrganisasjonHierarki(UNDERENHET_ORGNUMBER)
+                    } returns
+                        createEregOrganisasjonsleddHierarki(
+                            underenhet = UNDERENHET_ORGNUMBER,
+                            organisasjonsledd = ORGANISASJONSLEDD_ORGNUMBER,
+                            hovedenhet = HOVEDENHET_ORGNUMBER,
+                        )
+
+                    coEvery {
+                        pdlClient.getPersonInfo(any())
+                    } returns mockk()
+
+                    validator.validateFollowUpPlanDTO(followUpPlanDTO, ORGANISASJONSLEDD_ORGNUMBER)
+                }
+
+                it(
+                    "should throw exception when ereg hierarchy is populated but does not contain the token orgnumber",
+                ) {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                    } returns createValidSykmeldingsperioder()
+
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createAaregArbeidsforhold(HOVEDENHET_ORGNUMBER, UNDERENHET_ORGNUMBER)
+
+                    coEvery {
+                        eregClient.getOrganisasjonHierarki(UNDERENHET_ORGNUMBER)
+                    } returns
+                        createEregOrganisasjonsleddHierarki(
+                            underenhet = UNDERENHET_ORGNUMBER,
+                            organisasjonsledd = ORGANISASJONSLEDD_ORGNUMBER,
+                            hovedenhet = HOVEDENHET_ORGNUMBER,
+                        )
+
+                    coEvery {
+                        pdlClient.getPersonInfo(any())
+                    } returns mockk()
+
+                    shouldThrow<NoActiveEmploymentException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, OTHER_COMPANY_HOVEDENHET_ORGNUMBER)
+                    }
+                }
+
+                it("should not look up ereg for an arbeidssted without an organisasjonsnummer and throw") {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns createPersonArbeidsstedArbeidsforhold()
+
+                    shouldThrow<NoActiveEmploymentException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, HOVEDENHET_ORGNUMBER)
+                    }
+                    coVerify(exactly = 0) { eregClient.getOrganisasjonHierarki(any()) }
+                }
+
+                it(
+                    "should match only the arbeidssted whose ereg hierarchy contains the token org, " +
+                        "not sibling arbeidsforhold",
+                ) {
+                    val followUpPlanDTO = createFollowUpPlanDTO()
+                    coEvery {
+                        sykmeldingService.getActiveSendtSykmeldingsperioder(any())
+                    } returns createSykmeldingsperioder(organizationNumber = OTHER_COMPANY_UNDERENHET_ORGNUMBER)
+
+                    coEvery {
+                        arbeidsforholdOversiktClient.getArbeidsforhold(any())
+                    } returns
+                        AaregArbeidsforholdOversikt(
+                            listOf(
+                                createArbeidsforholdoversikt(UNDERENHET_ORGNUMBER, HOVEDENHET_ORGNUMBER),
+                                createArbeidsforholdoversikt(
+                                    OTHER_COMPANY_UNDERENHET_ORGNUMBER,
+                                    OTHER_COMPANY_HOVEDENHET_ORGNUMBER,
+                                ),
+                            ),
+                        )
+
+                    coEvery {
+                        eregClient.getOrganisasjonHierarki(UNDERENHET_ORGNUMBER)
+                    } returns
+                        createEregOrganisasjonsleddHierarki(
+                            underenhet = UNDERENHET_ORGNUMBER,
+                            organisasjonsledd = ORGANISASJONSLEDD_ORGNUMBER,
+                            hovedenhet = HOVEDENHET_ORGNUMBER,
+                        )
+
+                    coEvery {
+                        eregClient.getOrganisasjonHierarki(OTHER_COMPANY_UNDERENHET_ORGNUMBER)
+                    } returns
+                        createEregOrganisasjonsleddHierarki(
+                            underenhet = OTHER_COMPANY_UNDERENHET_ORGNUMBER,
+                            organisasjonsledd = SECOND_UNDERENHET_ORGNUMBER,
+                            hovedenhet = OTHER_COMPANY_HOVEDENHET_ORGNUMBER,
+                        )
+
+                    coEvery {
+                        pdlClient.getPersonInfo(any())
+                    } returns mockk()
+
+                    // Token org is only in UNDERENHET_ORGNUMBER's hierarchy, so only that arbeidsforhold matches.
+                    // OTHER_COMPANY_UNDERENHET_ORGNUMBER is therefore not a valid orgnumber, and a sykmelding
+                    // sent to it must be rejected (proves the hierarchy match does not leak to siblings).
+                    shouldThrow<NoActiveSentSykmeldingException> {
+                        validator.validateFollowUpPlanDTO(followUpPlanDTO, ORGANISASJONSLEDD_ORGNUMBER)
+                    }
                 }
 
                 it(
@@ -304,6 +443,49 @@ fun createMultipleAaregArbeidsforhold(): AaregArbeidsforholdOversikt =
         listOf(
             createArbeidsforholdoversikt(UNDERENHET_ORGNUMBER, HOVEDENHET_ORGNUMBER),
             createArbeidsforholdoversikt(SECOND_UNDERENHET_ORGNUMBER, HOVEDENHET_ORGNUMBER),
+        ),
+    )
+
+fun createEregOrganisasjonsleddHierarki(
+    underenhet: String,
+    organisasjonsledd: String,
+    hovedenhet: String,
+): EregOrganisasjon =
+    EregOrganisasjon(
+        organisasjonsnummer = underenhet,
+        bestaarAvOrganisasjonsledd =
+            listOf(
+                EregOrganisasjonsleddWrapper(
+                    organisasjonsledd =
+                        EregOrganisasjonsledd(
+                            organisasjonsnummer = organisasjonsledd,
+                            inngaarIJuridiskEnheter = listOf(EregEnhetsRelasjon(hovedenhet)),
+                        ),
+                ),
+            ),
+    )
+
+fun createPersonArbeidsstedArbeidsforhold(): AaregArbeidsforholdOversikt =
+    AaregArbeidsforholdOversikt(
+        listOf(
+            Arbeidsforholdoversikt(
+                arbeidssted =
+                    Arbeidssted(
+                        type = ArbeidsstedType.Person,
+                        identer =
+                            listOf(
+                                Ident(type = IdentType.FOLKEREGISTERIDENT, ident = EMPLOYEE_SSN, gjeldende = true),
+                            ),
+                    ),
+                opplysningspliktig =
+                    Opplysningspliktig(
+                        type = OpplysningspliktigType.Person,
+                        identer =
+                            listOf(
+                                Ident(type = IdentType.FOLKEREGISTERIDENT, ident = "12345678902", gjeldende = true),
+                            ),
+                    ),
+            ),
         ),
     )
 

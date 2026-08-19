@@ -15,6 +15,7 @@ import no.nav.syfo.client.aareg.domain.IdentType
 import no.nav.syfo.client.aareg.domain.Opplysningspliktig
 import no.nav.syfo.client.aareg.domain.OpplysningspliktigType
 import no.nav.syfo.client.dokarkiv.DokarkivClient
+import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.krrproxy.KrrProxyClient
 import no.nav.syfo.client.oppdfgen.OpPdfGenClient
@@ -35,6 +36,7 @@ fun Application.testApiModule(
     val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)
     val followupPlanProducer = mockk<FollowUpPlanProducer>(relaxed = true)
     val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
+    val eregClient = mockk<EregClient>(relaxed = true)
 
     val opPdfGenClient =
         OpPdfGenClient(
@@ -149,5 +151,6 @@ fun Application.testApiModule(
             ),
         sykmeldingService = sykmeldingService,
         arbeidsforholdOversiktClient = arbeidsforholdOversiktClient,
+        eregClient = eregClient,
     )
 }
