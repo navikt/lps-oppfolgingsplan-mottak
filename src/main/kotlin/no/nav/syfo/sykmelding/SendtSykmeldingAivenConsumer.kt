@@ -1,9 +1,11 @@
 package no.nav.syfo.sykmelding
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
+import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.environment.KafkaEnv
 import no.nav.syfo.application.kafka.KafkaListener
@@ -24,6 +26,15 @@ import java.time.Duration
 
 const val SENDT_SYKMELDING_TOPIC = "teamsykmelding.syfo-sendt-sykmelding"
 private val KAFKA_CLOSE_TIMEOUT: Duration = Duration.ofSeconds(1)
+private const val PROCESSING_FAILED_EVENT = "sendt_sykmelding_processing_failed"
+private const val PROCESSING_OPERATION = "behandle_sendt_sykmelding"
+
+internal enum class SendtSykmeldingErrorCode {
+    SYKMELDING_DESERIALIZATION_FAILED,
+    SYKMELDING_DELETE_FAILED,
+    SYKMELDING_PERSIST_FAILED,
+    KAFKA_OFFSET_COMMIT_FAILED,
+}
 
 class SendtSykmeldingAivenConsumer internal constructor(
     private val kafkaListener: Consumer<String, String>,
@@ -42,7 +53,6 @@ class SendtSykmeldingAivenConsumer internal constructor(
                 currentCoroutineContext().ensureActive()
                 records.forEach { record ->
                     currentCoroutineContext().ensureActive()
-                    log.info("Received record with key: ${record.key()}")
                     processRecord(record)
                 }
             }
@@ -53,17 +63,18 @@ class SendtSykmeldingAivenConsumer internal constructor(
 
     private fun poll(): ConsumerRecords<String, String> = kafkaListener.poll(pollDurationInMillis)
 
-    private fun processRecord(record: ConsumerRecord<String, String?>) {
+    internal fun processRecord(record: ConsumerRecord<String, String?>) {
+        var errorCode = SendtSykmeldingErrorCode.SYKMELDING_DESERIALIZATION_FAILED
         try {
             val sykmeldingKafkaMessage: SykmeldingKafkaMessage? =
                 record.value()?.let { objectMapper.readValue(it) }
             val sykmeldingId = record.key()
 
             if (sykmeldingKafkaMessage == null) {
-                log.info("Received tombstone record for sykmeldingId: $sykmeldingId ..deleting")
+                errorCode = SendtSykmeldingErrorCode.SYKMELDING_DELETE_FAILED
                 sykmeldingService.deleteSykmeldingsperioder(sykmeldingId)
             } else {
-                log.info("Storing sykmeldingsperioder for sykmeldingId: $sykmeldingId")
+                errorCode = SendtSykmeldingErrorCode.SYKMELDING_PERSIST_FAILED
                 sykmeldingService.persistSykmeldingsperioder(
                     sykmeldingId = sykmeldingId,
                     employeeIdentificationNumber = sykmeldingKafkaMessage.kafkaMetadata.fnr,
@@ -71,10 +82,18 @@ class SendtSykmeldingAivenConsumer internal constructor(
                     sykmeldingsperioder = sykmeldingKafkaMessage.sykmelding.sykmeldingsperioder,
                 )
             }
-            log.info("Committing offset")
+            errorCode = SendtSykmeldingErrorCode.KAFKA_OFFSET_COMMIT_FAILED
             kafkaListener.commitSync()
+        } catch (cancellation: CancellationException) {
+            throw cancellation
         } catch (e: Exception) {
-            log.error("Error encountered while processing sykmelding: ${e.message}", e)
+            log.error(
+                "Kunne ikke behandle sendt sykmelding: {} {} {}",
+                kv("event_type", PROCESSING_FAILED_EVENT),
+                kv("error_code", errorCode.name),
+                kv("operation", PROCESSING_OPERATION),
+                e.withoutDynamicContent(),
+            )
         }
     }
 
@@ -100,3 +119,8 @@ class SendtSykmeldingAivenConsumer internal constructor(
         }
     }
 }
+
+private fun Throwable.withoutDynamicContent(): Throwable =
+    RuntimeException("SanitizedException").also { safeThrowable ->
+        safeThrowable.stackTrace = stackTrace
+    }
