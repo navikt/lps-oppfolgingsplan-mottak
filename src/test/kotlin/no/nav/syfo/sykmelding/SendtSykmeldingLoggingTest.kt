@@ -39,6 +39,7 @@ private const val SENSITIVE_KEY = "sykmelding-id-12345678901"
 private const val SENSITIVE_EMAIL = "someone@example.com"
 private const val SENSITIVE_URL = "https://example.test/person/123"
 private const val SENSITIVE_TOKEN = "Bearer sensitive-token"
+private const val SENSITIVE_CAUSE_MESSAGE = "root cause for 10987654321"
 
 class SendtSykmeldingLoggingTest :
     FunSpec({
@@ -74,7 +75,11 @@ class SendtSykmeldingLoggingTest :
 
             val loggmeldinger = fangLogg { consumer.processRecord(record(null)) }
 
-            loggmeldinger.verifiserTryggFeil("SYKMELDING_DELETE_FAILED")
+            loggmeldinger.verifiserTryggFeil(
+                errorCode = "SYKMELDING_DELETE_FAILED",
+                exceptionType = "IllegalStateException",
+                rootCauseType = "IllegalArgumentException",
+            )
             verify(exactly = 0) { kafkaConsumer.commitSync() }
         }
 
@@ -91,7 +96,11 @@ class SendtSykmeldingLoggingTest :
 
             val loggmeldinger = fangLogg { consumer.processRecord(record(gyldigPayload())) }
 
-            loggmeldinger.verifiserTryggFeil("SYKMELDING_PERSIST_FAILED")
+            loggmeldinger.verifiserTryggFeil(
+                errorCode = "SYKMELDING_PERSIST_FAILED",
+                exceptionType = "IllegalStateException",
+                rootCauseType = "IllegalArgumentException",
+            )
             verify(exactly = 0) { kafkaConsumer.commitSync() }
         }
 
@@ -101,7 +110,11 @@ class SendtSykmeldingLoggingTest :
 
             val loggmeldinger = fangLogg { consumer.processRecord(record(null)) }
 
-            loggmeldinger.verifiserTryggFeil("KAFKA_OFFSET_COMMIT_FAILED")
+            loggmeldinger.verifiserTryggFeil(
+                errorCode = "KAFKA_OFFSET_COMMIT_FAILED",
+                exceptionType = "IllegalStateException",
+                rootCauseType = "IllegalArgumentException",
+            )
             verify(exactly = 1) { kafkaConsumer.commitSync() }
         }
 
@@ -188,6 +201,7 @@ private fun gyldigPayload(): String =
 private fun sensitivFeil(): Exception =
     IllegalStateException(
         "$SENSITIVE_KEY $SENSITIVE_EMAIL $SENSITIVE_URL $SENSITIVE_TOKEN",
+        IllegalArgumentException(SENSITIVE_CAUSE_MESSAGE),
     )
 
 private fun fangLogg(block: () -> Unit): List<ILoggingEvent> {
@@ -219,7 +233,11 @@ private fun fangLoggMedResult(block: () -> Unit): FangetLoggresultat {
     }
 }
 
-private fun List<ILoggingEvent>.verifiserTryggFeil(errorCode: String) {
+private fun List<ILoggingEvent>.verifiserTryggFeil(
+    errorCode: String,
+    exceptionType: String? = null,
+    rootCauseType: String? = null,
+) {
     size shouldBe 1
     single().level shouldBe Level.ERROR
 
@@ -230,8 +248,19 @@ private fun List<ILoggingEvent>.verifiserTryggFeil(errorCode: String) {
     serialisert.verdi("message") shouldContain "Kunne ikke behandle sendt sykmelding"
     serialisert.verdi("trace_id") shouldBe TRACE_ID
     serialisert.verdi("trace_id").matches(Regex("^[0-9a-f]{32}$")) shouldBe true
+    serialisert shouldContainKey "exception_type"
+    serialisert shouldContainKey "root_cause_type"
+    serialisert.verdi("exception_type").matches(Regex("^[A-Za-z_$][A-Za-z0-9_$]{0,119}$")) shouldBe true
+    serialisert.verdi("root_cause_type").matches(Regex("^[A-Za-z_$][A-Za-z0-9_$]{0,119}$")) shouldBe true
+    exceptionType?.let { serialisert.verdi("exception_type") shouldBe it }
+    rootCauseType?.let { serialisert.verdi("root_cause_type") shouldBe it }
     serialisert shouldContainKey "stack_trace"
     serialisert.verdi("stack_trace") shouldContain "SendtSykmeldingLoggingTest"
+    serialisert.verdi("stack_trace") shouldContain serialisert.verdi("exception_type")
+    serialisert.verdi("stack_trace") shouldContain serialisert.verdi("root_cause_type")
+    if (rootCauseType != null && rootCauseType != exceptionType) {
+        serialisert.verdi("stack_trace") shouldContain "Caused by:"
+    }
     MDC.get("trace_id") shouldBe null
 
     val json = serialisert.toString()
@@ -241,6 +270,7 @@ private fun List<ILoggingEvent>.verifiserTryggFeil(errorCode: String) {
         SENSITIVE_EMAIL,
         SENSITIVE_URL,
         SENSITIVE_TOKEN,
+        SENSITIVE_CAUSE_MESSAGE,
     ).forEach { canary ->
         json shouldNotContain canary
     }

@@ -28,6 +28,8 @@ const val SENDT_SYKMELDING_TOPIC = "teamsykmelding.syfo-sendt-sykmelding"
 private val KAFKA_CLOSE_TIMEOUT: Duration = Duration.ofSeconds(1)
 private const val PROCESSING_FAILED_EVENT = "sendt_sykmelding_processing_failed"
 private const val PROCESSING_OPERATION = "behandle_sendt_sykmelding"
+private const val MAX_SAFE_CAUSE_DEPTH = 10
+private val SAFE_EXCEPTION_TYPE = Regex("^[A-Za-z_$][A-Za-z0-9_$]{0,119}$")
 
 internal enum class SendtSykmeldingErrorCode {
     SYKMELDING_DESERIALIZATION_FAILED,
@@ -88,11 +90,13 @@ class SendtSykmeldingAivenConsumer internal constructor(
             throw cancellation
         } catch (e: Exception) {
             log.error(
-                "Kunne ikke behandle sendt sykmelding: {} {} {}",
+                "Kunne ikke behandle sendt sykmelding: {} {} {} {} {}",
                 kv("event_type", PROCESSING_FAILED_EVENT),
                 kv("error_code", errorCode.name),
                 kv("operation", PROCESSING_OPERATION),
-                e.withoutDynamicContent(),
+                kv("exception_type", e.safeExceptionType()),
+                kv("root_cause_type", e.safeRootCauseType()),
+                e.withoutDynamicMessages(),
             )
         }
     }
@@ -120,7 +124,22 @@ class SendtSykmeldingAivenConsumer internal constructor(
     }
 }
 
-private fun Throwable.withoutDynamicContent(): Throwable =
-    RuntimeException("SanitizedException").also { safeThrowable ->
+private fun Throwable.safeExceptionType(): String = javaClass.simpleName.takeIf { it.matches(SAFE_EXCEPTION_TYPE) } ?: "UnknownException"
+
+private fun Throwable.safeRootCauseType(): String {
+    var rootCause = this
+    repeat(MAX_SAFE_CAUSE_DEPTH) {
+        rootCause = rootCause.cause?.takeUnless { it === rootCause } ?: return rootCause.safeExceptionType()
+    }
+    return rootCause.safeExceptionType()
+}
+
+private fun Throwable.withoutDynamicMessages(depth: Int = 0): Throwable =
+    RuntimeException(
+        safeExceptionType(),
+        cause
+            ?.takeUnless { it === this || depth >= MAX_SAFE_CAUSE_DEPTH }
+            ?.withoutDynamicMessages(depth + 1),
+    ).also { safeThrowable ->
         safeThrowable.stackTrace = stackTrace
     }
