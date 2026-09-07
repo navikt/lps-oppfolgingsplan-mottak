@@ -30,6 +30,7 @@ import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.common.errors.WakeupException
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import java.time.LocalDate
@@ -138,6 +139,18 @@ class SendtSykmeldingLoggingTest :
             resultat.failure shouldBe cancellation
             resultat.loggmeldinger.shouldBeEmpty()
             verify(exactly = 0) { kafkaConsumer.commitSync() }
+        }
+
+        test("wakeup under commit propageres uendret uten feillogg") {
+            val (consumer, _, kafkaConsumer) = nyConsumer()
+            val wakeup = WakeupException()
+            every { kafkaConsumer.commitSync() } throws wakeup
+
+            val resultat = fangLoggMedResult { consumer.processRecord(record(null)) }
+
+            resultat.failure shouldBe wakeup
+            resultat.loggmeldinger.shouldBeEmpty()
+            verify(exactly = 1) { kafkaConsumer.commitSync() }
         }
     })
 

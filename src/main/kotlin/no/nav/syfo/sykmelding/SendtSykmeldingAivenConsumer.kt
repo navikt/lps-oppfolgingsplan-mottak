@@ -2,9 +2,9 @@ package no.nav.syfo.sykmelding
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.environment.KafkaEnv
@@ -21,8 +21,10 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.errors.WakeupException
 import org.slf4j.LoggerFactory
 import java.time.Duration
+import kotlin.coroutines.resume
 
 const val SENDT_SYKMELDING_TOPIC = "teamsykmelding.syfo-sendt-sykmelding"
 private val KAFKA_CLOSE_TIMEOUT: Duration = Duration.ofSeconds(1)
@@ -48,20 +50,27 @@ class SendtSykmeldingAivenConsumer internal constructor(
     constructor(env: KafkaEnv, sykmeldingService: SendtSykmeldingService) :
         this(createKafkaListener(env), sykmeldingService)
 
-    override suspend fun listen(applicationState: ApplicationState) {
-        try {
-            while (applicationState.ready && currentCoroutineContext().isActive) {
-                val records = poll()
-                currentCoroutineContext().ensureActive()
-                records.forEach { record ->
-                    currentCoroutineContext().ensureActive()
-                    processRecord(record)
+    override suspend fun listen(applicationState: ApplicationState) =
+        suspendCancellableCoroutine<Unit> { continuation ->
+            // wakeup is thread-safe and interrupts blocking poll and commit calls.
+            continuation.invokeOnCancellation { kafkaListener.wakeup() }
+            try {
+                while (applicationState.ready && continuation.context.isActive) {
+                    val records = poll()
+                    continuation.context.ensureActive()
+                    records.forEach { record ->
+                        continuation.context.ensureActive()
+                        processRecord(record)
+                    }
                 }
+            } catch (exception: WakeupException) {
+                continuation.context.ensureActive()
+                throw exception
+            } finally {
+                kafkaListener.close(CloseOptions.timeout(KAFKA_CLOSE_TIMEOUT))
             }
-        } finally {
-            kafkaListener.close(CloseOptions.timeout(KAFKA_CLOSE_TIMEOUT))
+            continuation.resume(Unit)
         }
-    }
 
     private fun poll(): ConsumerRecords<String, String> = kafkaListener.poll(pollDurationInMillis)
 
@@ -88,6 +97,8 @@ class SendtSykmeldingAivenConsumer internal constructor(
             kafkaListener.commitSync()
         } catch (cancellation: CancellationException) {
             throw cancellation
+        } catch (e: WakeupException) {
+            throw e
         } catch (e: Exception) {
             log.error(
                 "Kunne ikke behandle sendt sykmelding: {} {} {} {} {}",
