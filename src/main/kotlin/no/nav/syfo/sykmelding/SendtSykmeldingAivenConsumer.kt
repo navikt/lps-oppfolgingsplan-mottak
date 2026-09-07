@@ -1,6 +1,9 @@
 package no.nav.syfo.sykmelding
 
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.suspendCancellableCoroutine
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.environment.KafkaEnv
 import no.nav.syfo.application.kafka.KafkaListener
@@ -10,48 +13,54 @@ import no.nav.syfo.sykmelding.domain.SykmeldingKafkaMessage
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import no.nav.syfo.util.configuredJacksonMapper
 import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.clients.consumer.CloseOptions
+import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.errors.WakeupException
 import org.slf4j.LoggerFactory
+import java.time.Duration
+import kotlin.coroutines.resume
 
 const val SENDT_SYKMELDING_TOPIC = "teamsykmelding.syfo-sendt-sykmelding"
+private val KAFKA_CLOSE_TIMEOUT: Duration = Duration.ofSeconds(1)
 
-class SendtSykmeldingAivenConsumer(
-    val env: KafkaEnv,
+class SendtSykmeldingAivenConsumer internal constructor(
+    private val kafkaListener: Consumer<String, String>,
     private val sykmeldingService: SendtSykmeldingService,
 ) : KafkaListener {
     private val log = LoggerFactory.getLogger(SendtSykmeldingAivenConsumer::class.qualifiedName)
-    private val kafkaListener: KafkaConsumer<String, String>
     private val objectMapper = configuredJacksonMapper()
 
-    init {
-        val kafkaConfig =
-            consumerProperties(env).apply {
-                put(CommonClientConfigs.GROUP_ID_CONFIG, "lps-oppfolgingsplan-mottak-sendt-sykmelding-01")
-                put(
-                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                    "org.apache.kafka.common.serialization.StringDeserializer",
-                )
-                put(
-                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                    "org.apache.kafka.common.serialization.StringDeserializer",
-                )
-                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-                put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
-            }
-        kafkaListener = KafkaConsumer(kafkaConfig)
-        kafkaListener.subscribe(listOf(SENDT_SYKMELDING_TOPIC))
-    }
+    constructor(env: KafkaEnv, sykmeldingService: SendtSykmeldingService) :
+        this(createKafkaListener(env), sykmeldingService)
 
-    override suspend fun listen(applicationState: ApplicationState) {
-        while (applicationState.ready) {
-            kafkaListener.poll(pollDurationInMillis).forEach { record: ConsumerRecord<String, String?> ->
-                log.info("Received record with key: ${record.key()}")
-                processRecord(record)
+    override suspend fun listen(applicationState: ApplicationState) =
+        suspendCancellableCoroutine<Unit> { continuation ->
+            // wakeup is thread-safe and interrupts blocking poll and commit calls.
+            continuation.invokeOnCancellation { kafkaListener.wakeup() }
+            try {
+                while (applicationState.ready && continuation.context.isActive) {
+                    val records = poll()
+                    continuation.context.ensureActive()
+                    records.forEach { record ->
+                        continuation.context.ensureActive()
+                        log.info("Received record with key: ${record.key()}")
+                        processRecord(record)
+                    }
+                }
+            } catch (exception: WakeupException) {
+                continuation.context.ensureActive()
+                throw exception
+            } finally {
+                kafkaListener.close(CloseOptions.timeout(KAFKA_CLOSE_TIMEOUT))
             }
+            continuation.resume(Unit)
         }
-    }
+
+    private fun poll(): ConsumerRecords<String, String> = kafkaListener.poll(pollDurationInMillis)
 
     private fun processRecord(record: ConsumerRecord<String, String?>) {
         try {
@@ -73,8 +82,32 @@ class SendtSykmeldingAivenConsumer(
             }
             log.info("Committing offset")
             kafkaListener.commitSync()
+        } catch (e: WakeupException) {
+            throw e
         } catch (e: Exception) {
             log.error("Error encountered while processing sykmelding: ${e.message}", e)
+        }
+    }
+
+    companion object {
+        private fun createKafkaListener(env: KafkaEnv): Consumer<String, String> {
+            val kafkaConfig =
+                consumerProperties(env).apply {
+                    put(CommonClientConfigs.GROUP_ID_CONFIG, "lps-oppfolgingsplan-mottak-sendt-sykmelding-01")
+                    put(
+                        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                        "org.apache.kafka.common.serialization.StringDeserializer",
+                    )
+                    put(
+                        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                        "org.apache.kafka.common.serialization.StringDeserializer",
+                    )
+                    put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
+                    put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100")
+                }
+            return KafkaConsumer<String, String>(kafkaConfig).apply {
+                subscribe(listOf(SENDT_SYKMELDING_TOPIC))
+            }
         }
     }
 }
