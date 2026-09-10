@@ -20,7 +20,7 @@ val kotlinVersion = "2.4.10"
 val mockkVersion = "1.14.11"
 val postgresVersion = "42.7.13"
 val hikariVersion = "7.1.0"
-val flywayVersion = "13.4.0"
+val flywayVersion = "13.5.0"
 val gsonVersion = "2.14.0"
 val kafkaVersion = "4.3.1"
 val avroVersion = "1.12.2"
@@ -37,7 +37,7 @@ val githubPassword: String by project
 plugins {
     kotlin("jvm") version "2.4.10"
     id("org.jetbrains.kotlin.plugin.allopen") version "2.4.10"
-    id("com.diffplug.spotless") version "8.10.0"
+    id("com.diffplug.spotless") version "8.10.1"
     id("com.gradleup.shadow") version "9.6.1"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
