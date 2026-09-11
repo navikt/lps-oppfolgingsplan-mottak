@@ -82,49 +82,21 @@ fun Routing.registerFollowUpPlanApi(
                 log.info("Validating follow-up plan for employer $employerOrgnr and LPS orgnumber $lpsOrgnumber")
                 try {
                     validator.validateFollowUpPlanDTO(followUpPlanDTO, employerOrgnr)
-                } catch (exception: FollowUpPlanDTOValidationException) {
-                    supportLogger.logValidationFailed(
-                        rawPayload = rawPayload,
-                        callId = callId,
-                        planUuid = planUuid.toString(),
-                        consumerClientId = consumerClientId,
-                        organizationNumber = employerOrgnr,
-                        lpsOrgnumber = lpsOrgnumber,
-                        errorMessage = exception.message ?: "Validation failed",
-                    )
-                    throw exception
-                } catch (exception: NoActiveEmploymentException) {
-                    supportLogger.logValidationFailed(
-                        rawPayload = rawPayload,
-                        callId = callId,
-                        planUuid = planUuid.toString(),
-                        consumerClientId = consumerClientId,
-                        organizationNumber = employerOrgnr,
-                        lpsOrgnumber = lpsOrgnumber,
-                        errorMessage = exception.message ?: "Validation failed",
-                    )
-                    throw exception
-                } catch (exception: NoActiveSentSykmeldingException) {
-                    supportLogger.logValidationFailed(
-                        rawPayload = rawPayload,
-                        callId = callId,
-                        planUuid = planUuid.toString(),
-                        consumerClientId = consumerClientId,
-                        organizationNumber = employerOrgnr,
-                        lpsOrgnumber = lpsOrgnumber,
-                        errorMessage = exception.message ?: "Validation failed",
-                    )
-                    throw exception
-                } catch (exception: EmployeeNotFoundException) {
-                    supportLogger.logValidationFailed(
-                        rawPayload = rawPayload,
-                        callId = callId,
-                        planUuid = planUuid.toString(),
-                        consumerClientId = consumerClientId,
-                        organizationNumber = employerOrgnr,
-                        lpsOrgnumber = lpsOrgnumber,
-                        errorMessage = exception.message ?: "Validation failed",
-                    )
+                } catch (exception: Exception) {
+                    when (exception) {
+                        is FollowUpPlanDTOValidationException,
+                        is NoActiveEmploymentException,
+                        is NoActiveSentSykmeldingException,
+                        is EmployeeNotFoundException -> supportLogger.logValidationFailed(
+                            rawPayload = rawPayload,
+                            callId = callId,
+                            planUuid = planUuid.toString(),
+                            consumerClientId = consumerClientId,
+                            organizationNumber = employerOrgnr,
+                            lpsOrgnumber = lpsOrgnumber,
+                            errorMessage = exception.message ?: "Validation failed",
+                        )
+                    }
                     throw exception
                 }
                 log.info("Follow-up plan is valid. Attempting to store plan.")
