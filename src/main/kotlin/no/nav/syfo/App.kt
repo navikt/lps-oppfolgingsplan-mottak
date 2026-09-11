@@ -33,6 +33,7 @@ import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.getWellKnown
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
+import no.nav.syfo.oppfolgingsplanmottak.logging.TeamLogsFollowUpPlanSupportLogger
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 import org.slf4j.LoggerFactory
@@ -132,6 +133,7 @@ private fun setModule(
                 dokarkivClient,
                 env.isDev(),
             )
+        val followUpPlanSupportLogger = TeamLogsFollowUpPlanSupportLogger()
 
         val wellKnownInternalAzureAD =
             getWellKnown(
@@ -158,6 +160,7 @@ private fun setModule(
             wellKnownInternalAzureAD,
             veilederTilgangskontrollClient,
             followUpPlanSendingService,
+            followUpPlanSupportLogger,
             pdlClient,
             sykmeldingService,
             arbeidsforholdOversiktClient,
