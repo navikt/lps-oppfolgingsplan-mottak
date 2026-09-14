@@ -11,18 +11,22 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.db.TestDB
 import no.nav.syfo.mockdata.ExternalMockEnvironment
 import no.nav.syfo.mockdata.testApiModule
+import no.nav.syfo.oppfolgingsplanmottak.logging.FollowUpPlanSupportLogger
+import no.nav.syfo.oppfolgingsplanmottak.logging.TeamLogsFollowUpPlanSupportLogger
 
 data class TestApplicationSetup(
     val testDB: DatabaseInterface,
     val httpClient: HttpClient,
 )
 
-fun ApplicationTestBuilder.configureTestApplication(): TestApplicationSetup {
+fun ApplicationTestBuilder.configureTestApplication(
+    followUpPlanSupportLogger: FollowUpPlanSupportLogger = TeamLogsFollowUpPlanSupportLogger(),
+): TestApplicationSetup {
     val testDb = TestDB.database
     TestDB.clearAllData()
 
     application {
-        testApiModule(ExternalMockEnvironment.instance, testDb)
+        testApiModule(ExternalMockEnvironment.instance, testDb, followUpPlanSupportLogger)
     }
 
     val client =

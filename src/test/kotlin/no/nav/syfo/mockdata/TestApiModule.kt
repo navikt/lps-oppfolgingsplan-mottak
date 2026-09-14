@@ -25,12 +25,15 @@ import no.nav.syfo.mockdata.UserConstants.ARBEIDSTAKER_FNR_NO_ARBEIDSFORHOLD
 import no.nav.syfo.mockdata.UserConstants.HOVEDENHETSNUMMER
 import no.nav.syfo.mockdata.UserConstants.VIRKSOMHETSNUMMER
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
+import no.nav.syfo.oppfolgingsplanmottak.logging.FollowUpPlanSupportLogger
+import no.nav.syfo.oppfolgingsplanmottak.logging.TeamLogsFollowUpPlanSupportLogger
 import no.nav.syfo.oppfolgingsplanmottak.service.FollowUpPlanSendingService
 import no.nav.syfo.sykmelding.service.SendtSykmeldingService
 
 fun Application.testApiModule(
     externalMockEnvironment: ExternalMockEnvironment,
     database: DatabaseInterface,
+    followUpPlanSupportLogger: FollowUpPlanSupportLogger = TeamLogsFollowUpPlanSupportLogger(),
 ) {
     val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)
     val followupPlanProducer = mockk<FollowUpPlanProducer>(relaxed = true)
@@ -141,6 +144,7 @@ fun Application.testApiModule(
         wellKnownInternalAzureAD = externalMockEnvironment.wellKnownInternalAzureAD,
         veilederTilgangskontrollClient = veilederTilgangskontrollClient,
         followUpPlanSendingService = followUpPlanSendingService,
+        followUpPlanSupportLogger = followUpPlanSupportLogger,
         pdlClient =
             PdlClient(
                 externalMockEnvironment.environment.urls,

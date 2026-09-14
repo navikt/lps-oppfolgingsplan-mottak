@@ -90,6 +90,8 @@ spec:
       rules:
         - application: digdir-krr-proxy
           namespace: team-rocket
+        - application: logging
+          namespace: nais-system
         - application: syfooppdfgen
         - application: isdialogmelding
           namespace: teamsykefravr
