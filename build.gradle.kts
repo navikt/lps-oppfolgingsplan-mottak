@@ -53,6 +53,14 @@ repositories {
 }
 
 dependencies {
+    constraints {
+        lockConstraintToVersion(ktorVersion, "3.5.2") {
+            implementation("io.netty:netty-handler:4.2.17.Final") {
+                because("CVE in lower versions")
+            }
+        }
+    }
+
     // Ktor server
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
@@ -164,5 +172,21 @@ tasks {
     }
     named("check") {
         dependsOn("ktlintCheck")
+    }
+}
+
+fun DependencyConstraintHandlerScope.lockConstraintToVersion(
+    dependencyVersion: String,
+    lockToVersion: String,
+    block: DependencyConstraintHandlerScope.() -> Unit,
+) {
+    if (dependencyVersion == lockToVersion) {
+        block()
+    } else {
+        throw GradleException(
+            "Dependency locked to: $lockToVersion. " +
+                "Current version: $dependencyVersion. " +
+                "Remove override or bump locked version.",
+        )
     }
 }
