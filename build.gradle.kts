@@ -55,7 +55,7 @@ repositories {
 dependencies {
     constraints {
         lockConstraintToVersion(ktorVersion, "3.5.2") {
-            implementation("io.netty:netty-handler:4.2.17.Final") {
+            implementation("io.netty:netty-handler:4.2.18.Final") {
                 because("CVE in lower versions")
             }
         }
