@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7.0.1
       - name: Deploy lps topic to dev
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: nais/topics/lps-topic.yaml
@@ -31,7 +31,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7.0.1
       - name: Deploy lps topic to prod
-        uses: nais/deploy/actions/deploy@v2
+        uses: nais/deploy/actions/deploy@v3
         env:
           CLUSTER: prod-gcp
           RESOURCE: nais/topics/lps-topic.yaml
