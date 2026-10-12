@@ -53,14 +53,6 @@ repositories {
 }
 
 dependencies {
-    constraints {
-        lockConstraintToVersion(ktorVersion, "3.5.2") {
-            implementation("io.netty:netty-handler:4.2.18.Final") {
-                because("CVE in lower versions")
-            }
-        }
-    }
-
     // Ktor server
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
