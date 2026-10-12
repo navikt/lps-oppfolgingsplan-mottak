@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 jobs:
   jar-app:
-    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/jar-app.yaml@b34096ab5d0d6fcbde41248b74cbb9a48859d9b9
+    uses: navikt/teamesyfo-github-actions-workflows/.github/workflows/jar-app.yaml@main
     permissions:
       actions: read
       contents: write
