@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "no.nav.syfo"
 version = "1.0"
 
-val ktorVersion = "3.5.2"
+val ktorVersion = "3.6.0"
 val prometheusVersion = "0.16.0"
 val micrometerVersion = "1.17.1"
 val slf4jVersion = "2.0.20"
@@ -53,14 +53,6 @@ repositories {
 }
 
 dependencies {
-    constraints {
-        lockConstraintToVersion(ktorVersion, "3.5.2") {
-            implementation("io.netty:netty-handler:4.2.18.Final") {
-                because("CVE in lower versions")
-            }
-        }
-    }
-
     // Ktor server
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-core:$ktorVersion")
