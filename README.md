@@ -9,7 +9,7 @@
 
 ## Environments
 
-[🚀 Productions](https://lps-oppfolgingsplan-mottak.nav.n)
+[🚀 Production](https://lps-oppfolgingsplan-mottak.nav.no)
 
 [🛠️ Development](https://lps-oppfolgingsplan-mottak.ekstern.dev.nav.no)
 
