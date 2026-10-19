@@ -134,11 +134,13 @@ dependencies {
 
     constraints {
         // Jackson 3 comes transitively from logstash-logback-encoder
-        implementation("tools.jackson.core:jackson-core:$jackson3Version") {
-            because("CVE-2026-29062 (GHSA-6v53-7c9g-w56r)")
-        }
-        implementation("tools.jackson.core:jackson-databind:$jackson3Version") {
-            because("CVE-2026-54512 (GHSA-j3rv-43j4-c7qm)")
+        lockConstraintToVersion(logstashEncoderVersion, "9.0") {
+            implementation("tools.jackson.core:jackson-core:$jackson3Version") {
+                because("CVE-2026-29062 (GHSA-6v53-7c9g-w56r)")
+            }
+            implementation("tools.jackson.core:jackson-databind:$jackson3Version") {
+                because("CVE-2026-54512 (GHSA-j3rv-43j4-c7qm)")
+            }
         }
     }
 }
