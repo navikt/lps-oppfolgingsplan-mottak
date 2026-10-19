@@ -87,15 +87,17 @@ fun Routing.registerFollowUpPlanApi(
                         is FollowUpPlanDTOValidationException,
                         is NoActiveEmploymentException,
                         is NoActiveSentSykmeldingException,
-                        is EmployeeNotFoundException -> supportLogger.logValidationFailed(
-                            rawPayload = rawPayload,
-                            callId = callId,
-                            planUuid = planUuid.toString(),
-                            consumerClientId = consumerClientId,
-                            organizationNumber = employerOrgnr,
-                            lpsOrgnumber = lpsOrgnumber,
-                            errorMessage = exception.message ?: "Validation failed",
-                        )
+                        is EmployeeNotFoundException,
+                        ->
+                            supportLogger.logValidationFailed(
+                                rawPayload = rawPayload,
+                                callId = callId,
+                                planUuid = planUuid.toString(),
+                                consumerClientId = consumerClientId,
+                                organizationNumber = employerOrgnr,
+                                lpsOrgnumber = lpsOrgnumber,
+                                errorMessage = exception.message ?: "Validation failed",
+                            )
                     }
                     throw exception
                 }
