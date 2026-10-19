@@ -12,6 +12,7 @@ val javaxVersion = "2.1.1"
 val logstashEncoderVersion = "9.0"
 val jacksonVersion = "2.22.3"
 val jacksonDatabindVersion = "2.13.2.2"
+val jackson3Version = "3.2.4"
 val javaJwtVersion = "4.6.1"
 val nimbusVersion = "10.10"
 val kotestVersion = "6.2.5"
@@ -130,6 +131,16 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:$kotestTestContainersExtensionVersion")
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
+
+    constraints {
+        // Jackson 3 comes transitively from logstash-logback-encoder
+        implementation("tools.jackson.core:jackson-core:$jackson3Version") {
+            because("CVE-2026-29062 (GHSA-6v53-7c9g-w56r)")
+        }
+        implementation("tools.jackson.core:jackson-databind:$jackson3Version") {
+            because("CVE-2026-54512 (GHSA-j3rv-43j4-c7qm)")
+        }
+    }
 }
 
 configurations.implementation {
