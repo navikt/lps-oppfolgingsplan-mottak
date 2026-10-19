@@ -32,9 +32,6 @@ val quartzSchedulerVersion = "2.5.2"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val testcontainersVersion = "1.21.4"
 
-val githubUser: String by project
-val githubPassword: String by project
-
 plugins {
     kotlin("jvm") version "2.4.21"
     id("org.jetbrains.kotlin.plugin.allopen") version "2.4.21"
