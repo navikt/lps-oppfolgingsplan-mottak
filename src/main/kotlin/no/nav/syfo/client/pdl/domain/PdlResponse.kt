@@ -2,23 +2,6 @@ package no.nav.syfo.client.pdl.domain
 
 import java.io.Serializable
 
-data class PdlIdenterResponse(
-    val errors: List<PdlError>?,
-    val data: PdlHentIdenter?,
-)
-
-data class PdlHentIdenter(
-    val hentIdenter: PdlIdenter?,
-) : Serializable
-
-data class PdlIdenter(
-    val identer: List<PdlIdent>,
-) : Serializable
-
-data class PdlIdent(
-    val ident: String,
-) : Serializable
-
 data class PdlPersonResponse(
     val errors: List<PdlError>?,
     val data: PdlHentPerson?,

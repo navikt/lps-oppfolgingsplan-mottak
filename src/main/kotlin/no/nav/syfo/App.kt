@@ -66,7 +66,7 @@ fun main() {
             },
             module = setModule(env, appState),
         )
-    server.monitor.subscribe(ApplicationStarted) { application ->
+    server.monitor.subscribe(ApplicationStarted) {
         appState.ready = true
         logger.info("Application is ready, running Java VM ${Runtime.version()}")
     }
@@ -111,14 +111,11 @@ private fun setModule(
 
         val altinnLpsService =
             AltinnLpsService(
-                pdlClient,
-                pdfGenClient,
-                database,
-                navLpsProducer,
-                isdialogmeldingClient,
-                dokarkivClient,
-                env.altinnLps.sendToFastlegeRetryThreshold,
-                env.toggles,
+                database = database,
+                navLpsProducer = navLpsProducer,
+                isdialogmeldingConsumer = isdialogmeldingClient,
+                dokarkivConsumer = dokarkivClient,
+                sendToFastlegeRetryThreshold = env.altinnLps.sendToFastlegeRetryThreshold,
             )
 
         val sykmeldingService = SendtSykmeldingService(database)
@@ -127,11 +124,11 @@ private fun setModule(
 
         val followUpPlanSendingService =
             FollowUpPlanSendingService(
-                isdialogmeldingClient,
-                followupPlanProducer,
-                pdfGenClient,
-                dokarkivClient,
-                env.isDev(),
+                isdialogmeldingClient = isdialogmeldingClient,
+                followupPlanProducer = followupPlanProducer,
+                opPdfGenClient = pdfGenClient,
+                dokarkivClient = dokarkivClient,
+                isDev = env.isDev(),
             )
         val followUpPlanSupportLogger = TeamLogsFollowUpPlanSupportLogger()
 

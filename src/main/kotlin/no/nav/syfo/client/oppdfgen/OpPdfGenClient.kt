@@ -15,7 +15,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.altinnmottak.domain.Fagmelding
 import no.nav.syfo.application.environment.ApplicationEnv
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.client.httpClientDefault
@@ -35,36 +34,6 @@ class OpPdfGenClient(
     private val client: HttpClient = httpClientDefault(),
 ) {
     private val pdlUtils = PdlUtils(pdlClient)
-
-    suspend fun generatedPdfResponse(fagmelding: Fagmelding): ByteArray? {
-        val requestUrl = "${urls.opPdfGenUrl}/$ALTINN_PLAN_PATH"
-        val requestBody = mapper.writeValueAsString(fagmelding)
-        val response =
-            try {
-                client.post(requestUrl) {
-                    headers {
-                        append(HttpHeaders.ContentType, ContentType.Application.Json)
-                        append(NAV_CONSUMER_ID_HEADER, appEnv.appName)
-                        append(NAV_CALL_ID_HEADER, createCallId())
-                    }
-                    setBody(requestBody)
-                }
-            } catch (e: Exception) {
-                log.error("Call to get generate PDF for Altinn LPS-plan failed due to exception: ${e.message}", e)
-                throw e
-            }
-
-        return when (response.status) {
-            HttpStatusCode.OK -> {
-                response.body<ByteArray>()
-            }
-
-            else -> {
-                log.error("Could not generate Altinn PDF. Call failed with status: ${response.status}")
-                null
-            }
-        }
-    }
 
     suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
         val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_PATH"
@@ -121,7 +90,6 @@ class OpPdfGenClient(
 
     companion object {
         private val log = LoggerFactory.getLogger(OpPdfGenClient::class.qualifiedName)
-        private const val ALTINN_PLAN_PATH = "api/v1/genpdf/opservice/oppfolgingsplanlps"
         const val FOLLOWUP_PLAN_PATH = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
 
         private val mapper =

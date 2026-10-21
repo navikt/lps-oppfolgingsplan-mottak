@@ -16,7 +16,6 @@ import no.nav.syfo.client.httpClientDefault
 import no.nav.syfo.client.pdl.domain.Criterion
 import no.nav.syfo.client.pdl.domain.Paging
 import no.nav.syfo.client.pdl.domain.PdlHentPerson
-import no.nav.syfo.client.pdl.domain.PdlIdenterResponse
 import no.nav.syfo.client.pdl.domain.PdlPersonResponse
 import no.nav.syfo.client.pdl.domain.PdlRequest
 import no.nav.syfo.client.pdl.domain.PdlRequestInterface
@@ -35,43 +34,6 @@ class PdlClient(
     private val client: HttpClient = httpClientDefault(),
 ) {
     private val log: Logger = LoggerFactory.getLogger(PdlClient::class.qualifiedName)
-
-    suspend fun mostRecentFnr(fnr: String): String? {
-        val response = getFnr(fnr)
-
-        return when (response?.status) {
-            HttpStatusCode.OK -> {
-                val responseBody = response.body<PdlIdenterResponse>()
-                if (responseBody.errors.isNullOrEmpty()) {
-                    val pdlResponse =
-                        responseBody.data
-                            ?.hentIdenter
-                            ?.identer
-                            ?.first()
-                            ?.ident
-                    pdlResponse
-                } else {
-                    log.error("Could not get fnr from PDL: response contains errors: ${responseBody.errors}")
-                    null
-                }
-            }
-
-            HttpStatusCode.NoContent -> {
-                log.error("Could not get fnr from PDL: No content found in the response body")
-                null
-            }
-
-            HttpStatusCode.Unauthorized -> {
-                log.error("Could not get fnr from PDL: Unable to authorize")
-                null
-            }
-
-            else -> {
-                log.error("Could not get fnr from PDL: $response")
-                null
-            }
-        }
-    }
 
     suspend fun getPersonInfo(fnr: String): PdlHentPerson? {
         val response = getPerson(fnr)
@@ -103,14 +65,6 @@ class PdlClient(
                 null
             }
         }
-    }
-
-    private suspend fun getFnr(ident: String): HttpResponse? {
-        val graphQuery =
-            this::class.java.getResource(IDENTER_QUERY)?.readText()
-                ?: throw FileNotFoundException("Could not found resource: $IDENTER_QUERY")
-        val requestBody = PdlRequest(graphQuery, Variables(ident))
-        return postCallToPdl(requestBody)
     }
 
     private suspend fun getPerson(ident: String): HttpResponse? {
