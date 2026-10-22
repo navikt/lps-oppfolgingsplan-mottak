@@ -108,7 +108,6 @@ spec:
       allowAllUsers: true
   kafka:
     pool: nav-dev
-  leaderElection: true
   env:
     - name: KTOR_ENV
       value: remote
@@ -134,14 +133,6 @@ spec:
       value: http://istilgangskontroll.teamsykefravr
     - name: ISTILGANGSKONTROLL_CLIENT_ID
       value: dev-gcp.teamsykefravr.istilgangskontroll
-    - name: SEND_TO_FASTLEGE_RETRY_THRESHOLD
-      value: "6"
-    - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV
-      value: "true"
-    - name: TOGGLE_SEND_ALTINN_LPS_PLAN_TO_FASTLEGE
-      value: "true"
-    - name: TOGGLE_JOURNALFOR__ALTINN_LPS_PLAN
-      value: "true"
     - name: MASKINPORTEN_CUSTOM_SCOPE_NAME
       value: "nav:oppfolgingsplan/lps.write"
     - name: KRR_PROXY_URL

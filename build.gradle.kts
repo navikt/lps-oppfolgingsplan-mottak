@@ -27,8 +27,6 @@ val kafkaVersion = "4.3.2"
 val avroVersion = "1.12.2"
 val confluentVersion = "8.1.1"
 val syfotjenesterVersion = "1.2020.07.02-07.44-62078cd74f7e"
-val helseXmlVersion = "2.0.1"
-val quartzSchedulerVersion = "2.5.2"
 val kotestTestContainersExtensionVersion = "2.0.2"
 val testcontainersVersion = "1.21.4"
 
@@ -97,8 +95,6 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("com.google.code.gson:gson:$gsonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
 
     // Kafka
     implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
@@ -110,10 +106,6 @@ dependencies {
         exclude(group = "log4j", module = "log4j")
     }
     implementation("no.nav.syfotjenester:oppfolgingsplanlps:$syfotjenesterVersion")
-    implementation("no.nav.helse.xml:oppfolgingsplan:$helseXmlVersion")
-
-    // Scheduling
-    implementation("org.quartz-scheduler:quartz:$quartzSchedulerVersion")
 
     // Testing
     testImplementation(kotlin("test"))

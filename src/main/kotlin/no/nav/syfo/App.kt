@@ -10,8 +10,6 @@ import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.asCoroutineDispatcher
-import no.nav.syfo.altinnmottak.AltinnLpsService
-import no.nav.syfo.altinnmottak.kafka.AltinnOppfolgingsplanProducer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.Environment
 import no.nav.syfo.application.api.apiModule
@@ -21,7 +19,6 @@ import no.nav.syfo.application.database.grantAccessToIAMUsers
 import no.nav.syfo.application.environment.getEnv
 import no.nav.syfo.application.environment.isDev
 import no.nav.syfo.application.kafka.kafkaModule
-import no.nav.syfo.application.scheduling.schedulerModule
 import no.nav.syfo.client.aareg.ArbeidsforholdOversiktClient
 import no.nav.syfo.client.azuread.AzureAdClient
 import no.nav.syfo.client.dokarkiv.DokarkivClient
@@ -105,18 +102,8 @@ private fun setModule(
         val krrProxyClient = KrrProxyClient(env.urls, azureAdClient)
         val eregClient = EregClient(env.urls, env.application, azureAdClient)
         val pdfGenClient = OpPdfGenClient(env.urls, env.application, pdlClient, krrProxyClient)
-        val navLpsProducer = AltinnOppfolgingsplanProducer(env.kafka)
         val dokarkivClient = DokarkivClient(env.urls, azureAdClient, eregClient)
         val arbeidsforholdOversiktClient = ArbeidsforholdOversiktClient(azureAdClient, env.urls)
-
-        val altinnLpsService =
-            AltinnLpsService(
-                database = database,
-                navLpsProducer = navLpsProducer,
-                isdialogmeldingConsumer = isdialogmeldingClient,
-                dokarkivConsumer = dokarkivClient,
-                sendToFastlegeRetryThreshold = env.altinnLps.sendToFastlegeRetryThreshold,
-            )
 
         val sykmeldingService = SendtSykmeldingService(database)
 
@@ -166,12 +153,6 @@ private fun setModule(
             appState,
             backgroundTasksContext,
             sykmeldingService,
-            env,
-        )
-        schedulerModule(
-            backgroundTasksContext,
-            database,
-            altinnLpsService,
             env,
         )
     }

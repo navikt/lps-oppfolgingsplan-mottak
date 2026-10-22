@@ -10,7 +10,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
 import kotlinx.coroutines.runBlocking
-import no.nav.syfo.altinnmottak.database.domain.AltinnLpsOppfolgingsplan
 import no.nav.syfo.application.environment.UrlEnv
 import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_FALSE
 import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_LPS_JOURNALFORT_TIL_GOSYS_TRUE
@@ -56,23 +55,6 @@ class DokarkivClient(
                 avsenderMottaker,
                 "NAV_NO",
                 uuid.toString(),
-            )
-        return sendRequestToDokarkiv(journalpostRequest)
-    }
-
-    suspend fun journalforAltinnLps(
-        lps: AltinnLpsOppfolgingsplan,
-        virksomhetsnavn: String,
-    ): String {
-        val avsenderMottaker = createAvsenderMottaker(lps.orgnummer)
-        val journalpostRequest =
-            createJournalpostRequest(
-                lps.fnr!!,
-                lps.pdf!!,
-                virksomhetsnavn,
-                avsenderMottaker,
-                "ALTINN",
-                lps.uuid.toString(),
             )
         return sendRequestToDokarkiv(journalpostRequest)
     }
