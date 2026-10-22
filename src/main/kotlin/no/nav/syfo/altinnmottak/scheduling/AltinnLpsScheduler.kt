@@ -30,9 +30,7 @@ class AltinnLpsScheduler(
         log.info("[SCHEDULER]: Started scheduler")
         try {
             scheduler.start()
-            val retryProcessLpsPlanJob = generateRetryProcessLpsPlanJob()
             val retryForwardLpsPlanJob = generateRetryForwardLpsPlanJob()
-            scheduler.scheduleJob(retryProcessLpsPlanJob.first, retryProcessLpsPlanJob.second)
             scheduler.scheduleJob(retryForwardLpsPlanJob.first, retryForwardLpsPlanJob.second)
             return scheduler
         } catch (e: SchedulerException) {
@@ -40,26 +38,6 @@ class AltinnLpsScheduler(
             scheduler.shutdown()
             throw e
         }
-    }
-
-    private fun generateRetryProcessLpsPlanJob(): Pair<JobDetail, SimpleTrigger> {
-        val lpsRetryProcessLpsJob =
-            newJob(AltinnLpsRetryProcessLpsJob::class.java)
-                .withIdentity(RETRY_PROCESSING_LPS_PLAN_JOB, ALTINN_LPS_PLAN_GROUP)
-                .build()
-        lpsRetryProcessLpsJob.jobDataMap[DB_SHORTNAME] = database
-        lpsRetryProcessLpsJob.jobDataMap[LPS_SERVICE_SHORTNAME] = altinnLpsService
-        lpsRetryProcessLpsJob.jobDataMap[LEADER_ELECTION_SHORTNAME] = leaderElection
-        val lpsRetryProcessLpsTrigger =
-            newTrigger()
-                .withIdentity(RETRY_PROCESSING_LPS_PLAN_TRIGGER, ALTINN_LPS_PLAN_GROUP)
-                .startNow()
-                .withSchedule(
-                    simpleSchedule()
-                        .withIntervalInMinutes(RETRY_PROCESSING_LPS_PLAN_INTERVAL_IN_MINUTES)
-                        .repeatForever(),
-                ).build()
-        return Pair(lpsRetryProcessLpsJob, lpsRetryProcessLpsTrigger)
     }
 
     private fun generateRetryForwardLpsPlanJob(): Pair<JobDetail, SimpleTrigger> {
@@ -85,10 +63,6 @@ class AltinnLpsScheduler(
 
     companion object {
         const val ALTINN_LPS_PLAN_GROUP = "AltinnLpsPlanGroup"
-
-        const val RETRY_PROCESSING_LPS_PLAN_TRIGGER = "RetryProccesingLpsPlanTrigger"
-        const val RETRY_PROCESSING_LPS_PLAN_JOB = "RetryProccesingLpsPlanJob"
-        const val RETRY_PROCESSING_LPS_PLAN_INTERVAL_IN_MINUTES = 45
 
         const val RETRY_FORWARD_LPS_PLAN_TRIGGER = "RetryForwardLpsPlanTrigger"
         const val RETRY_FORWARD_LPS_PLAN_JOB = "RetryForwardLpsPlanJob"
