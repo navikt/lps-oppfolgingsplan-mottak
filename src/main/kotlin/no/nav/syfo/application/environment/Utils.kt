@@ -24,7 +24,6 @@ fun getEnv(): Environment {
                 port = getEnvVar("APPLICATION_PORT").toInt(),
                 cluster = getEnvVar("NAIS_CLUSTER_NAME"),
                 coroutineThreadPoolSize = getEnvVar("COROUTINE_THREAD_POOL_SIZE").toInt(),
-                electorPath = getEnvVar("ELECTOR_PATH"),
             ),
         auth =
             AuthEnv(
@@ -95,16 +94,6 @@ fun getEnv(): Environment {
                 eregScope = getEnvVar("EREG_SCOPE"),
                 aaregBaseUrl = getEnvVar("AAREG_URL"),
                 aaregScope = getEnvVar("AAREG_SCOPE"),
-            ),
-        altinnLps =
-            AltinnLpsEnv(
-                sendToFastlegeRetryThreshold = getEnvVar("SEND_TO_FASTLEGE_RETRY_THRESHOLD").toInt(),
-            ),
-        toggles =
-            ToggleEnv(
-                sendAltinnLpsPlanToNavToggle = getEnvVar("TOGGLE_SEND_ALTINN_LPS_PLAN_TO_NAV").toBoolean(),
-                sendAltinnLpsPlanToFastlegeToggle = getEnvVar("TOGGLE_SEND_ALTINN_LPS_PLAN_TO_FASTLEGE").toBoolean(),
-                journalforAltinnLpsPlanToggle = getEnvVar("TOGGLE_JOURNALFOR__ALTINN_LPS_PLAN").toBoolean(),
             ),
     )
 }

@@ -5,5 +5,4 @@ data class ApplicationEnv(
     val port: Int,
     val cluster: String,
     val coroutineThreadPoolSize: Int,
-    val electorPath: String,
 )

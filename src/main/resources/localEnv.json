@@ -3,8 +3,7 @@
     "appName": "lps-oppfolgingsplan-mottak",
     "port": "8080",
     "cluster": "local",
-    "coroutineThreadPoolSize": 2,
-    "electorPath": "http://localhost"
+    "coroutineThreadPoolSize": 2
   },
   "auth": {
     "maskinporten": {
@@ -58,13 +57,5 @@
     "eregScope": "eregScope",
     "aaregBaseUrl": "localhost.aaregBaseUrl",
     "aaregScope": "aaregScope"
-  },
-  "altinnLps": {
-    "sendToFastlegeRetryThreshold": 6
-  },
-  "toggles": {
-     "sendAltinnLpsPlanToFastlegeToggle": true,
-     "sendAltinnLpsPlanToNavToggle": true,
-     "journalforAltinnLpsPlanToggle": true
   }
 }
