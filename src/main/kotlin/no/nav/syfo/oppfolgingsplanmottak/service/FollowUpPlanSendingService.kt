@@ -4,7 +4,7 @@ import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV
 import no.nav.syfo.application.metric.COUNT_METRIKK_FOLLOWUP_LPS_BISTAND_FRA_NAV_TRUE
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
-import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import no.nav.syfo.client.pdfgen.PdfGenClient
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlan
 import no.nav.syfo.oppfolgingsplanmottak.domain.FollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
@@ -17,7 +17,7 @@ import java.util.UUID
 class FollowUpPlanSendingService(
     private val isdialogmeldingClient: IsdialogmeldingClient,
     private val followupPlanProducer: FollowUpPlanProducer,
-    private val opPdfGenClient: OpPdfGenClient,
+    private val pdfGenClient: PdfGenClient,
     private val dokarkivClient: DokarkivClient,
     private val isDev: Boolean,
 ) {
@@ -32,7 +32,7 @@ class FollowUpPlanSendingService(
         val shouldSendToNav = followUpPlanDTO.sendPlanToNav
         val needsHelpFromNav = followUpPlanDTO.needsHelpFromNav
         val shouldSendToGeneralPractitioner = if (!isDev) followUpPlanDTO.sendPlanToGeneralPractitioner else false
-        val pdf: ByteArray? = opPdfGenClient.getLpsPdf(followUpPlanDTO)
+        val pdf = pdfGenClient.getOppfolgingsplanlpsPdf(followUpPlanDTO)
 
         log.info("Should send to NAV: $shouldSendToNav")
         log.info("Needs help from NAV: $needsHelpFromNav")

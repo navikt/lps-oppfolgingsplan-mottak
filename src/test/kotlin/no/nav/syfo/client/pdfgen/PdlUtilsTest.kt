@@ -1,4 +1,4 @@
-package no.nav.syfo.client.oppdfgen
+package no.nav.syfo.client.pdfgen
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe

@@ -44,7 +44,7 @@
   "urls": {
     "pdlUrl": "http://pdl.no",
     "pdlScope": "pdl_scope",
-    "opPdfGenUrl": "http://oppdfgen.no",
+    "pdfGenUrl": "http://esyfo-pdfgen.no",
     "isdialogmeldingUrl": "http://isdialogmelding.io",
     "isdialogmeldingClientId": "localhost.isdialogmelding",
     "dokarkivUrl": "http://dokarkiv.no",

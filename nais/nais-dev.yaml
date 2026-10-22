@@ -84,7 +84,7 @@ spec:
     outbound:
       external:
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: syfooppdfgen.intern.dev.nav.no
+        - host: esyfo-pdfgen.intern.dev.nav.no
         - host: dokarkiv.dev-fss-pub.nais.io
         - host: ereg-services-q1.dev-fss-pub.nais.io
         - host: aareg-services-q2.dev-fss-pub.nais.io
@@ -93,7 +93,7 @@ spec:
           namespace: team-rocket
         - application: logging
           namespace: nais-system
-        - application: syfooppdfgen
+        - application: esyfo-pdfgen
         - application: isdialogmelding
           namespace: teamsykefravr
         - application: istilgangskontroll
@@ -119,8 +119,8 @@ spec:
       value: https://pdl-api.dev-fss-pub.nais.io/graphql
     - name: PDL_SCOPE
       value: dev-fss.pdl.pdl-api
-    - name: OP_PDFGEN_URL
-      value: http://syfooppdfgen
+    - name: ESYFO_PDFGEN_URL
+      value: http://esyfo-pdfgen
     - name: ISDIALOGMELDING_URL
       value: http://isdialogmelding.teamsykefravr
     - name: ISDIALOGMELDING_CLIENT_ID

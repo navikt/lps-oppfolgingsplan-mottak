@@ -1,7 +1,7 @@
 package no.nav.syfo.oppfolgingsplanmottak.domain
 
-import no.nav.syfo.client.oppdfgen.domain.LpsPlanPdfData
-import no.nav.syfo.client.oppdfgen.domain.OppfolgingsplanOpPdfGenRequest
+import no.nav.syfo.client.pdfgen.domain.LpsPlanPdfData
+import no.nav.syfo.client.pdfgen.domain.OppfolgingsplanPdfGenRequest
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -29,16 +29,16 @@ data class FollowUpPlanDTO(
     val lpsName: String,
     val lpsEmail: String?,
 ) {
-    fun toOppfolgingsplanOpPdfGenRequest(
+    fun toOppfolgingsplanPdfGenRequest(
         employeeName: String?,
         employeePhoneNumber: String?,
         employeeEmail: String?,
         employeeAddress: String?,
-    ): OppfolgingsplanOpPdfGenRequest {
+    ): OppfolgingsplanPdfGenRequest {
         val sendPlanTo = getSendToString(this.sendPlanToNav, this.sendPlanToGeneralPractitioner)
         val evaluationDateFormatted = getEvaluationDateFormatted(this.evaluationDate)
 
-        return OppfolgingsplanOpPdfGenRequest(
+        return OppfolgingsplanPdfGenRequest(
             LpsPlanPdfData(
                 employeeFnr = this.employeeIdentificationNumber,
                 employeeName = employeeName,
