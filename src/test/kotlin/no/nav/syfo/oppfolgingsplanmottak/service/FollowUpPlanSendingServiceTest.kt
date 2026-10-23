@@ -8,7 +8,7 @@ import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
-import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import no.nav.syfo.client.pdfgen.PdfGenClient
 import no.nav.syfo.mockdata.randomFollowUpPlanDTO
 import no.nav.syfo.oppfolgingsplanmottak.kafka.FollowUpPlanProducer
 import java.util.UUID
@@ -17,14 +17,14 @@ class FollowUpPlanSendingServiceTest :
     DescribeSpec({
         val isdialogmeldingClient = mockk<IsdialogmeldingClient>(relaxed = true)
         val followupPlanProducer = mockk<FollowUpPlanProducer>(relaxed = true)
-        val opPdfGenClient = mockk<OpPdfGenClient>(relaxed = true)
+        val pdfGenClient = mockk<PdfGenClient>(relaxed = true)
         val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
         val service =
-            FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, opPdfGenClient, dokarkivClient, false)
+            FollowUpPlanSendingService(isdialogmeldingClient, followupPlanProducer, pdfGenClient, dokarkivClient, false)
         val pdfByteArray = "<MOCK PDF CONTENT>".toByteArray()
 
         beforeSpec {
-            coEvery { opPdfGenClient.getLpsPdf(any()) } returns pdfByteArray
+            coEvery { pdfGenClient.getOppfolgingsplanlpsPdf(any()) } returns pdfByteArray
             coEvery { dokarkivClient.journalforLps(any(), any(), any(), any()) } returns "id123"
         }
 

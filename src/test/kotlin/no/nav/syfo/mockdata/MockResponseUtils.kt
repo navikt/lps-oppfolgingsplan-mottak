@@ -75,7 +75,7 @@ fun MockRequestHandleScope.krrResponse(): HttpResponseData =
         ),
     )
 
-fun MockRequestHandleScope.opPdfGenResponse(): HttpResponseData = respond("<MOCK PDF CONTENT>".toByteArray())
+fun MockRequestHandleScope.pdfGenResponse(): HttpResponseData = respond("<MOCK PDF CONTENT>".toByteArray())
 
 fun MockRequestHandleScope.tilgangskontrollResponse(request: HttpRequestData): HttpResponseData =
     when (request.headers[NAV_PERSONIDENT_HEADER]) {

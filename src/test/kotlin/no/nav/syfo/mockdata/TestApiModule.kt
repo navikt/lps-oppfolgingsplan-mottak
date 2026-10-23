@@ -17,7 +17,7 @@ import no.nav.syfo.client.aareg.domain.OpplysningspliktigType
 import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.krrproxy.KrrProxyClient
-import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import no.nav.syfo.client.pdfgen.PdfGenClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.mockdata.UserConstants.ARBEIDSTAKER_FNR
@@ -39,8 +39,8 @@ fun Application.testApiModule(
     val followupPlanProducer = mockk<FollowUpPlanProducer>(relaxed = true)
     val dokarkivClient = mockk<DokarkivClient>(relaxed = true)
 
-    val opPdfGenClient =
-        OpPdfGenClient(
+    val pdfGenClient =
+        PdfGenClient(
             externalMockEnvironment.environment.urls,
             externalMockEnvironment.environment.application,
             PdlClient(
@@ -68,7 +68,7 @@ fun Application.testApiModule(
         FollowUpPlanSendingService(
             isdialogmeldingClient = isdialogmeldingClient,
             followupPlanProducer = followupPlanProducer,
-            opPdfGenClient = opPdfGenClient,
+            pdfGenClient = pdfGenClient,
             dokarkivClient = dokarkivClient,
             isDev = false,
         )

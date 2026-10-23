@@ -25,7 +25,7 @@ import no.nav.syfo.client.dokarkiv.DokarkivClient
 import no.nav.syfo.client.ereg.EregClient
 import no.nav.syfo.client.isdialogmelding.IsdialogmeldingClient
 import no.nav.syfo.client.krrproxy.KrrProxyClient
-import no.nav.syfo.client.oppdfgen.OpPdfGenClient
+import no.nav.syfo.client.pdfgen.PdfGenClient
 import no.nav.syfo.client.pdl.PdlClient
 import no.nav.syfo.client.veiledertilgang.VeilederTilgangskontrollClient
 import no.nav.syfo.client.wellknown.getWellKnown
@@ -101,7 +101,7 @@ private fun setModule(
         val pdlClient = PdlClient(env.urls, azureAdClient)
         val krrProxyClient = KrrProxyClient(env.urls, azureAdClient)
         val eregClient = EregClient(env.urls, env.application, azureAdClient)
-        val pdfGenClient = OpPdfGenClient(env.urls, env.application, pdlClient, krrProxyClient)
+        val pdfGenClient = PdfGenClient(env.urls, env.application, pdlClient, krrProxyClient)
         val dokarkivClient = DokarkivClient(env.urls, azureAdClient, eregClient)
         val arbeidsforholdOversiktClient = ArbeidsforholdOversiktClient(azureAdClient, env.urls)
 
@@ -113,7 +113,7 @@ private fun setModule(
             FollowUpPlanSendingService(
                 isdialogmeldingClient = isdialogmeldingClient,
                 followupPlanProducer = followupPlanProducer,
-                opPdfGenClient = pdfGenClient,
+                pdfGenClient = pdfGenClient,
                 dokarkivClient = dokarkivClient,
                 isDev = env.isDev(),
             )

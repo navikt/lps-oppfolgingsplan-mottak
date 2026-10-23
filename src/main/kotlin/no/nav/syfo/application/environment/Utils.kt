@@ -81,7 +81,7 @@ fun getEnv(): Environment {
             UrlEnv(
                 pdlUrl = getEnvVar("PDL_URL"),
                 pdlScope = getEnvVar("PDL_SCOPE"),
-                opPdfGenUrl = getEnvVar("OP_PDFGEN_URL"),
+                pdfGenUrl = getEnvVar("ESYFO_PDFGEN_URL"),
                 isdialogmeldingUrl = getEnvVar("ISDIALOGMELDING_URL"),
                 isdialogmeldingClientId = getEnvVar("ISDIALOGMELDING_CLIENT_ID"),
                 dokarkivUrl = getEnvVar("DOKARKIV_URL"),

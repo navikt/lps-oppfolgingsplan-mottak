@@ -1,4 +1,4 @@
-package no.nav.syfo.client.oppdfgen
+package no.nav.syfo.client.pdfgen
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -26,7 +26,7 @@ import no.nav.syfo.util.NAV_CONSUMER_ID_HEADER
 import no.nav.syfo.util.createCallId
 import org.slf4j.LoggerFactory
 
-class OpPdfGenClient(
+class PdfGenClient(
     private val urls: UrlEnv,
     private val appEnv: ApplicationEnv,
     private val pdlClient: PdlClient,
@@ -35,8 +35,8 @@ class OpPdfGenClient(
 ) {
     private val pdlUtils = PdlUtils(pdlClient)
 
-    suspend fun getLpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
-        val requestUrl = "${urls.opPdfGenUrl}/$FOLLOWUP_PLAN_PATH"
+    suspend fun getOppfolgingsplanlpsPdf(followUpPlanDTO: FollowUpPlanDTO): ByteArray? {
+        val requestUrl = "${urls.pdfGenUrl}/$FOLLOWUP_PLAN_PATH"
         val fnr = followUpPlanDTO.employeeIdentificationNumber
 
         val personInfo = pdlClient.getPersonInfo(fnr)
@@ -46,7 +46,7 @@ class OpPdfGenClient(
         val personDigitalContactInfo = krrProxyClient.person(fnr)
 
         val request =
-            followUpPlanDTO.toOppfolgingsplanOpPdfGenRequest(
+            followUpPlanDTO.toOppfolgingsplanPdfGenRequest(
                 employeeName,
                 employeePhoneNumber = personDigitalContactInfo?.mobiltelefonnummer,
                 employeeEmail = personDigitalContactInfo?.epostadresse,
@@ -89,7 +89,7 @@ class OpPdfGenClient(
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(OpPdfGenClient::class.qualifiedName)
+        private val log = LoggerFactory.getLogger(PdfGenClient::class.qualifiedName)
         const val FOLLOWUP_PLAN_PATH = "api/v1/genpdf/oppfolging/oppfolgingsplanlps"
 
         private val mapper =

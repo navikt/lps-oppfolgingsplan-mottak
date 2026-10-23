@@ -1,6 +1,6 @@
-package no.nav.syfo.client.oppdfgen.domain
+package no.nav.syfo.client.pdfgen.domain
 
-data class OppfolgingsplanOpPdfGenRequest(
+data class OppfolgingsplanPdfGenRequest(
     val lpsPlanData: LpsPlanPdfData,
 )
 
