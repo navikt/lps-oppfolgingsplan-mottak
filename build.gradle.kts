@@ -23,6 +23,7 @@ val postgresVersion = "42.7.14"
 val hikariVersion = "7.1.0"
 val flywayVersion = "13.10.3"
 val gsonVersion = "2.14.0"
+val guavaVersion = "33.7.2-jre"
 val kafkaVersion = "4.4.0"
 val avroVersion = "1.12.2"
 val confluentVersion = "8.1.1"
@@ -122,6 +123,10 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 
     constraints {
+        // Guava comes transitively from jwks-rsa and kafka-schema-registry-client
+        implementation("com.google.guava:guava:$guavaVersion") {
+            because("CVE-2026-102554")
+        }
         // Jackson 3 comes transitively from logstash-logback-encoder
         lockConstraintToVersion(logstashEncoderVersion, "9.0") {
             implementation("tools.jackson.core:jackson-core:$jackson3Version") {
