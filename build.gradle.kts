@@ -34,7 +34,7 @@ val testcontainersVersion = "1.21.4"
 plugins {
     kotlin("jvm") version "2.4.21"
     id("org.jetbrains.kotlin.plugin.allopen") version "2.4.21"
-    id("com.diffplug.spotless") version "8.10.4"
+    id("com.diffplug.spotless") version "8.11.0"
     id("com.gradleup.shadow") version "9.6.1"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
